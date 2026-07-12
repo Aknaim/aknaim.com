@@ -1,0 +1,24 @@
+---
+description: Rules for global website architecture, folder structure, and tech stack constraints.
+globs: src/app/**/*, src/components/**/*
+alwaysApply: true
+---
+# Architecture Blueprint
+
+## Tech Stack & Core Constraints
+- Framework: Next.js (App Router)
+- Language: TypeScript (Strict type safety, no 'any')
+- Styling: Tailwind CSS (Utility-first, responsive design)
+- Icons: Lucide React
+
+## Folder Structure
+All new features and elements must strictly adhere to this structure:
+- `src/app/`: File-based routing, server components by default.
+- `src/components/ui/`: Low-level, atomic, reusable layout primitives (e.g., buttons, inputs).
+- `src/components/sections/`: High-level landing page components (e.g., Hero, Projects, Skills).
+- `src/lib/`: Pure utility functions, state management, or static constants data.
+
+## Development Principles
+- Server Components by default. Only include `'use client'` when interactive state hooks (`useState`, `useEffect`) or browser event handlers are actively required.
+- Maintain accessible, semantic HTML layout structure (`<main>`, `<section>`, `<nav>`, `<h1>-<h6>`).
+- Do not install external visual dependencies without asking first. Use native Tailwind features where possible.
