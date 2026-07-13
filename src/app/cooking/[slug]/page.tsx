@@ -7,22 +7,35 @@ import { RecipeFinalGallery } from "@/components/sections/cooking/RecipeFinalGal
 import { RecipeIngredients } from "@/components/sections/cooking/RecipeIngredients";
 import { RecipeSidebar } from "@/components/sections/cooking/RecipeSidebar";
 import { RecipeSteps } from "@/components/sections/cooking/RecipeSteps";
-import { getCookingGalleryHref, getRecipeBySlug, recipesMap } from "@/lib/data/recipes";
+import {
+  getCookingGalleryHref,
+  getRecipeBySlug,
+  getRecipeSlugs,
+} from "@/lib/db/queries/recipes";
 
 interface RecipePageProps {
   params: Promise<{ slug: string }>;
 }
 
+export async function generateStaticParams() {
+  try {
+    const slugs = await getRecipeSlugs();
+    return slugs.map((slug) => ({ slug }));
+  } catch {
+    return [];
+  }
+}
+
 export async function generateMetadata({ params }: RecipePageProps): Promise<Metadata> {
   const { slug } = await params;
-  const recipe = getRecipeBySlug(slug);
+  const recipe = await getRecipeBySlug(slug);
   if (!recipe) return { title: "Recipe Not Found" };
   return { title: recipe.title };
 }
 
 export default async function RecipePage({ params }: RecipePageProps) {
   const { slug } = await params;
-  const recipe = recipesMap[slug];
+  const recipe = await getRecipeBySlug(slug);
 
   if (!recipe) {
     notFound();
@@ -48,7 +61,6 @@ export default async function RecipePage({ params }: RecipePageProps) {
           Cooking
         </Link>
 
-        {/* Header */}
         <header className="space-y-4 mb-8">
           <h1 className="font-display text-3xl md:text-5xl font-light tracking-tight text-white max-w-3xl">
             {recipe.title}
@@ -68,7 +80,6 @@ export default async function RecipePage({ params }: RecipePageProps) {
           </div>
         </header>
 
-        {/* Hero image */}
         <div className="relative aspect-[21/9] w-full rounded-card border border-[#141414] overflow-hidden bg-[#0c0c0c] mb-12">
           <Image
             src={recipe.heroImage}
@@ -80,7 +91,6 @@ export default async function RecipePage({ params }: RecipePageProps) {
           />
         </div>
 
-        {/* Ingredients + Sidebar */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 mb-16">
           <div className="lg:col-span-7">
             <RecipeIngredients groups={recipe.ingredients} />
@@ -90,12 +100,10 @@ export default async function RecipePage({ params }: RecipePageProps) {
           </div>
         </div>
 
-        {/* Steps */}
         <div className="mb-16">
           <RecipeSteps steps={recipe.steps} />
         </div>
 
-        {/* Final Result */}
         <RecipeFinalGallery images={recipe.finalResultImages} recipeTitle={recipe.title} />
 
         <div className="mt-12 pt-8 border-t border-[#141414]">

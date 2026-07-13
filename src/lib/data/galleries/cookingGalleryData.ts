@@ -1,24 +1,4 @@
-import type { GalleryConfig, GalleryItem } from "@/lib/types/gallery";
-import { allRecipes } from "@/lib/data/recipes";
-
-function parseYear(dateTaken: string): number {
-  return Number.parseInt(dateTaken.slice(0, 4), 10);
-}
-
-export function buildCookingGalleryItems(): GalleryItem[] {
-  return allRecipes.map((recipe) => ({
-    id: recipe.slug,
-    src: recipe.heroImage,
-    alt: recipe.title,
-    title: recipe.title,
-    dateTaken: recipe.dateTaken,
-    year: parseYear(recipe.dateTaken),
-    filters: { category: recipe.categoryId, cuisine: recipe.cuisine },
-    recipeSlug: recipe.slug,
-  }));
-}
-
-export const cookingGalleryItems: GalleryItem[] = buildCookingGalleryItems();
+import type { GalleryConfig } from "@/lib/types/gallery";
 
 export const cookingGalleryConfig: GalleryConfig = {
   interest: "cooking",
@@ -63,4 +43,4 @@ export const cookingGalleryConfig: GalleryConfig = {
   ],
 };
 
-export { getCookingGalleryHref } from "@/lib/data/recipes";
+export { getCookingGalleryHref } from "@/lib/db/queries/recipes";

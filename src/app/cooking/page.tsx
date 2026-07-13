@@ -2,13 +2,22 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import { InterestGearList } from "@/components/sections/InterestGearList";
-import { cookingGearItems, cookingStats, getCookingGalleryHref } from "@/lib/data/recipes";
+import {
+  getCookingGalleryHref,
+  getCookingGearItems,
+  getCookingStats,
+} from "@/lib/db/queries/recipes";
 
 export const metadata: Metadata = {
   title: "Cooking",
 };
 
-export default function CookingPage() {
+export default async function CookingPage() {
+  const [cookingStats, cookingGearItems] = await Promise.all([
+    getCookingStats(),
+    getCookingGearItems(),
+  ]);
+
   return (
     <main className="min-h-screen bg-[#070707] text-[#eaeaea] font-body pb-24 selection:bg-accent/30 selection:text-white">
       <section className="relative border-b border-[#141414]">

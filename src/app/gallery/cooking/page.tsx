@@ -1,9 +1,7 @@
 import type { Metadata } from "next";
 import { GalleryView } from "@/components/sections/gallery/GalleryView";
-import {
-  cookingGalleryConfig,
-  cookingGalleryItems,
-} from "@/lib/data/galleries/cookingGalleryData";
+import { cookingGalleryConfig } from "@/lib/data/galleries/cookingGalleryData";
+import { getGalleryItems } from "@/lib/db/queries/gallery";
 import { parseGallerySearchParams } from "@/lib/gallery-utils";
 
 export const metadata: Metadata = {
@@ -18,6 +16,7 @@ export default async function CookingGalleryPage({
   const params = await searchParams;
   const paramKeys = cookingGalleryConfig.filterGroups.map((g) => g.paramKey);
   const initialFilters = parseGallerySearchParams(params, paramKeys);
+  const cookingGalleryItems = await getGalleryItems("cooking", initialFilters);
 
   return (
     <GalleryView
