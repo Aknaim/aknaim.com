@@ -3,19 +3,27 @@ import Image from "next/image";
 import Link from "next/link";
 import { InterestGearList } from "@/components/sections/InterestGearList";
 import {
-  climbingGearItems,
-  climbingProjects,
-  climbingStats,
   getClimbingGalleryHref,
-  progressionTimeline,
+  getClimbingGearItems,
+  getClimbingProgression,
+  getClimbingProjects,
+  getClimbingStats,
   STATUS_LABELS,
-} from "@/lib/climbingData";
+} from "@/lib/db/queries/climbing";
 
 export const metadata: Metadata = {
   title: "Climbing",
 };
 
-export default function ClimbingPage() {
+export default async function ClimbingPage() {
+  const [climbingStats, climbingProjects, climbingGearItems, progressionTimeline] =
+    await Promise.all([
+      getClimbingStats(),
+      getClimbingProjects(),
+      getClimbingGearItems(),
+      getClimbingProgression(),
+    ]);
+
   return (
     <main className="min-h-screen bg-[#070707] text-[#eaeaea] font-body pb-24 selection:bg-accent/30 selection:text-white">
       <section className="relative border-b border-[#141414]">
@@ -140,7 +148,7 @@ export default function ClimbingPage() {
           <div className="relative flex flex-wrap justify-between gap-6 px-2">
             <div className="absolute top-[5px] left-0 right-0 h-[1px] bg-gradient-to-r from-accent/40 via-[#141414] to-transparent hidden sm:block" />
             {progressionTimeline.map((milestone) => (
-              <div key={milestone.year} className="flex flex-col items-start relative min-w-[100px]">
+              <div key={`${milestone.year}-${milestone.label}`} className="flex flex-col items-start relative min-w-[100px]">
                 <span className="absolute -top-[3px] left-0 h-1.5 w-1.5 rounded-full bg-[#1a1a1a] border border-[#262626] hidden sm:block" />
                 <span className="font-mono text-[9px] text-accent/70 uppercase">{milestone.year}</span>
                 <span className="text-[11px] text-foreground-muted font-medium mt-0.5">{milestone.label}</span>

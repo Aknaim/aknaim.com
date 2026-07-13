@@ -2,7 +2,6 @@ import "dotenv/config";
 import { eq } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/postgres-js";
 import postgres from "postgres";
-import { climbingGalleryItems } from "../data/galleries/climbingGalleryData";
 import { travelGalleryItems } from "../data/galleries/travelGalleryData";
 import {
   allRecipes,
@@ -10,6 +9,7 @@ import {
 } from "../data/recipes";
 import { omanTripData } from "../data/trips/oman";
 import {
+  climbingGallerySeedItems,
   climbingGearItems,
   climbingProjects,
   climbingStats as climbingStatsData,
@@ -315,7 +315,7 @@ async function seed() {
       },
     });
 
-  for (const [index, item] of climbingGalleryItems.entries()) {
+  for (const [index, item] of climbingGallerySeedItems.entries()) {
     const mediaAssetId = await ensureMedia(db, item.src, item.alt);
     await db
       .insert(schema.galleryItems)

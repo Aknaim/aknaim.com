@@ -176,9 +176,9 @@ flowchart LR
   subgraph static [Static in code]
     SiteData[siteData - nav interests skills]
     TravelTS[travelData.ts]
-    ClimbTS[climbingData.ts]
-    GalleryTS[gallery TS for travel climbing]
-    RecipeTS[recipe TS files legacy]
+    ClimbTS[climbingData.ts seed only]
+  GalleryTS[gallery TS for travel]
+  RecipeTS[recipe TS files seed only]
   end
 
   subgraph db [Postgres via Drizzle]
@@ -199,19 +199,21 @@ flowchart LR
   SiteData --> HomePage
   TravelTS --> TravelPages
   GalleryTS --> TravelPages
-  ClimbTS --> ClimbPages
-  GalleryTS --> ClimbPages
 
   Recipes --> CookingPages
+  ClimbingTables --> ClimbPages
   GalleryItems --> CookingPages
+  GalleryItems --> ClimbPages
   MediaAssets --> Recipes
+  MediaAssets --> ClimbingTables
   MediaAssets --> GalleryItems
 
-  ClimbingTables -. seeded not wired .-> ClimbPages
   TravelTables -. seeded not wired .-> TravelPages
+  RecipeTS -. seed source .-> Recipes
+  ClimbTS -. seed source .-> ClimbingTables
 ```
 
-**Cooking is live on DB.** Climbing and travel are seeded in Postgres but pages still read static TS files. Site shell (nav, interests, about) stays in code for now.
+**Cooking and climbing are live on DB.** Travel is seeded in Postgres but pages still read static TS files. Site shell (nav, interests, about) stays in code for now.
 
 ---
 
@@ -417,15 +419,17 @@ The `media_assets` table already has columns for future video support (`media_ty
 |------|-------------|-------|
 | Home, About, Interests | Static TS | `public/images/` |
 | Cooking + cooking gallery | **Postgres** | `public/images/` via DB URLs |
-| Climbing + travel | Static TS (DB seeded, not wired) | `public/images/` |
+| Climbing + climbing gallery | **Postgres** | `public/images/` via DB URLs |
+| Travel | Static TS (DB seeded, not wired) | `public/images/` |
 | Admin | Postgres (recipes) | URL input only |
 
 ### Remaining work
 
-- Wire climbing and travel pages to DB queries
-- Expand admin beyond recipes: gallery upload → travel → climbing (after each domain is DB-wired)
+- Wire travel pages to DB queries
+- Expand admin beyond recipes: gallery upload → travel → climbing (after travel is DB-wired)
 - Optional: move site config into DB
 - CDN integration for production-scale media
+- Remove legacy static data files once all domains are DB-wired and admin covers them
 
 ---
 
