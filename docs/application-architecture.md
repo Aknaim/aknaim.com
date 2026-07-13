@@ -175,10 +175,9 @@ The site is mid-migration from static TypeScript data to Postgres.
 flowchart LR
   subgraph static [Static in code]
     SiteData[siteData - nav interests skills]
-    TravelTS[travelData.ts]
     ClimbTS[climbingData.ts seed only]
-  GalleryTS[gallery TS for travel]
-  RecipeTS[recipe TS files seed only]
+    TravelTS[travelData.ts seed only]
+    RecipeTS[recipe TS files seed only]
   end
 
   subgraph db [Postgres via Drizzle]
@@ -197,23 +196,24 @@ flowchart LR
   end
 
   SiteData --> HomePage
-  TravelTS --> TravelPages
-  GalleryTS --> TravelPages
 
   Recipes --> CookingPages
   ClimbingTables --> ClimbPages
+  TravelTables --> TravelPages
   GalleryItems --> CookingPages
   GalleryItems --> ClimbPages
+  GalleryItems --> TravelPages
   MediaAssets --> Recipes
   MediaAssets --> ClimbingTables
+  MediaAssets --> TravelTables
   MediaAssets --> GalleryItems
 
-  TravelTables -. seeded not wired .-> TravelPages
   RecipeTS -. seed source .-> Recipes
   ClimbTS -. seed source .-> ClimbingTables
+  TravelTS -. seed source .-> TravelTables
 ```
 
-**Cooking and climbing are live on DB.** Travel is seeded in Postgres but pages still read static TS files. Site shell (nav, interests, about) stays in code for now.
+**Cooking, climbing, and travel public pages read from Postgres.** Legacy TS modules remain as the seed source. Site shell (nav, interests, about) stays in code for now.
 
 ---
 
@@ -309,8 +309,8 @@ Admin is the **content CMS for every interest that has post-like entries**. Reci
 | Interest | Post-like unit | Admin today | Admin next |
 |----------|----------------|-------------|------------|
 | Cooking | Recipe | List / create / edit / delete | Media upload polish |
-| Travel | Destination + trip detail | — | CRUD after travel is DB-wired |
-| Climbing | Project, send, session media | — | CRUD after climbing is DB-wired |
+| Travel | Destination + trip detail | — | Next after gallery upload |
+| Climbing | Project, send, session media | — | After travel admin |
 | Gallery | Media + filters | Via recipe save | Dedicated upload + tagging UI |
 | Site shell | Nav, interests, skills | — | Optional later |
 
@@ -338,7 +338,7 @@ flowchart TB
 - **Auth:** single password from `ADMIN_PASSWORD`, HMAC-signed cookie
 - **Mutations:** Server Actions write to Postgres and revalidate public routes
 - **Media:** admin accepts image **URLs** (paths under `/images/...`); file upload not built yet
-- **Expansion rule:** add an admin section only after that domain’s public pages read from Postgres
+- **Expansion rule:** grow admin to cover every post-like domain (recipes done; gallery → travel → climbing next)
 
 ---
 
@@ -420,16 +420,15 @@ The `media_assets` table already has columns for future video support (`media_ty
 | Home, About, Interests | Static TS | `public/images/` |
 | Cooking + cooking gallery | **Postgres** | `public/images/` via DB URLs |
 | Climbing + climbing gallery | **Postgres** | `public/images/` via DB URLs |
-| Travel | Static TS (DB seeded, not wired) | `public/images/` |
+| Travel + travel gallery | **Postgres** | `public/images/` via DB URLs |
 | Admin | Postgres (recipes) | URL input only |
 
 ### Remaining work
 
-- Wire travel pages to DB queries
-- Expand admin beyond recipes: gallery upload → travel → climbing (after travel is DB-wired)
+- Expand admin beyond recipes: gallery upload → travel → climbing
 - Optional: move site config into DB
 - CDN integration for production-scale media
-- Remove legacy static data files once all domains are DB-wired and admin covers them
+- Remove legacy static data files once admin covers all content domains
 
 ---
 

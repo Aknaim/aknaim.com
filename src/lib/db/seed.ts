@@ -2,7 +2,6 @@ import "dotenv/config";
 import { eq } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/postgres-js";
 import postgres from "postgres";
-import { travelGalleryItems } from "../data/galleries/travelGalleryData";
 import {
   allRecipes,
   cookingGearItems,
@@ -16,7 +15,11 @@ import {
   progressionTimeline,
   recentSends,
 } from "../climbingData";
-import { destinations, travelStats as travelStatsData } from "../travelData";
+import {
+  destinations,
+  travelGallerySeedItems,
+  travelStats as travelStatsData,
+} from "../travelData";
 import * as schema from "./schema";
 
 async function ensureMedia(
@@ -492,7 +495,7 @@ async function seed() {
       },
     });
 
-  for (const [index, item] of travelGalleryItems.entries()) {
+  for (const [index, item] of travelGallerySeedItems.entries()) {
     const mediaAssetId = await ensureMedia(db, item.src, item.alt);
     await db
       .insert(schema.galleryItems)
