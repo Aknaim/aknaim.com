@@ -1,11 +1,13 @@
 # Application Architecture Overview
 
-**Last updated:** July 2026  
-**Branch context:** `feat/postgres-data-layer` (Postgres migration in progress)
+**Last updated:** October 2026
 
 This document describes how the **running application** is structured today: routes, data sources, media, admin, and dev infrastructure.
 
-For the original UI/design blueprint (colors, typography, mockup planning), see [`ARCHITECTURE.md`](../ARCHITECTURE.md) at the repo root.
+- **Local run + Cloudflare/Neon deploy (with diagrams):** [`development-and-deployment.md`](./development-and-deployment.md)
+- **UI/design blueprint:** [`ARCHITECTURE.md`](../ARCHITECTURE.md) at the repo root
+
+Production hosts the same Next.js app on a **Cloudflare Worker** (OpenNext) with **Neon Postgres**. Locally you typically use Docker Postgres (or Neon) via `.env`.
 
 ---
 
@@ -26,7 +28,7 @@ flowchart TB
   end
 
   subgraph data [Data layer]
-    Postgres[(PostgreSQL in Docker)]
+    Postgres[(Postgres — Docker local / Neon prod)]
     StaticTS["Static TS modules src/lib/data*.ts"]
   end
 
@@ -45,10 +47,12 @@ flowchart TB
 |--------|------------|------|
 | **UI** | React 19, Tailwind CSS, Lucide | Pages and reusable sections |
 | **App framework** | Next.js App Router | Routing, SSR, metadata, server actions |
-| **Content DB** | PostgreSQL 16 + Drizzle ORM | Recipes, gallery rows, climbing/travel (seeded; cooking wired) |
+| **Hosting (prod)** | Cloudflare Workers + OpenNext | `aknaim-com` serves `aknaim.com` |
+| **Content DB** | PostgreSQL + Drizzle ORM | Recipes, gallery, climbing, travel |
+| **DB host** | Docker locally / Neon in production | Same schema; see deployment doc |
 | **Site config** | TypeScript modules | Nav, interests, skills, hero copy (still in code) |
-| **Media** | `public/images/` | Actual image files; DB stores URL paths only |
-| **Dev infra** | Docker Compose | Postgres container; optional full app container |
+| **Media** | `public/images/` | Image files; DB stores URL paths (R2 later) |
+| **Dev infra** | Docker Compose | Optional local Postgres |
 
 ### WSL development note
 

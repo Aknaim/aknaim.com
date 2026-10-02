@@ -1,79 +1,34 @@
-# Deploy aknaim.com on Cloudflare
+# Deploy checklist (Cloudflare)
 
-Goal: public site on Workers via OpenNext, domain `aknaim.com`, Postgres on Neon (free), media later on R2.
+Short operational list. For diagrams and local vs production explanation, see **[docs/development-and-deployment.md](docs/development-and-deployment.md)**.
 
-OpenNext on Windows can be flaky — prefer **WSL** for `npm run deploy` if builds fail.  
-If `.env` is on OneDrive and builds fail with `UNKNOWN: read`, temporarily move `.env` aside for the build (runtime secrets go in Wrangler, not the build).
+## Prerequisites
 
-## Status in repo
+- Neon project linked; schema applied (`npm run db:push`) and seeded if needed
+- Cloudflare account owning `aknaim.com`
+- Node on Windows PowerShell recommended for Wrangler/OpenNext if WSL `node_modules` mismatch
 
-- OpenNext + Wrangler configured (`wrangler.jsonc`, `npm run deploy`)
-- Next.js upgraded for OpenNext peer range
-- `next build` for Workers succeeds; **you** must log in and finish deploy
-
-## 1. Hosted Postgres (required for travel/climbing/cooking)
-
-Workers cannot use your laptop Docker DB.
-
-1. Create a free project at [neon.tech](https://neon.tech).
-2. Copy the connection string (`DATABASE_URL`).
-3. Locally (with that URL in `.env`):
-
-```bash
-npm run db:push
-npm run db:seed
-```
-
-## 2. Cloudflare login (your machine)
-
-In a normal terminal (interactive):
+## Steps
 
 ```bash
 npx wrangler login
-```
 
-Complete the browser auth for the account that owns `aknaim.com`.
-
-## 3. Set Worker secrets
-
-```bash
-npx wrangler secret put DATABASE_URL
+npx wrangler secret put DATABASE_URL    # bare URL, no quotes
 npx wrangler secret put ADMIN_PASSWORD
 npx wrangler secret put SESSION_SECRET
-```
 
-Use a strong `ADMIN_PASSWORD` / `SESSION_SECRET` in production (not `changeme`).
-
-## 4. Deploy
-
-```bash
 npm run deploy
 ```
 
-Note the `*.workers.dev` URL Wrangler prints.
+Custom domains (`aknaim.com`, `www.aknaim.com`) are declared in `wrangler.jsonc` and applied on deploy.
 
-**Worker size:** Free plan allows ~3 MiB gzipped. If deploy fails on size, upgrade to **Workers Paid (~US$5/mo)** — common for Next.js apps.
+Enable **Always Use HTTPS** on the Cloudflare zone.
 
-## 5. Attach the domain
+## Smoke test
 
-Cloudflare dashboard → **Workers & Pages** → `aknaim-com` → **Settings** → **Domains & Routes** / **Custom Domains**:
-
-- Add `aknaim.com`
-- Add `www.aknaim.com` (or redirect www → apex)
-
-TLS is automatic.
-
-## 6. Smoke-test
-
-- `https://aknaim.com` — home
-- `/about`
-- `/travel`, `/climbing`, `/cooking` — need Neon seeded + `DATABASE_URL` secret
-
-## Later
-
-- R2 + admin upload for real media
-- GitHub auto-deploy on push
-- Hyperdrive in front of Neon
+- https://aknaim.com / https://www.aknaim.com
+- `/travel`, `/climbing`, `/cooking`
+- `/admin/login`
 
 ## Scripts
 
@@ -81,4 +36,4 @@ TLS is automatic.
 |---------|---------|
 | `npm run dev` | Local Next (Node) |
 | `npm run preview` | Workers runtime locally |
-| `npm run deploy` | Build + deploy to Cloudflare |
+| `npm run deploy` | OpenNext build + Cloudflare deploy |
