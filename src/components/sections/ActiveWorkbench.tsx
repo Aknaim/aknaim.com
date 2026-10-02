@@ -6,6 +6,7 @@ import type { InterestCategory } from "@/types";
 import { AssetImage } from "@/components/ui/AssetImage";
 import { getIcon } from "@/lib/icon-map";
 import { siteData } from "@/lib/data";
+import { getInterestHref } from "@/lib/utils";
 
 interface ActiveWorkbenchProps {
   items: InterestCategory[];
@@ -25,7 +26,7 @@ export function ActiveWorkbench({
 
   return (
     <section
-      className="page-container py-8 lg:py-10"
+      className="page-container relative z-20 py-8 lg:py-12"
       aria-label="Active workbench"
     >
       <div className="mb-5 flex items-end justify-between gap-4">
@@ -35,19 +36,19 @@ export function ActiveWorkbench({
             On the table
           </h2>
         </div>
-        <p className="hidden max-w-xs text-right text-meta text-foreground-subtle sm:block">
-          {siteData.personal.bagPeekHint}
+        <p className="hidden max-w-xs text-right text-meta text-foreground-muted sm:block">
+          {siteData.personal.bagPeekHint} Click to open.
         </p>
       </div>
 
-      <div className="workbench-table rounded-card border border-[#262626] p-4 sm:p-6 lg:p-8">
+      <div className="workbench-table workbench-table--foreground rounded-card border border-[#2a2824] p-4 sm:p-6 lg:p-8">
         <div className="relative grid gap-6 lg:grid-cols-[1.15fr_0.85fr] lg:gap-10">
           <div className="relative">
             <div
               className="workbench-spotlight pointer-events-none absolute inset-0 rounded-card"
               aria-hidden
             />
-            <ul className="relative z-10 grid grid-cols-1 gap-5 sm:grid-cols-3 sm:gap-4">
+            <ul className="relative z-10 grid grid-cols-2 gap-4 sm:grid-cols-4 sm:gap-4">
               {items.map((item) => (
                 <WorkbenchItem
                   key={item.id}
@@ -63,24 +64,17 @@ export function ActiveWorkbench({
 
           <div className="relative min-h-[300px] lg:min-h-[340px]">
             {focused ? (
-              <Link 
-                href={
-                  focused.id === "travel"
-                    ? "/travel"
-                    : focused.id === "climbing"
-                      ? "/climbing"
-                      : focused.id === "cooking"
-                        ? "/cooking"
-                        : `/interests/${focused.id}`
-                }
-                className="group/peek block h-full outline-none focus-visible:ring-2 focus-visible:ring-accent rounded-card">
+              <Link
+                href={getInterestHref(focused.id)}
+                className="group/peek block h-full rounded-card outline-none focus-visible:ring-2 focus-visible:ring-accent"
+              >
                 <PeekFrame
                   item={focused}
                   peekFallback={fallbackBySrc[focused.peekImage] ?? true}
                 />
               </Link>
             ) : (
-              <div className="flex h-full min-h-[300px] items-center justify-center rounded-card border border-dashed border-[#262626] bg-[#141414]/60 p-6 text-center text-body-sm text-foreground-subtle">
+              <div className="flex h-full min-h-[300px] items-center justify-center rounded-card border border-dashed border-[#3a342c] bg-[#1a1510]/50 p-6 text-center text-body-sm text-foreground-muted">
                 Hover an item on the workbench to peek inside.
               </div>
             )}
@@ -88,8 +82,8 @@ export function ActiveWorkbench({
         </div>
       </div>
 
-      <p className="mt-3 text-center text-meta text-foreground-subtle sm:hidden">
-        {siteData.personal.bagPeekHint}
+      <p className="mt-3 text-center text-meta text-foreground-muted sm:hidden">
+        {siteData.personal.bagPeekHint} Tap to open.
       </p>
     </section>
   );
@@ -118,20 +112,20 @@ function WorkbenchItem({
         className={`workbench-item-spotlight ${isActive ? "workbench-item-spotlight--active" : ""}`}
         aria-hidden
       />
-      <button
-        type="button"
-        className={`group relative z-10 flex w-full flex-col items-center text-left transition-transform duration-300 ${
+      <Link
+        href={getInterestHref(item.id)}
+        className={`group relative z-10 flex w-full flex-col items-center text-left outline-none transition-transform duration-300 focus-visible:ring-2 focus-visible:ring-accent ${
           isActive ? "scale-[1.02]" : "scale-100"
         }`}
         onMouseEnter={onEnter}
         onFocus={onFocus}
-        aria-label={`Peek inside ${item.label}`}
+        aria-label={`Open ${item.label}`}
       >
         <div
           className={`workbench-item-frame aspect-[4/3] w-full overflow-hidden rounded-card border ${
             isActive
               ? "workbench-item-frame--active border-accent/45"
-              : "workbench-item-frame--inactive border-[#262626]"
+              : "workbench-item-frame--inactive border-[#3a342c]"
           }`}
         >
           <AssetImage
@@ -147,8 +141,8 @@ function WorkbenchItem({
           <div
             className={`pointer-events-none absolute inset-0 transition-opacity duration-300 ${
               isActive
-                ? "bg-linear-to-t from-black/60 via-black/10 to-[rgba(197,160,89,0.12)]"
-                : "bg-black/35"
+                ? "bg-linear-to-t from-black/45 via-black/5 to-[rgba(197,160,89,0.14)]"
+                : "bg-black/20"
             }`}
             aria-hidden
           />
@@ -168,12 +162,12 @@ function WorkbenchItem({
             </span>
           </div>
           {item.workbenchNote ? (
-            <p className="mt-2 line-clamp-2 text-meta leading-snug text-foreground-subtle">
+            <p className="mt-2 line-clamp-2 text-meta leading-snug text-foreground-muted">
               {item.workbenchNote}
             </p>
           ) : null}
         </div>
-      </button>
+      </Link>
     </li>
   );
 }
@@ -186,7 +180,10 @@ function PeekFrame({
   peekFallback: boolean;
 }) {
   return (
-    <article key={item.id} className="peek-frame peek-frame-enter flex h-full flex-col">
+    <article
+      key={item.id}
+      className="peek-frame peek-frame-enter flex h-full flex-col"
+    >
       <div className="relative min-h-[240px] flex-1 lg:min-h-[280px]">
         <AssetImage
           src={item.peekImage}
@@ -205,10 +202,13 @@ function PeekFrame({
           <p className="mt-2 max-w-sm text-body-sm leading-relaxed text-foreground">
             {item.peekCaption}
           </p>
+          <p className="mt-3 text-meta uppercase tracking-widest text-accent/80 opacity-0 transition-opacity group-hover/peek:opacity-100">
+            Enter →
+          </p>
         </div>
       </div>
       {item.workbenchNote ? (
-        <div className="relative z-10 border-t border-[#262626] bg-[#141414]/90 px-5 py-3.5 lg:px-6">
+        <div className="relative z-10 border-t border-[#3a342c] bg-[#1a1510]/85 px-5 py-3.5 lg:px-6">
           <p className="text-meta text-foreground-muted">{item.workbenchNote}</p>
         </div>
       ) : null}

@@ -1,76 +1,113 @@
+import type { Metadata } from "next";
+import Image from "next/image";
+import Link from "next/link";
 import { siteData } from "@/lib/data";
 
+export const metadata: Metadata = {
+  title: "About",
+  description:
+    "Hi, I'm Akbar — a software engineer based in Canada. This site is where I share software, travel, photography, climbing, and recipes.",
+};
+
 export default function AboutPage() {
-  const { personal, skills } = siteData;
+  const { personal } = siteData;
 
   return (
-    <main className="min-h-screen bg-background text-foreground pt-24 pb-16 px-6 sm:px-12 max-w-6xl mx-auto font-body">
-      {/* Page Header */}
-      <header className="mb-16 border-b border-[#1f1f1f] pb-8">
-        <span className="font-mono text-[10px] uppercase tracking-widest text-accent mb-2 block">
-          Introduction
-        </span>
-        <h1 className="text-hero font-display text-4xl sm:text-5xl font-medium tracking-tight">
-          About <span className="text-emphasis italic">Me</span>
-        </h1>
-      </header>
+    <main className="min-h-screen bg-[#070707] text-[#eaeaea] font-body selection:bg-accent/30 selection:text-white">
+      <section className="max-w-6xl mx-auto px-6 pt-10 md:pt-16 pb-16 md:pb-24">
+        <Link
+          href="/"
+          className="inline-flex items-center gap-2 font-mono text-[10px] uppercase tracking-widest text-foreground-muted hover:text-white transition-colors group mb-10 md:mb-14"
+        >
+          <span className="transform group-hover:-translate-x-0.5 transition-transform">←</span>
+          Workbench
+        </Link>
 
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-12">
-        {/* Left Column: Human Narrative */}
-        <section className="lg:col-span-7 space-y-6 text-foreground-muted text-body leading-relaxed">
-          <p className="text-foreground text-lg font-medium leading-relaxed">
-            I appreciate things that require patience, focus, and deliberate execution. 
-          </p>
-          <p>
-            Whether I’m mapping out a problem on a screen, working through a technical move on a climbing wall, or waiting on a slow dough fermentation, I like understanding how the pieces fit together. For me, the joy isn't just in finishing something, but in the rhythm of figuring it out.
-          </p>
-          <p>
-            When I step away from the desk, my energy usually goes toward a few specific creative side-quests. I spend my time projecting vertical lines indoors and out, experimenting with high-heat outdoor baking profiles, and capturing landscape or travel compositions through a manual prime lens. 
-          </p>
-          <p>
-            This space serves as a central log for those pursuits—a quiet, tactile archive of things built, explored, cooked, and studied.
-          </p>
-        </section>
-
-        {/* Right Column: Focus Areas & Skills */}
-        <section className="lg:col-span-5 bg-[#111111]/40 border border-[#141414] rounded-card p-6 h-fit">
-          <h2 className="font-mono text-[10px] uppercase tracking-widest text-accent mb-6 border-b border-[#1f1f1f] pb-3">
-            Focus Areas
-          </h2>
-          
-          <div className="space-y-4">
-            {skills.map((skill) => (
-              <div key={skill.id} className="flex items-center justify-between border-b border-[#141414]/40 pb-2 last:border-0">
-                <div className="flex flex-col">
-                  <span className="text-body-sm font-medium text-foreground">
-                    {skill.name}
-                  </span>
-                  <span className="font-mono text-[9px] uppercase text-foreground-muted tracking-wider mt-0.5">
-                    {skill.category}
-                  </span>
-                </div>
-                <span className="font-mono text-[10px] px-2.5 py-0.5 rounded-pill bg-[#141414] border border-[#262626] text-foreground-subtle tracking-tight">
-                  {skill.proficiency}
-                </span>
-              </div>
-            ))}
-          </div>
-
-          {/* Contact Meta */}
-          <div className="mt-8 pt-6 border-t border-[#1f1f1f] flex flex-col space-y-2 font-mono text-xs text-foreground-muted">
-            <div className="flex justify-between items-center">
-              <span>Location:</span>
-              <span className="text-foreground">{personal.location}</span>
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-14 lg:items-center">
+          <figure className="lg:col-span-5">
+            <div className="relative aspect-[4/5] w-full overflow-hidden rounded-image border border-[#141414] bg-[#0c0c0c]">
+              <Image
+                src="/images/hero/kelso.jpg"
+                alt="Akbar at Kelso, Ontario — autumn overlook"
+                fill
+                priority
+                className="object-cover object-[50%_28%]"
+                sizes="(max-width: 1024px) 100vw, 40vw"
+              />
             </div>
-            <div className="flex justify-between items-center pt-1">
-              <span>Say Hello:</span>
-              <a href={`mailto:${personal.email}`} className="text-foreground hover:text-accent transition-colors">
-                {personal.email}
-              </a>
+            <figcaption className="mt-3 font-mono text-[9px] uppercase tracking-widest text-foreground-muted">
+              Kelso · Ontario
+            </figcaption>
+          </figure>
+
+          <article className="lg:col-span-7 space-y-8">
+            <header className="space-y-3">
+              <span className="font-mono text-[10px] uppercase tracking-[0.25em] text-accent/80 block">
+                About Me
+              </span>
+              <h1 className="font-display text-4xl sm:text-5xl font-light tracking-tight text-white">
+                Hi, I&apos;m{" "}
+                <span className="italic text-accent">Akbar</span>.
+              </h1>
+            </header>
+
+            <div className="space-y-5 text-foreground-muted text-sm sm:text-[15px] leading-[1.85] max-w-xl">
+              <p>
+                I&apos;m a software engineer based in Canada with an interest in
+                backend development, cloud infrastructure, and platform
+                engineering.
+              </p>
+              <p>
+                When I&apos;m away from my computer, you&apos;ll probably find me
+                climbing, experimenting in the kitchen, planning my next trip, or
+                carrying a camera around somewhere new.
+              </p>
+              <p>
+                I built this site as a place to share the things I
+                enjoy—software projects, travel, photography, climbing, recipes,
+                and anything else I think is worth documenting.
+              </p>
             </div>
+          </article>
+        </div>
+      </section>
+
+      <footer className="border-t border-[#141414]">
+        <div className="max-w-6xl mx-auto px-6 py-12 grid grid-cols-1 sm:grid-cols-3 gap-8 lg:grid-cols-12">
+          <div className="lg:col-span-5 space-y-1">
+            <p className="font-mono text-[9px] uppercase tracking-widest text-foreground-muted">
+              Based in
+            </p>
+            <p className="text-sm text-white">{personal.location}</p>
           </div>
-        </section>
-      </div>
+          <div className="lg:col-span-4 space-y-1">
+            <p className="font-mono text-[9px] uppercase tracking-widest text-foreground-muted">
+              Say hello
+            </p>
+            <a
+              href={`mailto:${personal.email}`}
+              className="text-sm text-white hover:text-accent transition-colors"
+            >
+              {personal.email}
+            </a>
+          </div>
+          <div className="lg:col-span-3 flex gap-5 sm:justify-end items-end">
+            {personal.social
+              .filter((link) => link.platform !== "email")
+              .map((link) => (
+                <a
+                  key={link.platform}
+                  href={link.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="font-mono text-[10px] uppercase tracking-widest text-foreground-muted hover:text-accent transition-colors"
+                >
+                  {link.label}
+                </a>
+              ))}
+          </div>
+        </div>
+      </footer>
     </main>
   );
 }

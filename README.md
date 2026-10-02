@@ -2,7 +2,8 @@ This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-
 
 ## Documentation
 
-- **[Application architecture](docs/application-architecture.md)** — runtime structure, routes, data layer, diagrams (living doc)
+- **[Application architecture](docs/application-architecture.md)** — runtime structure, routes, data layer, diagrams
+- **[Database schema](docs/database-schema.md)** — Postgres tables, relationships, ER diagrams
 - **[ARCHITECTURE.md](ARCHITECTURE.md)** — original UI/design blueprint from mockups
 
 ## Getting Started

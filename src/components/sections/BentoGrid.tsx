@@ -3,10 +3,9 @@ import { InterestPanel } from "./InterestPanel";
 
 interface BentoGridProps {
   interestIds: InterestId[];
-  fallbackBySrc: Record<string, boolean>;
 }
 
-export function BentoGrid({ interestIds, fallbackBySrc }: BentoGridProps) {
+export function BentoGrid({ interestIds }: BentoGridProps) {
   return (
     <section
       className="page-container py-10 lg:py-12"
@@ -25,11 +24,7 @@ export function BentoGrid({ interestIds, fallbackBySrc }: BentoGridProps) {
 
       <div className="bento-grid">
         {interestIds.map((id) => (
-          <InterestPanel
-            key={id}
-            interestId={id}
-            fallbackBySrc={fallbackBySrc}
-          />
+          <InterestPanel key={id} interestId={id} />
         ))}
       </div>
     </section>

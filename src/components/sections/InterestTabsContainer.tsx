@@ -51,42 +51,50 @@ export function InterestTabsContainer({ tabs }: { tabs: TabData[] }) {
       {/* Row Items list */}
       <ul className="mt-6 space-y-3">
         {activeTab?.items.map((item) => {
-          // Dynamic wrapper conditional check
           const isLink = !!item.linkUrl;
-          const Wrapper = isLink ? Link : "div";
-          
+          const rowClassName = `flex items-center justify-between p-3 rounded-card border border-[#141414] bg-[#111111]/40 transition-all ${
+            isLink
+              ? "hover:border-[#262626] hover:bg-[#141414]/80 group cursor-pointer"
+              : ""
+          }`;
+
+          const rowBody = (
+            <>
+              <div className="flex min-w-0 items-center gap-3">
+                {item.thumbnail ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img
+                    src={item.thumbnail}
+                    alt=""
+                    className="h-8 w-8 rounded-md border border-[#262626] object-cover brightness-75 mix-blend-luminosity transition-all group-hover:brightness-100"
+                  />
+                ) : null}
+                <div className="min-w-0">
+                  <h3 className="text-body-sm font-medium text-foreground transition-colors group-hover:text-white">
+                    {item.title}
+                  </h3>
+                  <p className="mt-0.5 text-[11px] text-meta text-foreground-muted">
+                    {item.meta}
+                  </p>
+                </div>
+              </div>
+              {isLink ? (
+                <span className="translate-x-[-4px] pr-1 text-xs text-foreground-muted opacity-0 transition-all group-hover:translate-x-0 group-hover:opacity-100">
+                  →
+                </span>
+              ) : null}
+            </>
+          );
+
           return (
             <li key={item.id}>
-              {/* @ts-ignore: Dynamic tag switching properties require strict union tracking */}
-              <Wrapper
-                {...(isLink ? { href: item.linkUrl as string } : {})}
-                className={`flex items-center justify-between p-3 rounded-card border border-[#141414] bg-[#111111]/40 transition-all ${
-                  isLink ? "hover:border-[#262626] hover:bg-[#141414]/80 group cursor-pointer" : ""
-                }`}
-              >
-                <div className="flex items-center gap-3">
-                  {item.thumbnail && (
-                    <img 
-                      src={item.thumbnail} 
-                      alt="" 
-                      className="h-8 w-8 rounded-md object-cover border border-[#262626] filter mix-blend-luminosity brightness-75 group-hover:brightness-100 transition-all"
-                    />
-                  )}
-                  <div>
-                    <h3 className="text-body-sm font-medium text-foreground group-hover:text-white transition-colors">
-                      {item.title}
-                    </h3>
-                    <p className="text-meta text-foreground-muted text-[11px] mt-0.5">
-                      {item.meta}
-                    </p>
-                  </div>
-                </div>
-                {isLink && (
-                  <span className="text-foreground-muted text-xs opacity-0 group-hover:opacity-100 transition-all pr-1 transform translate-x-[-4px] group-hover:translate-x-0">
-                    →
-                  </span>
-                )}
-              </Wrapper>
+              {isLink ? (
+                <Link href={item.linkUrl as string} className={rowClassName}>
+                  {rowBody}
+                </Link>
+              ) : (
+                <div className={rowClassName}>{rowBody}</div>
+              )}
             </li>
           );
         })}

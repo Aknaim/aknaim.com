@@ -12,6 +12,8 @@ export const metadata: Metadata = {
   title: "Cooking",
 };
 
+export const dynamic = "force-dynamic";
+
 export default async function CookingPage() {
   const [cookingStats, cookingGearItems] = await Promise.all([
     getCookingStats(),

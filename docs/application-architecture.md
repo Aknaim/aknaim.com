@@ -221,6 +221,8 @@ flowchart LR
 
 Shared principle: **media is canonical**, domain tables reference it, galleries are a browse layer.
 
+Full table reference and per-domain ER diagrams: **[database-schema.md](database-schema.md)**.
+
 ```mermaid
 erDiagram
   media_assets ||--o{ recipes : image_and_hero
@@ -436,8 +438,10 @@ The `media_assets` table already has columns for future video support (`media_ty
 
 | File | Purpose |
 |------|---------|
+| [`database-schema.md`](database-schema.md) | Full Postgres ER diagrams and table reference |
 | [`docker-compose.dev.yml`](../docker-compose.dev.yml) | Local Postgres |
 | [`docker-compose.yml`](../docker-compose.yml) | App + Postgres |
 | [`drizzle.config.ts`](../drizzle.config.ts) | Drizzle Kit config |
+| [`src/lib/db/schema/index.ts`](../src/lib/db/schema/index.ts) | Schema source of truth |
 | [`src/lib/db/seed.ts`](../src/lib/db/seed.ts) | Idempotent seed from legacy data |
 | [`.env.example`](../.env.example) | Required environment variables |

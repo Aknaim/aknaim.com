@@ -1,6 +1,11 @@
+"use client";
+
+import Link from "next/link";
+import { useState } from "react";
 import type { InterestCategory } from "@/types";
 import { AssetImage } from "@/components/ui/AssetImage";
 import { getIcon } from "@/lib/icon-map";
+import { getInterestHref } from "@/lib/utils";
 
 interface StorageCupboardProps {
   items: InterestCategory[];
@@ -11,43 +16,75 @@ export function StorageCupboard({
   items,
   fallbackBySrc,
 }: StorageCupboardProps) {
+  const [isOpen, setIsOpen] = useState(false);
+
   if (items.length === 0) {
     return null;
   }
 
   return (
     <section
-      className="page-container border-t border-border-subtle py-14 lg:py-16"
+      className="page-container relative z-10 py-8 lg:py-12"
       aria-label="Stowed gear"
     >
-      <div className="cupboard-header mb-8">
-        <p className="text-tab text-foreground-subtle">Archive</p>
-        <h2 className="mt-1 font-display text-2xl font-medium tracking-tight text-foreground-muted">
-          The Storage Cupboard
-        </h2>
-        <p className="mt-2 max-w-2xl text-body-sm leading-relaxed text-foreground-subtle">
-          Interests in stasis — muted, catalogued, and waiting for the next
-          season.
-        </p>
-      </div>
+      <div className="cupboard-backdrop">
+        <div className="mb-5 flex items-end justify-between gap-4">
+          <div>
+            <p className="text-tab text-foreground-subtle">Archive</p>
+            <h2 className="mt-1 font-display text-2xl font-medium tracking-tight text-foreground-muted">
+              The Storage Cupboard
+            </h2>
+          </div>
+          <p className="hidden max-w-xs text-right text-meta text-foreground-subtle sm:block">
+            Hover to open. Dusty gear waiting for the next season.
+          </p>
+        </div>
 
-      <div className="cupboard-shelves rounded-card">
-        <ul>
-          {items.map((item, index) => (
-            <CupboardShelf
-              key={item.id}
-              item={item}
-              shelfIndex={index + 1}
-              bagFallback={fallbackBySrc[item.bagImage] ?? true}
-            />
-          ))}
-        </ul>
+        <div
+          className={`cupboard-cabinet rounded-card ${isOpen ? "cupboard-cabinet--open" : ""}`}
+          onMouseEnter={() => setIsOpen(true)}
+          onMouseLeave={() => setIsOpen(false)}
+          onFocusCapture={() => setIsOpen(true)}
+          onBlurCapture={(event) => {
+            if (
+              !event.currentTarget.contains(event.relatedTarget as Node | null)
+            ) {
+              setIsOpen(false);
+            }
+          }}
+        >
+          <div className="cupboard-doors" aria-hidden={isOpen}>
+            <div className="cupboard-door cupboard-door--left">
+              <span className="cupboard-door-handle" />
+            </div>
+            <div className="cupboard-door cupboard-door--right">
+              <span className="cupboard-door-handle" />
+            </div>
+          </div>
+
+          <div
+            className="cupboard-interior"
+            aria-hidden={!isOpen}
+            {...(!isOpen ? { inert: true } : {})}
+          >
+            <ul className="grid h-full gap-4 p-5 sm:grid-cols-2 sm:gap-5 sm:p-6 lg:p-8">
+              {items.map((item, index) => (
+                <CupboardBag
+                  key={item.id}
+                  item={item}
+                  shelfIndex={index + 1}
+                  bagFallback={fallbackBySrc[item.bagImage] ?? true}
+                />
+              ))}
+            </ul>
+          </div>
+        </div>
       </div>
     </section>
   );
 }
 
-function CupboardShelf({
+function CupboardBag({
   item,
   shelfIndex,
   bagFallback,
@@ -59,57 +96,47 @@ function CupboardShelf({
   const Icon = getIcon(item.icon);
 
   return (
-    <li className="cupboard-shelf">
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
-        <div className="relative h-24 w-full shrink-0 overflow-hidden rounded-image border border-[#1a1a1a] sm:h-20 sm:w-28">
+    <li>
+      <Link
+        href={getInterestHref(item.id)}
+        className="cupboard-dusty-bag group flex gap-3 rounded-card border border-[#2a2a2a] bg-[#121212]/70 p-3 transition-colors hover:border-[#3a3a3a] hover:bg-[#161616]/90"
+      >
+        <div className="relative h-16 w-16 shrink-0 overflow-hidden rounded-image border border-[#1a1a1a] sm:h-20 sm:w-20">
           <AssetImage
             src={item.bagImage}
             alt={`${item.label} stowed on shelf ${shelfIndex}`}
             icon={item.icon}
             forceFallback={bagFallback}
             fill
-            sizes="(max-width: 640px) 100vw, 112px"
+            sizes="80px"
             fallbackVariant="cupboard"
             fallbackMuted
-            imageClassName="object-cover grayscale"
+            imageClassName="object-cover grayscale brightness-75 contrast-90 transition-all group-hover:brightness-90"
           />
           <div
-            className="pointer-events-none absolute inset-0 bg-black/40"
+            className="pointer-events-none absolute inset-0 bg-[#0a0a0a]/35 mix-blend-multiply"
             aria-hidden
           />
         </div>
 
-        <div className="min-w-0 flex-1">
-          <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
-            <div className="flex items-center gap-2">
-              <Icon
-                className="h-3.5 w-3.5 text-foreground-subtle"
-                strokeWidth={1.5}
-                aria-hidden
-              />
-              <span className="text-tab text-foreground-subtle">
-                {item.label}
-              </span>
-            </div>
-            <span className="cupboard-shelf-label hidden sm:inline" aria-hidden>
-              ·
-            </span>
-            <span className="cupboard-shelf-label">
-              Shelf {String(shelfIndex).padStart(2, "0")}
+        <div className="min-w-0 flex-1 self-center">
+          <div className="flex items-center gap-2">
+            <Icon
+              className="h-3.5 w-3.5 text-foreground-subtle"
+              strokeWidth={1.5}
+              aria-hidden
+            />
+            <span className="text-tab text-foreground-subtle group-hover:text-foreground-muted">
+              {item.label}
             </span>
           </div>
-
-          <p className="mt-2 line-clamp-2 text-meta leading-relaxed text-foreground-subtle/75">
-            {item.peekCaption}
-          </p>
-
           {item.stowedDate ? (
-            <p className="mt-3 text-meta text-foreground-subtle">
+            <p className="mt-1.5 text-meta text-foreground-subtle/80">
               {item.stowedDate}
             </p>
           ) : null}
         </div>
-      </div>
+      </Link>
     </li>
   );
 }

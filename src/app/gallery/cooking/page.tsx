@@ -8,6 +8,8 @@ export const metadata: Metadata = {
   title: "Cooking Gallery",
 };
 
+export const dynamic = "force-dynamic";
+
 export default async function CookingGalleryPage({
   searchParams,
 }: {

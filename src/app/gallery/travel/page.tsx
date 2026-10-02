@@ -8,6 +8,8 @@ export const metadata: Metadata = {
   title: "Travel Gallery",
 };
 
+export const dynamic = "force-dynamic";
+
 export default async function TravelGalleryPage({
   searchParams,
 }: {

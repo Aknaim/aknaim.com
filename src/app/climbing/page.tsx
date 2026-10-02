@@ -15,6 +15,8 @@ export const metadata: Metadata = {
   title: "Climbing",
 };
 
+export const dynamic = "force-dynamic";
+
 export default async function ClimbingPage() {
   const [climbingStats, climbingProjects, climbingGearItems, progressionTimeline] =
     await Promise.all([

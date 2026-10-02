@@ -32,6 +32,11 @@ yarn-error.log*
 
 # env files (can opt-in for committing if needed)
 .env*
+.dev.vars
+
+# cloudflare / opennext
+.open-next/
+.wrangler/
 
 # vercel
 .vercel
@@ -47,3 +52,4 @@ next-env.d.ts
 
 # uploads (admin media in local dev)
 /public/uploads/
+.neon

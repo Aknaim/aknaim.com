@@ -15,6 +15,16 @@ export function getDormantInterests(): InterestCategory[] {
   return siteData.interests.filter((interest) => interest.status === "dormant");
 }
 
+const INTEREST_PAGE_HREF: Partial<Record<InterestId, string>> = {
+  climbing: "/climbing",
+  cooking: "/cooking",
+  travel: "/travel",
+};
+
+export function getInterestHref(interestId: InterestId): string {
+  return INTEREST_PAGE_HREF[interestId] ?? `/interests/${interestId}`;
+}
+
 export function getProjectsByCategory(category: InterestId): Project[] {
   return siteData.projects.filter((project) => project.category === category);
 }

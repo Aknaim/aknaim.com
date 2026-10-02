@@ -4,10 +4,10 @@ export const siteData: SiteData = {
   personal: {
     name: "Akbar Naim",
     siteTitle: "Akbar Naim",
-    headlinePrefix: "",
-    headlineEmphasis: "Projects & Pursuits",  // The stylish serif focus
+    headlinePrefix: "The gear. ",
+    headlineEmphasis: "The worlds.",
     headlineSuffix: "",
-    bio: "An open archive of things built, climbed, cooked, and coded. Just a central log of active experiments.",
+    bio: "Every kit is a door into a different part of life. Tools, notes, and experiences that shape how I explore, build, and create.",
     bagPeekHint: "Hover over a bag to peek inside.",
     aboutCta: {
       label: "About Me",
