@@ -18,7 +18,8 @@ export default async function CookingGalleryPage({
   const params = await searchParams;
   const paramKeys = cookingGalleryConfig.filterGroups.map((g) => g.paramKey);
   const initialFilters = parseGallerySearchParams(params, paramKeys);
-  const cookingGalleryItems = await getGalleryItems("cooking", initialFilters);
+  // Load the full set; GalleryView filters client-side so URL sync can't empty the grid.
+  const cookingGalleryItems = await getGalleryItems("cooking");
 
   return (
     <GalleryView

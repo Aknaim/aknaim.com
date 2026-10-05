@@ -35,8 +35,10 @@ export function verifyAdminSessionToken(token: string | undefined): boolean {
 }
 
 export function verifyAdminPassword(password: string): boolean {
-  const expected = process.env.ADMIN_PASSWORD ?? "changeme";
-  const a = Buffer.from(password);
+  // Trim both sides; .env values sometimes pick up trailing whitespace.
+  // If the password contains `#`, quote it in `.env` (e.g. ADMIN_PASSWORD="p@ss#").
+  const expected = (process.env.ADMIN_PASSWORD ?? "changeme").trim();
+  const a = Buffer.from(password.trim());
   const b = Buffer.from(expected);
   if (a.length !== b.length) return false;
   return timingSafeEqual(a, b);

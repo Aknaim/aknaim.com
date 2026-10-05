@@ -2,42 +2,18 @@
 
 import { eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
-import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
-import { getAdminCookieName, verifyAdminSessionToken } from "@/lib/auth/admin";
 import { db } from "@/lib/db";
 import {
   galleryItems,
   ingredientGroups,
   ingredients,
-  mediaAssets,
   recipeFinalImages,
   recipeSteps,
   recipes,
 } from "@/lib/db/schema";
-
-async function requireAdminAction() {
-  const jar = await cookies();
-  const token = jar.get(getAdminCookieName())?.value;
-  if (!verifyAdminSessionToken(token)) {
-    redirect("/admin/login");
-  }
-}
-
-async function ensureMedia(url: string, alt?: string) {
-  const existing = await db
-    .select()
-    .from(mediaAssets)
-    .where(eq(mediaAssets.url, url))
-    .limit(1);
-  if (existing[0]) return existing[0].id;
-
-  const [row] = await db
-    .insert(mediaAssets)
-    .values({ url, alt: alt ?? null, mediaType: "image" })
-    .returning({ id: mediaAssets.id });
-  return row.id;
-}
+import { ensureMediaAssetId } from "./media";
+import { requireAdminAction } from "./require-admin";
 
 function slugify(value: string) {
   return value
@@ -84,8 +60,8 @@ export async function createOrUpdateRecipe(formData: FormData) {
     throw new Error("Missing required recipe fields");
   }
 
-  const imageMediaId = await ensureMedia(imageSrc, title);
-  const heroMediaId = await ensureMedia(heroImage, title);
+  const imageMediaId = await ensureMediaAssetId(imageSrc, title);
+  const heroMediaId = await ensureMediaAssetId(heroImage, title);
 
   await db
     .insert(recipes)
@@ -159,7 +135,7 @@ export async function createOrUpdateRecipe(formData: FormData) {
     const [groupRow] = await db
       .insert(ingredientGroups)
       .values({ recipeSlug: slug, label: group.label, sortOrder: groupIndex })
-      .returning({ id: ingredientGroups.id });
+      .returning();
 
     if (group.items?.length) {
       await db.insert(ingredients).values(
@@ -183,7 +159,7 @@ export async function createOrUpdateRecipe(formData: FormData) {
 
   for (const step of parsedSteps) {
     const imageMediaIdStep = step.imageSrc
-      ? await ensureMedia(step.imageSrc, step.title)
+      ? await ensureMediaAssetId(step.imageSrc, step.title)
       : null;
     await db.insert(recipeSteps).values({
       recipeSlug: slug,

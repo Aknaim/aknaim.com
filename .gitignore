@@ -32,6 +32,8 @@ yarn-error.log*
 
 # env files (can opt-in for committing if needed)
 .env*
+!.env.example
+!.env.docker
 .dev.vars
 
 # cloudflare / opennext
@@ -52,4 +54,6 @@ next-env.d.ts
 
 # uploads (admin media in local dev)
 /public/uploads/
+# Local media staging (junction to Pictures/… — not in OneDrive/git)
+/public/media/
 .neon

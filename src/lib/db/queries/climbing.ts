@@ -1,80 +1,87 @@
-import { asc, eq } from "drizzle-orm";
+import { asc, count, countDistinct, desc, eq, inArray } from "drizzle-orm";
+import {
+  BASELINE_PROGRESSION,
+  buildProgressionFromSends,
+  gradesFromBaseline,
+  hardestGradeLabel,
+  mergeProgression,
+  type ProgressionMilestone,
+} from "@/lib/climbing-progression";
 import { db } from "@/lib/db";
 import {
   climbingLocations,
-  climbingProgression,
-  climbingProjects,
-  climbingStats,
+  climbingSends,
+  climbingSessions,
   gearItems,
   mediaAssets,
 } from "@/lib/db/schema";
-import type {
-  ClimbingProject,
-  ProgressionMilestone,
-  ProjectStatus,
-} from "@/lib/climbingData";
+import type { ClimbType } from "@/lib/climbing-grades";
 
-export type { ClimbingProject, ProgressionMilestone, ProjectStatus };
+export type { ProgressionMilestone };
 
-export const STATUS_LABELS: Record<ProjectStatus, string> = {
-  "in-progress": "In Progress",
-  projecting: "Projecting",
-  "on-deck": "On Deck",
-};
+/** Clean successful sends only — excludes one-hang and project. */
+const ROUTES_SENT_RESULTS = ["onsight", "flash", "redpoint", "send"] as const;
 
 export async function getClimbingStats() {
-  const [row] = await db.select().from(climbingStats).where(eq(climbingStats.id, 1)).limit(1);
+  const [[sessionRow], [locationRow], [sendRow], [outdoorRow]] = await Promise.all([
+    db.select({ value: count() }).from(climbingSessions),
+    db
+      .select({ value: countDistinct(climbingSessions.locationId) })
+      .from(climbingSessions),
+    db
+      .select({ value: count() })
+      .from(climbingSends)
+      .where(inArray(climbingSends.result, [...ROUTES_SENT_RESULTS])),
+    db
+      .select({ value: count() })
+      .from(climbingSessions)
+      .innerJoin(
+        climbingLocations,
+        eq(climbingSessions.locationId, climbingLocations.id)
+      )
+      .where(eq(climbingLocations.kind, "outdoor")),
+  ]);
 
   return {
-    sessions: row?.sessions ?? 0,
-    locations: row?.locations ?? 0,
-    routesSent: row?.routesSent ?? 0,
-    outdoorTrips: row?.outdoorTrips ?? 0,
+    sessions: sessionRow?.value ?? 0,
+    locations: locationRow?.value ?? 0,
+    routesSent: sendRow?.value ?? 0,
+    outdoorTrips: outdoorRow?.value ?? 0,
   };
 }
 
-export async function getClimbingProjects(): Promise<ClimbingProject[]> {
+async function loadProgressionSends() {
   const rows = await db
     .select({
-      id: climbingProjects.id,
-      grade: climbingProjects.grade,
-      name: climbingProjects.name,
-      locationId: climbingProjects.locationId,
-      locationName: climbingLocations.name,
-      type: climbingProjects.type,
-      status: climbingProjects.status,
-      imageSrc: mediaAssets.url,
+      grade: climbingSends.grade,
+      type: climbingSends.type,
+      result: climbingSends.result,
+      sessionDate: climbingSessions.sessionDate,
     })
-    .from(climbingProjects)
-    .innerJoin(
-      climbingLocations,
-      eq(climbingProjects.locationId, climbingLocations.id)
-    )
-    .innerJoin(mediaAssets, eq(climbingProjects.imageMediaId, mediaAssets.id))
-    .orderBy(asc(climbingProjects.sortOrder));
+    .from(climbingSends)
+    .leftJoin(climbingSessions, eq(climbingSends.sessionId, climbingSessions.id));
 
   return rows.map((row) => ({
-    id: row.id,
     grade: row.grade,
-    name: row.name,
-    location: row.locationName,
-    locationId: row.locationId,
-    type: row.type,
-    status: row.status,
-    imageSrc: row.imageSrc,
+    type: row.type as ClimbType,
+    result: row.result,
+    sessionDate: row.sessionDate ? String(row.sessionDate) : null,
   }));
 }
 
+/**
+ * Progression from logged climb dates (5.11+ / V5+),
+ * plus baseline firsts that predate the media logbook.
+ */
 export async function getClimbingProgression(): Promise<ProgressionMilestone[]> {
-  const rows = await db
-    .select({
-      year: climbingProgression.yearLabel,
-      label: climbingProgression.milestoneLabel,
-    })
-    .from(climbingProgression)
-    .orderBy(asc(climbingProgression.sortOrder));
+  const sends = await loadProgressionSends();
+  const derived = buildProgressionFromSends(sends);
+  return mergeProgression(BASELINE_PROGRESSION, derived);
+}
 
-  return rows;
+export async function getClimbingCurrentLevel(): Promise<string | null> {
+  const sends = await loadProgressionSends();
+  return hardestGradeLabel([...gradesFromBaseline(BASELINE_PROGRESSION), ...sends]);
 }
 
 export async function getClimbingGearItems() {
@@ -98,3 +105,114 @@ export function getClimbingGalleryHref(filters?: {
   const qs = params.toString();
   return qs ? `/gallery/climbing?${qs}` : "/gallery/climbing";
 }
+
+export async function getClimbingLocations() {
+  return db
+    .select({
+      id: climbingLocations.id,
+      name: climbingLocations.name,
+      kind: climbingLocations.kind,
+    })
+    .from(climbingLocations)
+    .orderBy(asc(climbingLocations.name));
+}
+
+export type AdminClimbingSend = {
+  id: string;
+  slug: string;
+  grade: string;
+  routeName: string;
+  locationId: string;
+  locationName: string;
+  type: "lead" | "bouldering" | "top-rope";
+  color: string | null;
+  result: string;
+  sessionDate: string | null;
+  sendDateLabel: string;
+  durationLabel: string;
+  imageSrc: string;
+  sortOrder: number;
+};
+
+function formatAdminDate(isoDate: string | null, fallbackLabel: string): string {
+  if (!isoDate) return fallbackLabel && fallbackLabel !== "—" ? fallbackLabel : "No date";
+  const date = new Date(`${isoDate}T12:00:00`);
+  if (Number.isNaN(date.getTime())) return isoDate;
+  return date.toLocaleDateString("en-US", {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+  });
+}
+
+export async function listClimbingSends(): Promise<AdminClimbingSend[]> {
+  const rows = await db
+    .select({
+      id: climbingSends.id,
+      slug: climbingSends.slug,
+      grade: climbingSends.grade,
+      routeName: climbingSends.routeName,
+      locationId: climbingSends.locationId,
+      locationName: climbingLocations.name,
+      type: climbingSends.type,
+      color: climbingSends.color,
+      result: climbingSends.result,
+      sessionDate: climbingSessions.sessionDate,
+      sendDateLabel: climbingSends.sendDateLabel,
+      durationLabel: climbingSends.durationLabel,
+      imageSrc: mediaAssets.url,
+      sortOrder: climbingSends.sortOrder,
+    })
+    .from(climbingSends)
+    .innerJoin(
+      climbingLocations,
+      eq(climbingSends.locationId, climbingLocations.id)
+    )
+    .innerJoin(mediaAssets, eq(climbingSends.imageMediaId, mediaAssets.id))
+    .leftJoin(climbingSessions, eq(climbingSends.sessionId, climbingSessions.id))
+    .orderBy(desc(climbingSessions.sessionDate), asc(climbingSends.sortOrder));
+
+  return rows.map((row) => ({
+    ...row,
+    sessionDate: row.sessionDate ? String(row.sessionDate) : null,
+  }));
+}
+
+export async function getClimbingSendBySlug(
+  slug: string
+): Promise<AdminClimbingSend | null> {
+  const [row] = await db
+    .select({
+      id: climbingSends.id,
+      slug: climbingSends.slug,
+      grade: climbingSends.grade,
+      routeName: climbingSends.routeName,
+      locationId: climbingSends.locationId,
+      locationName: climbingLocations.name,
+      type: climbingSends.type,
+      color: climbingSends.color,
+      result: climbingSends.result,
+      sessionDate: climbingSessions.sessionDate,
+      sendDateLabel: climbingSends.sendDateLabel,
+      durationLabel: climbingSends.durationLabel,
+      imageSrc: mediaAssets.url,
+      sortOrder: climbingSends.sortOrder,
+    })
+    .from(climbingSends)
+    .innerJoin(
+      climbingLocations,
+      eq(climbingSends.locationId, climbingLocations.id)
+    )
+    .innerJoin(mediaAssets, eq(climbingSends.imageMediaId, mediaAssets.id))
+    .leftJoin(climbingSessions, eq(climbingSends.sessionId, climbingSessions.id))
+    .where(eq(climbingSends.slug, slug))
+    .limit(1);
+
+  if (!row) return null;
+  return {
+    ...row,
+    sessionDate: row.sessionDate ? String(row.sessionDate) : null,
+  };
+}
+
+export { formatAdminDate };

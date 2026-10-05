@@ -23,6 +23,8 @@ function toLightboxImages(items: GalleryItem[]): LightboxImage[] {
     title: item.title ?? item.alt,
     subtitle: item.dateTaken,
     href: item.recipeSlug ? `/cooking/${item.recipeSlug}` : undefined,
+    mediaType: item.mediaType,
+    posterSrc: item.posterSrc,
   }));
 }
 

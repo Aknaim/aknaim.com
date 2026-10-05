@@ -5,4 +5,6 @@ export interface LightboxImage {
   title?: string;
   subtitle?: string;
   href?: string;
+  mediaType?: "image" | "video";
+  posterSrc?: string;
 }

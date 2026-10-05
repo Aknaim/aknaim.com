@@ -24,12 +24,33 @@ export function sortGalleryItems(
     case "title-asc":
       return sorted.sort((a, b) => (a.title ?? a.alt).localeCompare(b.title ?? b.alt));
     case "grade-desc": {
-      const gradeOrder = ["v6", "v5", "v4", "v3", "5-12", "5-11", "5-10"];
-      return sorted.sort(
-        (a, b) =>
-          gradeOrder.indexOf(a.filters.grade ?? "") -
-          gradeOrder.indexOf(b.filters.grade ?? "")
-      );
+      const gradeOrder = [
+        "v10",
+        "v9",
+        "v8",
+        "v7",
+        "v6",
+        "v5",
+        "v4",
+        "v3",
+        "v2",
+        "v1",
+        "v0",
+        "5-13",
+        "5-12",
+        "5-11",
+        "5-10",
+        "5-9",
+        "5-8",
+        "5-7",
+        "5-6",
+        "5-5",
+      ];
+      return sorted.sort((a, b) => {
+        const ai = gradeOrder.indexOf(a.filters.grade ?? "");
+        const bi = gradeOrder.indexOf(b.filters.grade ?? "");
+        return (ai === -1 ? 999 : ai) - (bi === -1 ? 999 : bi);
+      });
     }
     case "date-desc":
     default:

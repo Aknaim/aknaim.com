@@ -18,7 +18,8 @@ export default async function ClimbingGalleryPage({
   const params = await searchParams;
   const paramKeys = climbingGalleryConfig.filterGroups.map((g) => g.paramKey);
   const initialFilters = parseGallerySearchParams(params, paramKeys);
-  const climbingGalleryItems = await getGalleryItems("climbing", initialFilters);
+  // Load the full set; GalleryView filters client-side so URL sync can't empty the grid.
+  const climbingGalleryItems = await getGalleryItems("climbing");
 
   return (
     <GalleryView

@@ -1,5 +1,5 @@
 import "dotenv/config";
-import { eq } from "drizzle-orm";
+import { eq, notInArray } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/postgres-js";
 import postgres from "postgres";
 import {
@@ -11,7 +11,6 @@ import {
   climbingGallerySeedItems,
   climbingGearItems,
   climbingProjects,
-  climbingStats as climbingStatsData,
   progressionTimeline,
   recentSends,
 } from "../climbingData";
@@ -25,19 +24,38 @@ import * as schema from "./schema";
 async function ensureMedia(
   db: ReturnType<typeof drizzle<typeof schema>>,
   url: string,
-  alt?: string
+  alt?: string,
+  options?: { mediaType?: "image" | "video"; posterUrl?: string; durationLabel?: string }
 ) {
+  const mediaType = options?.mediaType ?? "image";
   const existing = await db
     .select()
     .from(schema.mediaAssets)
     .where(eq(schema.mediaAssets.url, url))
     .limit(1);
 
-  if (existing[0]) return existing[0].id;
+  if (existing[0]) {
+    await db
+      .update(schema.mediaAssets)
+      .set({
+        alt: alt ?? existing[0].alt,
+        mediaType,
+        posterUrl: options?.posterUrl ?? existing[0].posterUrl,
+        durationLabel: options?.durationLabel ?? existing[0].durationLabel,
+      })
+      .where(eq(schema.mediaAssets.id, existing[0].id));
+    return existing[0].id;
+  }
 
   const [row] = await db
     .insert(schema.mediaAssets)
-    .values({ url, alt: alt ?? null, mediaType: "image" })
+    .values({
+      url,
+      alt: alt ?? null,
+      mediaType,
+      posterUrl: options?.posterUrl ?? null,
+      durationLabel: options?.durationLabel ?? null,
+    })
     .returning({ id: schema.mediaAssets.id });
 
   return row.id;
@@ -216,11 +234,15 @@ async function seed() {
   ]);
 
   console.log("Seeding climbing…");
-  const locations = [
-    { id: "the-hive", name: "The Hive" },
-    { id: "home-gym", name: "Home Gym" },
-    { id: "reach", name: "Reach Climbing" },
-    { id: "outdoor", name: "Outdoor" },
+  const locations: Array<{
+    id: string;
+    name: string;
+    kind: "gym" | "outdoor";
+  }> = [
+    { id: "climbers-rock", name: "Climbers Rock", kind: "gym" },
+    { id: "gravity", name: "Gravity", kind: "gym" },
+    { id: "the-hub", name: "The Hub", kind: "gym" },
+    { id: "outdoor", name: "Outdoor", kind: "outdoor" },
   ];
   for (const location of locations) {
     await db
@@ -228,66 +250,73 @@ async function seed() {
       .values(location)
       .onConflictDoUpdate({
         target: schema.climbingLocations.id,
-        set: { name: location.name },
+        set: { name: location.name, kind: location.kind },
       });
   }
+  // Replace climbing content so placeholder rows/media drop out of the site.
+  await db.delete(schema.climbingSends);
+  await db.delete(schema.climbingSessions);
+  await db.delete(schema.climbingProjects);
+  await db.delete(schema.galleryItems).where(eq(schema.galleryItems.interest, "climbing"));
+  await db
+    .delete(schema.climbingLocations)
+    .where(
+      notInArray(schema.climbingLocations.id, [
+        "climbers-rock",
+        "gravity",
+        "the-hub",
+        "outdoor",
+      ])
+    );
 
   for (const [index, project] of climbingProjects.entries()) {
     const imageMediaId = await ensureMedia(db, project.imageSrc, project.name);
-    await db
-      .insert(schema.climbingProjects)
-      .values({
-        id: project.id,
-        grade: project.grade,
-        name: project.name,
-        locationId: project.locationId,
-        type: project.type,
-        status: project.status,
-        imageMediaId,
-        sortOrder: index,
-      })
-      .onConflictDoUpdate({
-        target: schema.climbingProjects.id,
-        set: {
-          grade: project.grade,
-          name: project.name,
-          locationId: project.locationId,
-          type: project.type,
-          status: project.status,
-          imageMediaId,
-          sortOrder: index,
-        },
-      });
+    await db.insert(schema.climbingProjects).values({
+      id: project.id,
+      grade: project.grade,
+      name: project.name,
+      locationId: project.locationId,
+      type: project.type,
+      status: project.status,
+      imageMediaId,
+      sortOrder: index,
+    });
   }
 
   for (const [index, send] of recentSends.entries()) {
-    const imageMediaId = await ensureMedia(db, send.imageSrc, send.routeName);
+    const sessionId = `session-${send.sessionDate}-${send.locationId}`;
     await db
-      .insert(schema.climbingSends)
+      .insert(schema.climbingSessions)
       .values({
-        id: send.id,
-        grade: send.grade,
-        routeName: send.routeName,
+        id: sessionId,
+        sessionDate: send.sessionDate,
         locationId: send.locationId,
-        type: send.type,
-        sendDateLabel: send.date,
-        durationLabel: send.duration,
-        imageMediaId,
-        sortOrder: index,
+        notes: null,
       })
       .onConflictDoUpdate({
-        target: schema.climbingSends.id,
+        target: schema.climbingSessions.id,
         set: {
-          grade: send.grade,
-          routeName: send.routeName,
+          sessionDate: send.sessionDate,
           locationId: send.locationId,
-          type: send.type,
-          sendDateLabel: send.date,
-          durationLabel: send.duration,
-          imageMediaId,
-          sortOrder: index,
         },
       });
+
+    const imageMediaId = await ensureMedia(db, send.imageSrc, send.routeName);
+    await db.insert(schema.climbingSends).values({
+      id: send.id,
+      slug: send.slug,
+      grade: send.grade,
+      routeName: send.routeName,
+      locationId: send.locationId,
+      type: send.type,
+      color: send.color,
+      result: send.result,
+      sessionId,
+      sendDateLabel: send.date,
+      durationLabel: send.duration,
+      imageMediaId,
+      sortOrder: index,
+    });
   }
 
   await db.delete(schema.climbingProgression);
@@ -299,52 +328,23 @@ async function seed() {
     }))
   );
 
-  await db
-    .insert(schema.climbingStats)
-    .values({
-      id: 1,
-      sessions: climbingStatsData.sessions,
-      locations: climbingStatsData.locations,
-      routesSent: climbingStatsData.routesSent,
-      outdoorTrips: climbingStatsData.outdoorTrips,
-    })
-    .onConflictDoUpdate({
-      target: schema.climbingStats.id,
-      set: {
-        sessions: climbingStatsData.sessions,
-        locations: climbingStatsData.locations,
-        routesSent: climbingStatsData.routesSent,
-        outdoorTrips: climbingStatsData.outdoorTrips,
-      },
-    });
-
   for (const [index, item] of climbingGallerySeedItems.entries()) {
-    const mediaAssetId = await ensureMedia(db, item.src, item.alt);
-    await db
-      .insert(schema.galleryItems)
-      .values({
-        id: item.id,
-        interest: "climbing",
-        mediaAssetId,
-        title: item.title ?? null,
-        dateTaken: item.dateTaken,
-        filters: item.filters,
-        durationLabel: item.duration ?? null,
-        sortOrder: index,
-        published: true,
-      })
-      .onConflictDoUpdate({
-        target: schema.galleryItems.id,
-        set: {
-          mediaAssetId,
-          title: item.title ?? null,
-          dateTaken: item.dateTaken,
-          filters: item.filters,
-          durationLabel: item.duration ?? null,
-          sortOrder: index,
-          published: true,
-        },
-      });
+    const mediaAssetId = await ensureMedia(db, item.src, item.alt, {
+      mediaType: item.mediaType ?? "image",
+      posterUrl: item.posterSrc,
+      durationLabel: item.duration,
+    });
+    await db.insert(schema.galleryItems).values({
+      id: item.id,
+      interest: "climbing",
+      mediaAssetId,
+      title: item.title ?? null,
+      dateTaken: item.dateTaken,
+      filters: item.filters,
+      durationLabel: item.duration ?? null,
+      sortOrder: index,
+      published: true,
+    });
   }
 
   console.log("Seeding travel…");

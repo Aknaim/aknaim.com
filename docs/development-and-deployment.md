@@ -45,11 +45,12 @@ flowchart TB
 |--------|--------|------------|
 | App runtime | Node (`next dev`) | Cloudflare Worker (`aknaim-com`) |
 | Framework adapter | None | OpenNext (`@opennextjs/cloudflare`) |
-| Database | Docker Postgres | Neon Postgres |
-| DB driver in app | Neon serverless HTTP works against Neon; local Docker often uses `postgres` via scripts / same HTTP if URL is Neon | `@neondatabase/serverless` + Drizzle `neon-http` |
-| Env / secrets | `.env` (gitignored) | Wrangler secrets on the Worker |
+| Database | **Docker Postgres** (`DATABASE_URL` in `.env`) | **Neon** (`DATABASE_URL` Worker secret only) |
+| Env / secrets | `.env` — never point `DATABASE_URL` at Neon while developing | Wrangler secrets on the Worker |
 | Domain | `http://localhost:3000` | `https://aknaim.com` + `www` |
-| Images today | `public/images/` | Same files shipped with the Worker (R2 later) |
+| Images today | Admin uploads → `public/media` (local); seed/`public/images` still fine | Admin uploads → R2; `media_assets.url` is the public HTTPS URL |
+
+**Rule:** `npm run db:seed` / `db:push` use whatever `DATABASE_URL` is in `.env`. Keep that on Docker locally. Production Neon is updated only when you intentionally set a Neon URL (or use Worker secrets + a one-off seed). See `.env.example`.
 
 **Mental model:** Cloudflare does **not** host Node forever; OpenNext compiles the Next app into a Worker. Neon is a separate hosted Postgres. Domains are DNS + Worker custom domains, not something in React code.
 
@@ -388,7 +389,7 @@ flowchart TB
 
 ## 7. What’s intentionally not production yet
 
-- **R2 media** — images still from `public/` in the Worker bundle  
+- **R2 bucket + secrets** — admin upload code is in place (`R2_*` env vars); create the bucket, public URL, and Worker secrets before production uploads work  
 - **GitHub → Cloudflare auto-deploy** — manual `npm run deploy` today  
 - **Hyperdrive** — optional pooling layer in front of Neon  
 

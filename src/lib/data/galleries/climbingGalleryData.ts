@@ -1,9 +1,13 @@
+import {
+  CLIMB_COLOR_OPTIONS,
+  GALLERY_GRADE_FILTER_OPTIONS,
+} from "@/lib/climbing-grades";
 import type { GalleryConfig } from "@/lib/types/gallery";
 
 export const climbingGalleryConfig: GalleryConfig = {
   interest: "climbing",
   title: "Climbing Sessions",
-  subtitle: "All gym and outdoor sessions, sends, attempts, and moments.",
+  subtitle: "Gym and outdoor sends, attempts, and moments.",
   defaultSort: "date-desc",
   sortOptions: [
     { id: "date-desc", label: "Most Recent" },
@@ -18,9 +22,9 @@ export const climbingGalleryConfig: GalleryConfig = {
       paramKey: "location",
       allowAll: true,
       options: [
-        { id: "home-gym", label: "Home Gym" },
-        { id: "the-hive", label: "The Hive" },
-        { id: "reach", label: "Reach Climbing" },
+        { id: "climbers-rock", label: "Climbers Rock" },
+        { id: "gravity", label: "Gravity" },
+        { id: "the-hub", label: "The Hub" },
         { id: "outdoor", label: "Outdoor" },
       ],
     },
@@ -37,19 +41,35 @@ export const climbingGalleryConfig: GalleryConfig = {
       ],
     },
     {
+      id: "result",
+      label: "Result",
+      type: "list",
+      paramKey: "result",
+      allowAll: true,
+      options: [
+        { id: "onsight", label: "Onsight" },
+        { id: "flash", label: "Flash" },
+        { id: "redpoint", label: "Redpoint" },
+        { id: "send", label: "Send" },
+        { id: "one-hang", label: "One hang" },
+        { id: "project", label: "Project" },
+      ],
+    },
+    {
+      id: "color",
+      label: "Color",
+      type: "list",
+      paramKey: "color",
+      allowAll: true,
+      options: CLIMB_COLOR_OPTIONS.filter((option) => option.id),
+    },
+    {
       id: "grade",
       label: "Grade",
       type: "select",
       paramKey: "grade",
       allowAll: true,
-      options: [
-        { id: "v4", label: "V4" },
-        { id: "v5", label: "V5" },
-        { id: "v6", label: "V6" },
-        { id: "5-10", label: "5.10" },
-        { id: "5-11", label: "5.11" },
-        { id: "5-12", label: "5.12" },
-      ],
+      options: GALLERY_GRADE_FILTER_OPTIONS,
     },
   ],
 };

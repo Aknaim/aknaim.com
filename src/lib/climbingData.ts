@@ -1,4 +1,20 @@
 export type ProjectStatus = "in-progress" | "projecting" | "on-deck";
+export type ClimbType = "lead" | "bouldering" | "top-rope";
+/**
+ * onsight = first try, no beta
+ * flash = first try with beta
+ * redpoint = clean send after prior attempts
+ * send = clean send, style unspecified
+ * one-hang = finished after falling/hanging (not a clean send)
+ * project = not finished yet
+ */
+export type ClimbResult =
+  | "onsight"
+  | "flash"
+  | "redpoint"
+  | "send"
+  | "one-hang"
+  | "project";
 
 export interface ClimbingProject {
   id: string;
@@ -6,18 +22,22 @@ export interface ClimbingProject {
   name: string;
   location: string;
   locationId: string;
-  type: "lead" | "bouldering" | "top-rope";
+  type: ClimbType;
   status: ProjectStatus;
   imageSrc: string;
 }
 
 export interface RecentSend {
   id: string;
+  slug: string;
   grade: string;
   routeName: string;
   location: string;
   locationId: string;
-  type: "lead" | "bouldering" | "top-rope";
+  type: ClimbType;
+  color: string | null;
+  result: ClimbResult;
+  sessionDate: string;
   date: string;
   duration: string;
   imageSrc: string;
@@ -33,99 +53,60 @@ export interface GearItem {
   description: string;
 }
 
-/** Used by the DB seed script. Prefer `@/lib/db/queries/climbing` in pages. */
+/** @deprecated Prefer computed stats from sessions/sends. */
 export const climbingStats = {
-  sessions: 342,
-  locations: 18,
-  routesSent: 28,
-  outdoorTrips: 3,
+  sessions: 0,
+  locations: 0,
+  routesSent: 0,
+  outdoorTrips: 0,
 };
 
-export const climbingProjects: ClimbingProject[] = [
-  {
-    id: "proj-1",
-    grade: "5.12b/12c",
-    name: "The Hive — Lead",
-    location: "The Hive",
-    locationId: "the-hive",
-    type: "lead",
-    status: "in-progress",
-    imageSrc: "/images/hero/hero-climbing.jpg",
-  },
-  {
-    id: "proj-2",
-    grade: "V6",
-    name: "Home Wall Project",
-    location: "Home Gym",
-    locationId: "home-gym",
-    type: "bouldering",
-    status: "projecting",
-    imageSrc: "/images/hero/peek-climbing.jpg",
-  },
-  {
-    id: "proj-3",
-    grade: "5.11d",
-    name: "Reach — Top Rope",
-    location: "Reach Climbing",
-    locationId: "reach",
-    type: "top-rope",
-    status: "on-deck",
-    imageSrc: "/images/hero/hero-climbing1.jpg",
-  },
-  {
-    id: "proj-4",
-    grade: "V5",
-    name: "Cave Overhang",
-    location: "The Hive",
-    locationId: "the-hive",
-    type: "bouldering",
-    status: "projecting",
-    imageSrc: "/images/bento/climb-thumb.jpg",
-  },
-];
+const HALLOWEEN_GREEN = {
+  slug: "halloween-green",
+  title: "Halloween",
+  grade: "5.12",
+  locationId: "climbers-rock",
+  locationName: "ClimbersRock",
+  type: "top-rope" as const,
+  color: "green",
+  result: "one-hang" as const,
+  dateTaken: "2025-10-31",
+  dateLabel: "Oct 31, 2025",
+  mediaBase: "/media/climbing/halloween-green",
+};
 
+/**
+ * Active projects only (still working). Completed climbs live in recentSends / gallery.
+ * Halloween was a one-hang finish — not a current project.
+ */
+export const climbingProjects: ClimbingProject[] = [];
+
+/** Recent sends — thumb uses still.webp; send.mp4 lives in the gallery */
 export const recentSends: RecentSend[] = [
   {
-    id: "send-1",
-    grade: "5.12a",
-    routeName: "Airfield",
-    location: "The Hive",
-    locationId: "the-hive",
-    type: "lead",
-    date: "Apr 12, 2025",
+    id: `send-${HALLOWEEN_GREEN.slug}`,
+    slug: HALLOWEEN_GREEN.slug,
+    grade: HALLOWEEN_GREEN.grade,
+    routeName: HALLOWEEN_GREEN.title,
+    location: HALLOWEEN_GREEN.locationName,
+    locationId: HALLOWEEN_GREEN.locationId,
+    type: HALLOWEEN_GREEN.type,
+    color: HALLOWEEN_GREEN.color,
+    result: HALLOWEEN_GREEN.result,
+    sessionDate: HALLOWEEN_GREEN.dateTaken,
+    date: HALLOWEEN_GREEN.dateLabel,
     duration: "0:38",
-    imageSrc: "/images/hero/hero-climbing.jpg",
-  },
-  {
-    id: "send-2",
-    grade: "V5",
-    routeName: "Slab Dynamics",
-    location: "Home Gym",
-    locationId: "home-gym",
-    type: "bouldering",
-    date: "Mar 28, 2025",
-    duration: "0:24",
-    imageSrc: "/images/hero/peek-climbing.jpg",
-  },
-  {
-    id: "send-3",
-    grade: "5.11b",
-    routeName: "Overhang Circuit",
-    location: "Reach Climbing",
-    locationId: "reach",
-    type: "lead",
-    date: "Mar 15, 2025",
-    duration: "0:42",
-    imageSrc: "/images/bento/climb-thumb.jpg",
+    imageSrc: `${HALLOWEEN_GREEN.mediaBase}/still.jpg`,
   },
 ];
 
+/** Seed-only. Live page uses BASELINE_PROGRESSION + inferred climb dates. */
 export const progressionTimeline: ProgressionMilestone[] = [
-  { year: "2022", label: "First 5.11" },
-  { year: "2023", label: "First V5" },
-  { year: "2024", label: "First 5.12a" },
-  { year: "May 2024", label: "First 5.12a Lead" },
-  { year: "2025", label: "Projecting 5.12c" },
+  { year: "May 5, 2024", label: "Started membership" },
+  { year: "Jun 6, 2024", label: "Started top rope" },
+  { year: "Jun 11, 2024", label: "First V5" },
+  { year: "Jul 18, 2024", label: "First 5.11+" },
+  { year: "Aug 28, 2024", label: "First 5.12-" },
 ];
 
 export const STATUS_LABELS: Record<ProjectStatus, string> = {
@@ -134,24 +115,94 @@ export const STATUS_LABELS: Record<ProjectStatus, string> = {
   "on-deck": "On Deck",
 };
 
+export const RESULT_LABELS: Record<ClimbResult, string> = {
+  onsight: "Onsight",
+  flash: "Flash",
+  redpoint: "Redpoint",
+  send: "Send",
+  "one-hang": "One hang",
+  project: "Project",
+};
+
 export const climbingGearItems: GearItem[] = [
-  { title: "La Sportiva Solution Comp", description: "Primary Bouldering Shoe" },
-  { title: "Petzl Grigri + Caritool", description: "Belay Mechanics Assembly" },
-  { title: "Edelrid Ohmega", description: "Harness" },
-  { title: "Home Wall Board", description: "Moonboard 25° Setup" },
+  { title: "La Sportiva Solution Comp", description: "Primary Shoe" },
+  { title: "Arc'teryx Chalk Bag", description: "Chalk Bag" },
+  { title: "Black Diamond Momentum", description: "Harness" },
+  { title: "Petzl Grigri", description: "Belay Device" },
+  { title: "Edelrid Ohmega", description: "Belay Assist" },
+  { title: "Mammut Neon 55", description: "Backpack" },
+  { title: "Mammut Crag Sender", description: "Helmet" },
+  { title: "Petzl Aria 2R RGB", description: "Headlamp" },
+  { title: "Mammut 9.5 Crag We Care Classic", description: "Rope" },
 ];
 
-/** Used by the DB seed script. Prefer `getGalleryItems("climbing")` in pages. */
-export const climbingGallerySeedItems = [
-  { id: "climb-1", src: "/images/hero/hero-climbing.jpg", alt: "Airfield — lead send at The Hive", title: "Airfield", dateTaken: "2025-04-12", year: 2025, duration: "0:38", filters: { location: "the-hive", type: "lead", grade: "5-12" } },
-  { id: "climb-2", src: "/images/hero/hero-climbing1.jpg", alt: "Overhang circuit at Reach Climbing", title: "Overhang Circuit", dateTaken: "2025-03-28", year: 2025, duration: "0:42", filters: { location: "reach", type: "lead", grade: "5-11" } },
-  { id: "climb-3", src: "/images/hero/peek-climbing.jpg", alt: "Slab dynamics boulder at home gym", title: "Slab Dynamics", dateTaken: "2025-03-15", year: 2025, duration: "0:24", filters: { location: "home-gym", type: "bouldering", grade: "v5" } },
-  { id: "climb-4", src: "/images/bento/climb-thumb.jpg", alt: "Cave overhang project at The Hive", title: "Cave Overhang", dateTaken: "2025-02-20", year: 2025, duration: "0:31", filters: { location: "the-hive", type: "bouldering", grade: "v6" } },
-  { id: "climb-5", src: "/images/hero/hero-climbing.jpg", alt: "Campus board training session", title: "Campus Training", dateTaken: "2025-01-14", year: 2025, duration: "0:15", filters: { location: "home-gym", type: "bouldering", grade: "v4" } },
-  { id: "climb-6", src: "/images/hero/peek-climbing.jpg", alt: "Outdoor boulder at Rattlesnake Point", title: "Rattlesnake Point", dateTaken: "2024-11-03", year: 2024, duration: "0:55", filters: { location: "outdoor", type: "bouldering", grade: "v6" } },
-  { id: "climb-7", src: "/images/bento/climb-thumb.jpg", alt: "Top rope warm-up at Reach", title: "Warm-up Laps", dateTaken: "2024-10-18", year: 2024, duration: "0:18", filters: { location: "reach", type: "top-rope", grade: "5-10" } },
-  { id: "climb-8", src: "/images/hero/hero-climbing1.jpg", alt: "Lead attempt on 5.12 project", title: "The Hive Project", dateTaken: "2024-09-05", year: 2024, duration: "0:48", filters: { location: "the-hive", type: "lead", grade: "5-12" } },
-  { id: "climb-9", src: "/images/hero/hero-climbing.jpg", alt: "Home wall endurance circuit", title: "Endurance Circuit", dateTaken: "2024-08-22", year: 2024, duration: "0:22", filters: { location: "home-gym", type: "bouldering", grade: "v4" } },
+/**
+ * Climbing gallery — 3 assets per climb folder:
+ *   still.webp (poster/thumb), grade.webp, send.mp4
+ */
+export const climbingGallerySeedItems: Array<{
+  id: string;
+  src: string;
+  alt: string;
+  title: string;
+  dateTaken: string;
+  year: number;
+  duration?: string;
+  mediaType?: "image" | "video";
+  posterSrc?: string;
+  filters: Record<string, string>;
+}> = [
+  {
+    id: `climb-${HALLOWEEN_GREEN.slug}-still`,
+    src: `${HALLOWEEN_GREEN.mediaBase}/still.jpg`,
+    alt: `${HALLOWEEN_GREEN.title} still — ${HALLOWEEN_GREEN.locationName}`,
+    title: HALLOWEEN_GREEN.title,
+    dateTaken: HALLOWEEN_GREEN.dateTaken,
+    year: 2025,
+    filters: {
+      location: HALLOWEEN_GREEN.locationId,
+      type: HALLOWEEN_GREEN.type,
+      grade: "5-12",
+      color: HALLOWEEN_GREEN.color,
+      result: HALLOWEEN_GREEN.result,
+      climb: HALLOWEEN_GREEN.slug,
+    },
+  },
+  {
+    id: `climb-${HALLOWEEN_GREEN.slug}-grade`,
+    src: `${HALLOWEEN_GREEN.mediaBase}/grade.jpg`,
+    alt: `${HALLOWEEN_GREEN.title} — grade`,
+    title: HALLOWEEN_GREEN.title,
+    dateTaken: HALLOWEEN_GREEN.dateTaken,
+    year: 2025,
+    filters: {
+      location: HALLOWEEN_GREEN.locationId,
+      type: HALLOWEEN_GREEN.type,
+      grade: "5-12",
+      color: HALLOWEEN_GREEN.color,
+      result: HALLOWEEN_GREEN.result,
+      climb: HALLOWEEN_GREEN.slug,
+    },
+  },
+  {
+    id: `climb-${HALLOWEEN_GREEN.slug}-send`,
+    src: `${HALLOWEEN_GREEN.mediaBase}/send.mp4`,
+    alt: `${HALLOWEEN_GREEN.title} — send`,
+    title: HALLOWEEN_GREEN.title,
+    dateTaken: HALLOWEEN_GREEN.dateTaken,
+    year: 2025,
+    duration: "0:38",
+    mediaType: "video",
+    posterSrc: `${HALLOWEEN_GREEN.mediaBase}/still.jpg`,
+    filters: {
+      location: HALLOWEEN_GREEN.locationId,
+      type: HALLOWEEN_GREEN.type,
+      grade: "5-12",
+      color: HALLOWEEN_GREEN.color,
+      result: HALLOWEEN_GREEN.result,
+      climb: HALLOWEEN_GREEN.slug,
+    },
+  },
 ];
 
 export { getClimbingGalleryHref } from "@/lib/db/queries/climbing";

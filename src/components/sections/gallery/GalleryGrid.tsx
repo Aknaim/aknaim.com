@@ -11,6 +11,17 @@ interface GalleryGridProps {
   onItemClick?: (index: number) => void;
 }
 
+function thumbSrc(item: GalleryItem): string {
+  if (item.mediaType === "video") {
+    return item.posterSrc ?? item.src;
+  }
+  return item.src;
+}
+
+function isVideo(item: GalleryItem): boolean {
+  return item.mediaType === "video";
+}
+
 export function GalleryGrid({ items, viewMode, showDuration = false, onItemClick }: GalleryGridProps) {
   if (items.length === 0) {
     return (
@@ -41,8 +52,15 @@ export function GalleryGrid({ items, viewMode, showDuration = false, onItemClick
             tabIndex={0}
           >
             <div className="relative h-20 w-28 shrink-0 overflow-hidden rounded-image border border-[#1a1a1a]">
-              <Image src={item.src} alt={item.alt} fill className="object-cover transition-transform group-hover:scale-105" sizes="112px" />
-              {showDuration && item.duration && (
+              <Image
+                src={thumbSrc(item)}
+                alt={item.alt}
+                fill
+                className="object-cover transition-transform group-hover:scale-105"
+                sizes="112px"
+                unoptimized={thumbSrc(item).startsWith("/media/")}
+              />
+              {isVideo(item) && (
                 <span className="absolute inset-0 flex items-center justify-center">
                   <span className="flex h-7 w-7 items-center justify-center rounded-full bg-black/60 backdrop-blur-sm">
                     <Play className="h-3 w-3 fill-white text-white" />
@@ -55,6 +73,7 @@ export function GalleryGrid({ items, viewMode, showDuration = false, onItemClick
               <span className="font-mono text-[9px] uppercase tracking-widest text-foreground-muted mt-1">
                 {item.dateTaken}
                 {showDuration && item.duration ? ` · ${item.duration}` : ""}
+                {isVideo(item) ? " · Video" : ""}
               </span>
             </div>
           </li>
@@ -68,9 +87,7 @@ export function GalleryGrid({ items, viewMode, showDuration = false, onItemClick
       {items.map((item, index) => (
         <figure
           key={item.id}
-          className={`group relative overflow-hidden rounded-image border border-[#141414] bg-[#0c0c0c] cursor-pointer hover:border-[#262626] transition-all duration-300 ${
-            index % 5 === 0 ? "aspect-[3/4]" : index % 3 === 0 ? "aspect-square" : "aspect-[4/5]"
-          }`}
+          className="group relative aspect-[4/5] overflow-hidden rounded-image border border-[#141414] bg-[#0c0c0c] cursor-pointer hover:border-[#262626] transition-all duration-300"
           onClick={() => onItemClick?.(index)}
           onKeyDown={(e) => {
             if (e.key === "Enter" || e.key === " ") {
@@ -82,11 +99,12 @@ export function GalleryGrid({ items, viewMode, showDuration = false, onItemClick
           tabIndex={0}
         >
           <Image
-            src={item.src}
+            src={thumbSrc(item)}
             alt={item.alt}
             fill
             className="object-cover group-hover:scale-[1.03] transition-transform duration-500"
             sizes="(max-width: 768px) 100vw, 33vw"
+            unoptimized={thumbSrc(item).startsWith("/media/")}
           />
           <figcaption className="absolute inset-0 flex flex-col justify-end p-3 bg-gradient-to-t from-[#070707]/90 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
             <span className="text-xs text-white font-medium">{item.title ?? item.alt}</span>
@@ -94,16 +112,18 @@ export function GalleryGrid({ items, viewMode, showDuration = false, onItemClick
               {item.dateTaken}
             </span>
           </figcaption>
-          {showDuration && item.duration && (
+          {isVideo(item) && (
             <>
               <span className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
                 <span className="flex h-10 w-10 items-center justify-center rounded-full bg-black/50 backdrop-blur-sm border border-white/10">
                   <Play className="h-4 w-4 fill-white text-white ml-0.5" />
                 </span>
               </span>
-              <span className="absolute bottom-2 right-2 font-mono text-[9px] text-white/80 bg-black/50 px-1.5 py-0.5 rounded">
-                {item.duration}
-              </span>
+              {showDuration && item.duration ? (
+                <span className="absolute bottom-2 right-2 font-mono text-[9px] text-white/80 bg-black/50 px-1.5 py-0.5 rounded">
+                  {item.duration}
+                </span>
+              ) : null}
             </>
           )}
         </figure>

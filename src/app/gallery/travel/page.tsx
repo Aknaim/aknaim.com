@@ -19,7 +19,8 @@ export default async function TravelGalleryPage({
   const travelGalleryConfig = await getTravelGalleryConfig();
   const paramKeys = travelGalleryConfig.filterGroups.map((g) => g.paramKey);
   const initialFilters = parseGallerySearchParams(params, paramKeys);
-  const travelGalleryItems = await getGalleryItems("travel", initialFilters);
+  // Load the full set; GalleryView filters client-side so URL sync can't empty the grid.
+  const travelGalleryItems = await getGalleryItems("travel");
 
   const backHref = initialFilters.trip ? `/travel/${initialFilters.trip}` : "/travel";
   const backLabel = initialFilters.trip ? "← Back to Trip" : "← Back to Travel";

@@ -42,12 +42,15 @@ export function ImageLightbox({
     const handleKeyDown = (event: KeyboardEvent) => {
       switch (event.key) {
         case "Escape":
+          event.preventDefault();
           onClose();
           break;
         case "ArrowLeft":
+          event.preventDefault();
           goPrev();
           break;
         case "ArrowRight":
+          event.preventDefault();
           goNext();
           break;
       }
@@ -79,7 +82,7 @@ export function ImageLightbox({
       <button
         type="button"
         onClick={onClose}
-        className="absolute top-4 right-4 z-10 flex h-10 w-10 items-center justify-center rounded-full border border-white/10 bg-black/50 text-white/80 hover:text-white hover:border-white/25 transition-colors"
+        className="absolute top-4 right-4 z-30 flex h-10 w-10 items-center justify-center rounded-full border border-white/10 bg-black/50 text-white/80 hover:text-white hover:border-white/25 transition-colors"
         aria-label="Close"
       >
         <X className="h-5 w-5" />
@@ -88,8 +91,11 @@ export function ImageLightbox({
       {hasPrev && (
         <button
           type="button"
-          onClick={goPrev}
-          className="absolute left-3 md:left-6 z-10 flex h-11 w-11 items-center justify-center rounded-full border border-white/10 bg-black/50 text-white/80 hover:text-white hover:border-white/25 transition-colors"
+          onClick={(e) => {
+            e.stopPropagation();
+            goPrev();
+          }}
+          className="absolute left-3 md:left-6 z-30 flex h-11 w-11 items-center justify-center rounded-full border border-white/10 bg-black/50 text-white/80 hover:text-white hover:border-white/25 transition-colors"
           aria-label="Previous image"
         >
           <ChevronLeft className="h-6 w-6" />
@@ -99,28 +105,45 @@ export function ImageLightbox({
       {hasNext && (
         <button
           type="button"
-          onClick={goNext}
-          className="absolute right-3 md:right-6 z-10 flex h-11 w-11 items-center justify-center rounded-full border border-white/10 bg-black/50 text-white/80 hover:text-white hover:border-white/25 transition-colors"
+          onClick={(e) => {
+            e.stopPropagation();
+            goNext();
+          }}
+          className="absolute right-3 md:right-6 z-30 flex h-11 w-11 items-center justify-center rounded-full border border-white/10 bg-black/50 text-white/80 hover:text-white hover:border-white/25 transition-colors"
           aria-label="Next image"
         >
           <ChevronRight className="h-6 w-6" />
         </button>
       )}
 
-      <div className="relative z-10 flex flex-col items-center max-w-[95vw] max-h-[90vh] px-14 md:px-20">
-        <div className="relative w-[min(95vw,1200px)] h-[min(80vh,800px)]">
-          <Image
-            key={current.id}
-            src={current.src}
-            alt={current.alt}
-            fill
-            className="object-contain"
-            sizes="95vw"
-            priority
-          />
+      <div className="relative z-10 flex flex-col items-center max-w-[95vw] max-h-[90vh] px-14 md:px-20 pointer-events-none">
+        <div className="relative w-[min(95vw,1200px)] h-[min(80vh,800px)] pointer-events-auto">
+          {current.mediaType === "video" ? (
+            <video
+              key={current.id}
+              src={current.src}
+              poster={current.posterSrc}
+              controls
+              playsInline
+              className="absolute inset-0 h-full w-full object-contain"
+            >
+              <track kind="captions" />
+            </video>
+          ) : (
+            <Image
+              key={current.src}
+              src={current.src}
+              alt={current.alt}
+              fill
+              className="object-contain"
+              sizes="95vw"
+              priority
+              unoptimized={current.src.startsWith("/media/")}
+            />
+          )}
         </div>
 
-        <div className="mt-4 text-center space-y-2">
+        <div className="mt-4 text-center space-y-2 pointer-events-auto">
           {current.title && (
             <p className="font-display text-lg text-white tracking-wide">{current.title}</p>
           )}
@@ -135,7 +158,7 @@ export function ImageLightbox({
           {current.href && (
             <Link
               href={current.href}
-              className="inline-flex items-center gap-1.5 font-mono text-[10px] uppercase tracking-widest text-accent hover:text-accent-hover transition-colors pointer-events-auto mt-2 group"
+              className="inline-flex items-center gap-1.5 font-mono text-[10px] uppercase tracking-widest text-accent hover:text-accent-hover transition-colors mt-2 group"
             >
               View Recipe
               <span className="transform group-hover:translate-x-0.5 transition-transform">→</span>

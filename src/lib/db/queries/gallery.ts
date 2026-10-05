@@ -17,6 +17,10 @@ export async function getGalleryItems(
       durationLabel: galleryItems.durationLabel,
       url: mediaAssets.url,
       alt: mediaAssets.alt,
+      mediaType: mediaAssets.mediaType,
+      posterUrl: mediaAssets.posterUrl,
+      mediaDurationLabel: mediaAssets.durationLabel,
+      createdAt: mediaAssets.createdAt,
     })
     .from(galleryItems)
     .innerJoin(mediaAssets, eq(galleryItems.mediaAssetId, mediaAssets.id))
@@ -25,8 +29,9 @@ export async function getGalleryItems(
     )
     .orderBy(desc(galleryItems.dateTaken), asc(galleryItems.sortOrder));
 
+  // `sort` is a URL param for the client view, not an item filter field.
   const activeFilters = Object.entries(filters).filter(
-    ([, value]) => value && value !== "all"
+    ([key, value]) => key !== "sort" && value && value !== "all"
   );
 
   return rows
@@ -40,15 +45,20 @@ export async function getGalleryItems(
     )
     .map((row) => {
       const dateTaken = String(row.dateTaken);
+      const version = row.createdAt ? new Date(row.createdAt).getTime() : 0;
+      const withCacheBust = (url: string) =>
+        url.includes("?") ? url : `${url}?v=${version}`;
       return {
         id: row.id,
-        src: row.url,
+        src: withCacheBust(row.url),
         alt: row.alt ?? row.title ?? row.id,
         title: row.title ?? undefined,
         dateTaken,
         year: Number.parseInt(dateTaken.slice(0, 4), 10),
         filters: row.filters,
-        duration: row.durationLabel ?? undefined,
+        duration: row.durationLabel ?? row.mediaDurationLabel ?? undefined,
+        mediaType: row.mediaType,
+        posterSrc: row.posterUrl ? withCacheBust(row.posterUrl) : undefined,
         recipeSlug: row.recipeSlug ?? undefined,
       };
     });

@@ -1,11 +1,16 @@
 import { neon } from "@neondatabase/serverless";
-import { drizzle } from "drizzle-orm/neon-http";
+import { drizzle as drizzleNeon } from "drizzle-orm/neon-http";
+import { drizzle as drizzlePostgres } from "drizzle-orm/postgres-js";
+import postgres from "postgres";
 import * as schema from "./schema";
 
-type AppDatabase = ReturnType<typeof drizzle<typeof schema>>;
+type AppDatabase =
+  | ReturnType<typeof drizzleNeon<typeof schema>>
+  | ReturnType<typeof drizzlePostgres<typeof schema>>;
 
 const globalForDb = globalThis as unknown as {
   drizzleDb: AppDatabase | undefined;
+  postgresClient: ReturnType<typeof postgres> | undefined;
 };
 
 function resolveDatabaseUrl(): string {
@@ -18,13 +23,25 @@ function resolveDatabaseUrl(): string {
   return raw.trim().replace(/^['"]|['"]$/g, "");
 }
 
+function isNeonUrl(url: string): boolean {
+  return url.includes("neon.tech") || url.includes("neon.database");
+}
+
 function getDb(): AppDatabase {
   if (globalForDb.drizzleDb) {
     return globalForDb.drizzleDb;
   }
 
-  const sql = neon(resolveDatabaseUrl());
-  const db = drizzle(sql, { schema });
+  const url = resolveDatabaseUrl();
+
+  // Production / Neon: HTTP driver (Cloudflare Workers–friendly).
+  // Local Docker: postgres.js over TCP.
+  const db = isNeonUrl(url)
+    ? drizzleNeon(neon(url), { schema })
+    : drizzlePostgres(
+        (globalForDb.postgresClient ??= postgres(url, { max: 5, prepare: false })),
+        { schema }
+      );
 
   if (process.env.NODE_ENV !== "production") {
     globalForDb.drizzleDb = db;

@@ -3,12 +3,11 @@ import Image from "next/image";
 import Link from "next/link";
 import { InterestGearList } from "@/components/sections/InterestGearList";
 import {
+  getClimbingCurrentLevel,
   getClimbingGalleryHref,
   getClimbingGearItems,
   getClimbingProgression,
-  getClimbingProjects,
   getClimbingStats,
-  STATUS_LABELS,
 } from "@/lib/db/queries/climbing";
 
 export const metadata: Metadata = {
@@ -18,12 +17,12 @@ export const metadata: Metadata = {
 export const dynamic = "force-dynamic";
 
 export default async function ClimbingPage() {
-  const [climbingStats, climbingProjects, climbingGearItems, progressionTimeline] =
+  const [climbingStats, climbingGearItems, progressionTimeline, currentLevel] =
     await Promise.all([
       getClimbingStats(),
-      getClimbingProjects(),
       getClimbingGearItems(),
       getClimbingProgression(),
+      getClimbingCurrentLevel(),
     ]);
 
   return (
@@ -47,10 +46,10 @@ export default async function ClimbingPage() {
                 Climbing
               </h1>
               <p className="font-display text-xl text-accent tracking-wide border-b border-accent/30 pb-3 inline-block">
-                Current Level 5.12+
+                Max Grades {currentLevel ?? "—"}
               </p>
               <p className="text-foreground-muted text-sm leading-relaxed max-w-sm">
-                Always learning. Always climbing.
+                Climbing hard, or hardly climbing.
               </p>
             </div>
 
@@ -94,70 +93,36 @@ export default async function ClimbingPage() {
       </section>
 
       <section className="max-w-7xl mx-auto px-6 py-16 md:py-20 space-y-16">
-        <div className="space-y-6">
-          <div className="border-b border-[#141414] pb-3">
-            <h2 className="font-mono text-[10px] uppercase tracking-widest text-foreground-muted">
-              Current Projects
-            </h2>
-          </div>
-          <ul className="space-y-3">
-            {climbingProjects.map((project) => (
-              <li
-                key={project.id}
-                className="flex gap-4 rounded-card border border-[#141414] bg-[#0c0c0c] p-3"
-              >
-                <div className="relative h-16 w-16 shrink-0 overflow-hidden rounded-image border border-[#1a1a1a]">
-                  <Image
-                    src={project.imageSrc}
-                    alt={project.name}
-                    fill
-                    className="object-cover"
-                    sizes="64px"
-                  />
-                </div>
-                <div className="flex flex-col justify-center min-w-0 flex-1">
-                  <span className="text-sm text-white font-medium truncate">
-                    {project.grade} · {project.name}
-                  </span>
-                  <span className="font-mono text-[9px] uppercase tracking-widest text-foreground-muted mt-1">
-                    {project.location}
-                  </span>
-                </div>
-                <span
-                  className={`self-center shrink-0 font-mono text-[8px] uppercase tracking-wider px-2 py-1 rounded border ${
-                    project.status === "in-progress"
-                      ? "text-accent border-accent/30 bg-accent/5"
-                      : project.status === "projecting"
-                        ? "text-foreground-muted border-[#262626] bg-[#141414]"
-                        : "text-foreground-subtle border-[#1a1a1a]"
-                  }`}
+        <div className="space-y-8">
+          <h2 className="font-mono text-[10px] uppercase tracking-widest text-foreground-muted">
+            Progression
+          </h2>
+          {progressionTimeline.length === 0 ? (
+            <p className="text-sm text-foreground-muted">
+              Milestones appear as you log climbs at 5.11+ and V5+.
+            </p>
+          ) : (
+            <div className="relative flex flex-wrap justify-between gap-6 px-2">
+              <div className="absolute top-[5px] left-0 right-0 h-[1px] bg-gradient-to-r from-accent/40 via-[#141414] to-transparent hidden sm:block" />
+              {progressionTimeline.map((item) => (
+                <div
+                  key={`${item.date}-${item.label}`}
+                  className="flex flex-col items-start relative min-w-[100px]"
                 >
-                  {STATUS_LABELS[project.status]}
-                </span>
-              </li>
-            ))}
-          </ul>
+                  <span className="absolute -top-[3px] left-0 h-1.5 w-1.5 rounded-full bg-[#1a1a1a] border border-[#262626] hidden sm:block" />
+                  <span className="font-mono text-[9px] text-accent/70 uppercase">
+                    {item.dateLabel}
+                  </span>
+                  <span className="text-[11px] text-foreground-muted font-medium mt-0.5">
+                    {item.label}
+                  </span>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
 
         <InterestGearList items={climbingGearItems} />
-      </section>
-
-      <section className="max-w-7xl mx-auto px-6 pb-16">
-        <div className="border-t border-[#141414] pt-10">
-          <h2 className="font-mono text-[10px] uppercase tracking-widest text-foreground-muted mb-8">
-            Progression
-          </h2>
-          <div className="relative flex flex-wrap justify-between gap-6 px-2">
-            <div className="absolute top-[5px] left-0 right-0 h-[1px] bg-gradient-to-r from-accent/40 via-[#141414] to-transparent hidden sm:block" />
-            {progressionTimeline.map((milestone) => (
-              <div key={`${milestone.year}-${milestone.label}`} className="flex flex-col items-start relative min-w-[100px]">
-                <span className="absolute -top-[3px] left-0 h-1.5 w-1.5 rounded-full bg-[#1a1a1a] border border-[#262626] hidden sm:block" />
-                <span className="font-mono text-[9px] text-accent/70 uppercase">{milestone.year}</span>
-                <span className="text-[11px] text-foreground-muted font-medium mt-0.5">{milestone.label}</span>
-              </div>
-            ))}
-          </div>
-        </div>
       </section>
     </main>
   );

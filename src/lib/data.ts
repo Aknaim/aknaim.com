@@ -101,7 +101,7 @@ export const siteData: SiteData = {
       bagImage: "/images/hero/bag-climbing.jpg",
       peekImage: "/images/hero/peek-climbing.jpg",
       peekCaption: "Aggressive downturned shoes, harness, Edelrid Ohmega, and chalk bag.",
-      workbenchNote: "Projecting indoor 5.12+ top-rope grades and refining lead safety techniques.",
+      workbenchNote: "Logging gym sessions, sends, and training — one climb at a time.",
       panelAnchor: "climbing",
       tagline: "Progress, lessons, and mountain days.",
       heroImage: "/images/hero/hero-climbing.jpg",
@@ -127,8 +127,15 @@ export const siteData: SiteData = {
           id: "gear",
           label: "Gear",
           items: [
-            { id: "cg1", title: "La Sportiva Solution Comp", meta: "Primary Bouldering Shoe" },
-            { id: "cg2", title: "Petzl Grigri + Caritool", meta: "Belay Mechanics Assembly" }
+            { id: "cg1", title: "La Sportiva Solution Comp", meta: "Primary Shoe" },
+            { id: "cg2", title: "Arc'teryx Chalk Bag", meta: "Chalk Bag" },
+            { id: "cg3", title: "Black Diamond Momentum", meta: "Harness" },
+            { id: "cg4", title: "Petzl Grigri", meta: "Belay Device" },
+            { id: "cg5", title: "Edelrid Ohmega", meta: "Belay Assist" },
+            { id: "cg6", title: "Mammut Neon 55", meta: "Backpack" },
+            { id: "cg7", title: "Mammut Crag Sender", meta: "Helmet" },
+            { id: "cg8", title: "Petzl Aria 2R RGB", meta: "Headlamp" },
+            { id: "cg9", title: "Mammut 9.5 Crag We Care Classic", meta: "Rope" },
           ]
         },
         {

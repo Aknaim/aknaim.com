@@ -20,6 +20,21 @@ export const galleryInterestEnum = pgEnum("gallery_interest", [
 ]);
 export const gearInterestEnum = pgEnum("gear_interest", ["cooking", "climbing"]);
 export const climbTypeEnum = pgEnum("climb_type", ["lead", "bouldering", "top-rope"]);
+export const locationKindEnum = pgEnum("location_kind", ["gym", "outdoor"]);
+/**
+ * How the climb went:
+ * onsight/flash/redpoint/send = clean successful send
+ * one-hang = finished after weighting the rope (not a clean send)
+ * project = still working / unfinished
+ */
+export const climbResultEnum = pgEnum("climb_result", [
+  "onsight",
+  "flash",
+  "redpoint",
+  "send",
+  "one-hang",
+  "project",
+]);
 export const projectStatusEnum = pgEnum("project_status", [
   "in-progress",
   "projecting",
@@ -143,6 +158,7 @@ export const gearItems = pgTable("gear_items", {
 export const climbingLocations = pgTable("climbing_locations", {
   id: text("id").primaryKey(),
   name: text("name").notNull(),
+  kind: locationKindEnum("kind").notNull().default("gym"),
 });
 
 export const climbingProjects = pgTable("climbing_projects", {
@@ -160,14 +176,32 @@ export const climbingProjects = pgTable("climbing_projects", {
   sortOrder: integer("sort_order").notNull().default(0),
 });
 
+/** One gym/outdoor day — drives the Sessions / Outdoor Trips stats. */
+export const climbingSessions = pgTable("climbing_sessions", {
+  id: text("id").primaryKey(),
+  sessionDate: date("session_date").notNull(),
+  locationId: text("location_id")
+    .notNull()
+    .references(() => climbingLocations.id, { onDelete: "restrict" }),
+  notes: text("notes"),
+});
+
 export const climbingSends = pgTable("climbing_sends", {
   id: text("id").primaryKey(),
+  /** Folder slug, e.g. halloween-green */
+  slug: text("slug").notNull().unique(),
   grade: text("grade").notNull(),
   routeName: text("route_name").notNull(),
   locationId: text("location_id")
     .notNull()
     .references(() => climbingLocations.id, { onDelete: "restrict" }),
   type: climbTypeEnum("type").notNull(),
+  /** Hold/tape color for gym climbs; null outdoors */
+  color: text("color"),
+  result: climbResultEnum("result").notNull().default("send"),
+  sessionId: text("session_id").references(() => climbingSessions.id, {
+    onDelete: "set null",
+  }),
   sendDateLabel: text("send_date_label").notNull(),
   durationLabel: text("duration_label").notNull(),
   imageMediaId: uuid("image_media_id")
@@ -183,6 +217,7 @@ export const climbingProgression = pgTable("climbing_progression", {
   sortOrder: integer("sort_order").notNull().default(0),
 });
 
+/** @deprecated Stats are computed from sessions/sends/locations. Kept for legacy rows. */
 export const climbingStats = pgTable("climbing_stats", {
   id: integer("id").primaryKey().default(1),
   sessions: integer("sessions").notNull(),

@@ -11,6 +11,9 @@ export interface GalleryItem {
   filters: Record<string, string>;
   /** Optional duration label for video-style items (climbing) */
   duration?: string;
+  mediaType?: "image" | "video";
+  /** Poster frame for video thumbs */
+  posterSrc?: string;
   /** Links gallery photo to a recipe detail page */
   recipeSlug?: string;
 }
