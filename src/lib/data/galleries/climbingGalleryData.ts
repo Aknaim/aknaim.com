@@ -9,6 +9,8 @@ export const climbingGalleryConfig: GalleryConfig = {
   title: "Climbing Sessions",
   subtitle: "Gym and outdoor sends, attempts, and moments.",
   defaultSort: "date-desc",
+  countDistinctKey: "climb",
+  summaryNoun: { singular: "Climb", plural: "Climbs" },
   sortOptions: [
     { id: "date-desc", label: "Most Recent" },
     { id: "date-asc", label: "Oldest First" },
@@ -56,20 +58,20 @@ export const climbingGalleryConfig: GalleryConfig = {
       ],
     },
     {
+      id: "grade",
+      label: "Grade",
+      type: "list",
+      paramKey: "grade",
+      allowAll: true,
+      options: GALLERY_GRADE_FILTER_OPTIONS,
+    },
+    {
       id: "color",
       label: "Color",
       type: "list",
       paramKey: "color",
       allowAll: true,
       options: CLIMB_COLOR_OPTIONS.filter((option) => option.id),
-    },
-    {
-      id: "grade",
-      label: "Grade",
-      type: "select",
-      paramKey: "grade",
-      allowAll: true,
-      options: GALLERY_GRADE_FILTER_OPTIONS,
     },
   ],
 };

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useEffect, useState, useTransition } from "react";
 import { uploadMediaAsset } from "@/lib/actions/admin/media";
 
 interface MediaUploadFieldProps {
@@ -20,6 +20,11 @@ interface MediaUploadFieldProps {
   defaultMediaId?: string;
   /** Called with the chosen File before upload starts */
   onFileSelected?: (file: File) => void;
+  /** Notify parent when URL / media id change (upload, paste, or external sync) */
+  onAssetChange?: (next: { url: string; mediaId: string }) => void;
+  /** Push an externally uploaded URL into this field (e.g. auto poster from video) */
+  externalUrl?: string;
+  externalMediaId?: string;
 }
 
 export function MediaUploadField({
@@ -35,11 +40,28 @@ export function MediaUploadField({
   idFieldName,
   defaultMediaId = "",
   onFileSelected,
+  onAssetChange,
+  externalUrl,
+  externalMediaId,
 }: MediaUploadFieldProps) {
   const [url, setUrl] = useState(defaultUrl);
   const [mediaId, setMediaId] = useState(defaultMediaId);
   const [error, setError] = useState<string | null>(null);
   const [pending, startTransition] = useTransition();
+
+  useEffect(() => {
+    if (externalUrl === undefined) return;
+    if (externalUrl === url && (externalMediaId ?? "") === mediaId) return;
+    setUrl(externalUrl);
+    setMediaId(externalMediaId ?? "");
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- sync only when parent pushes a new asset
+  }, [externalUrl, externalMediaId]);
+
+  function commit(nextUrl: string, nextMediaId: string) {
+    setUrl(nextUrl);
+    setMediaId(nextMediaId);
+    onAssetChange?.({ url: nextUrl, mediaId: nextMediaId });
+  }
 
   function onFileChange(fileList: FileList | null) {
     const file = fileList?.[0];
@@ -60,8 +82,7 @@ export function MediaUploadField({
         setError(result.error);
         return;
       }
-      setUrl(result.url);
-      setMediaId(result.id);
+      commit(result.url, result.id);
     });
   }
 
@@ -69,9 +90,10 @@ export function MediaUploadField({
     <div className="space-y-2">
       <span className="font-mono text-[10px] uppercase tracking-widest text-foreground-muted block">
         {label}
+        {required ? <span className="text-accent/70"> *</span> : null}
       </span>
 
-      <input type="hidden" name={name} value={url} required={required && !disabled} />
+      <input type="hidden" name={name} value={url} />
       {idFieldName ? <input type="hidden" name={idFieldName} value={mediaId} /> : null}
 
       {disabled ? (
@@ -97,9 +119,9 @@ export function MediaUploadField({
             <input
               type="text"
               value={url}
+              required={required && !disabled}
               onChange={(e) => {
-                setUrl(e.target.value);
-                setMediaId("");
+                commit(e.target.value, "");
               }}
               placeholder="https://… or /media/…"
               className="w-full bg-[#111111] border border-[#262626] px-3 py-2 text-sm text-white outline-none focus:border-accent"

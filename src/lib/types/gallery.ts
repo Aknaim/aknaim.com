@@ -30,6 +30,8 @@ export interface FilterGroup {
   paramKey: string;
   options: FilterOption[];
   allowAll?: boolean;
+  /** Start collapsed; expand on click. Useful for long secondary filters like color. */
+  defaultCollapsed?: boolean;
 }
 
 export interface GalleryConfig {
@@ -39,6 +41,13 @@ export interface GalleryConfig {
   filterGroups: FilterGroup[];
   sortOptions: FilterOption[];
   defaultSort: string;
+  /**
+   * When set, sidebar + header counts unique values of this filter key
+   * (e.g. climb slug) instead of raw photo/video items.
+   */
+  countDistinctKey?: string;
+  /** Nouns for the summary line when counting distinct entities */
+  summaryNoun?: { singular: string; plural: string };
 }
 
 export type GalleryFilters = Record<string, string>;

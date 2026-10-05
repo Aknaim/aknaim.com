@@ -70,8 +70,17 @@ export async function createOrUpdateClimbingSend(formData: FormData) {
   const sortOrder = Number(formData.get("sortOrder") ?? 0);
   const slugChanged = Boolean(previousSlug && previousSlug !== slug);
 
-  if (!routeName || !slug || !grade || !locationId || !sessionDate || !stillUrlInput) {
-    throw new Error("Route name, grade, location, date, and still image are required.");
+  const missing: string[] = [];
+  if (!routeName) missing.push("route name");
+  if (!slug) missing.push("route name (for folder id)");
+  if (!grade) missing.push("grade");
+  if (!locationId) missing.push("location");
+  if (!sessionDate) missing.push("session date");
+  if (!stillUrlInput) {
+    missing.push("photo (upload a still, or a send video and wait for the auto poster)");
+  }
+  if (missing.length > 0) {
+    throw new Error(`Missing required fields: ${missing.join(", ")}.`);
   }
 
   const [nameConflict] = await db

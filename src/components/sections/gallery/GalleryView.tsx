@@ -28,6 +28,19 @@ function toLightboxImages(items: GalleryItem[]): LightboxImage[] {
   }));
 }
 
+function countSummary(
+  items: GalleryItem[],
+  distinctKey?: string
+): number {
+  if (!distinctKey) return items.length;
+  const keys = new Set<string>();
+  for (const item of items) {
+    const value = item.filters[distinctKey];
+    if (value) keys.add(value);
+  }
+  return keys.size;
+}
+
 interface GalleryViewProps {
   config: GalleryConfig;
   items: GalleryItem[];
@@ -102,6 +115,17 @@ export function GalleryView({
     return sortGalleryItems(filtered, filters.sort ?? config.defaultSort);
   }, [items, filters, paramKeys, config.defaultSort]);
 
+  const summaryCount = useMemo(
+    () => countSummary(filteredItems, config.countDistinctKey),
+    [filteredItems, config.countDistinctKey]
+  );
+  const summaryNoun = config.summaryNoun ?? {
+    singular: "Photo",
+    plural: "Photos",
+  };
+  const summaryLabel =
+    summaryCount === 1 ? summaryNoun.singular : summaryNoun.plural;
+
   const activeTripLabel = filters.trip
     ? config.filterGroups
         .find((g) => g.paramKey === "trip")
@@ -131,18 +155,19 @@ export function GalleryView({
         </Link>
 
         <div className="flex flex-col lg:flex-row gap-10 lg:gap-16">
-          <div className="lg:sticky lg:top-8 lg:self-start space-y-8">
+          <div className="lg:sticky lg:top-8 lg:self-start lg:max-h-[calc(100vh-4rem)] lg:overflow-y-auto lg:overscroll-y-contain [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden space-y-8">
+            <GallerySortSelect
+              sortOptions={config.sortOptions}
+              value={filters.sort ?? config.defaultSort}
+              onChange={handleSortChange}
+            />
             <GallerySidebar
               filterGroups={config.filterGroups}
               items={items}
               filters={filters}
               onFilterChange={handleFilterChange}
               onReset={handleReset}
-            />
-            <GallerySortSelect
-              sortOptions={config.sortOptions}
-              value={filters.sort ?? config.defaultSort}
-              onChange={handleSortChange}
+              countDistinctKey={config.countDistinctKey}
             />
           </div>
 
@@ -161,7 +186,7 @@ export function GalleryView({
                     : config.subtitle}
                 </p>
                 <span className="font-mono text-[10px] uppercase tracking-widest text-foreground-subtle">
-                  {filteredItems.length} {filteredItems.length === 1 ? "Photo" : "Photos"}
+                  {summaryCount} {summaryLabel}
                 </span>
               </div>
               <GalleryViewToggle viewMode={viewMode} onChange={setViewMode} />

@@ -1,6 +1,7 @@
 import { and, asc, desc, eq, sql } from "drizzle-orm";
+import { gradeFilterKey } from "@/lib/climbing-grades";
 import { db } from "@/lib/db";
-import { galleryItems, mediaAssets } from "@/lib/db/schema";
+import { climbingSends, galleryItems, mediaAssets } from "@/lib/db/schema";
 import type { GalleryInterest, GalleryItem } from "@/lib/types/gallery";
 
 export async function getGalleryItems(
@@ -29,12 +30,36 @@ export async function getGalleryItems(
     )
     .orderBy(desc(galleryItems.dateTaken), asc(galleryItems.sortOrder));
 
+  // Prefer the send's precise grade over older coarse gallery filter keys (5-12 vs 5-12-).
+  const gradeByClimbSlug =
+    interest === "climbing"
+      ? new Map(
+          (
+            await db
+              .select({ slug: climbingSends.slug, grade: climbingSends.grade })
+              .from(climbingSends)
+          ).map((row) => [row.slug, gradeFilterKey(row.grade)] as const)
+        )
+      : null;
+
   // `sort` is a URL param for the client view, not an item filter field.
   const activeFilters = Object.entries(filters).filter(
     ([key, value]) => key !== "sort" && value && value !== "all"
   );
 
   return rows
+    .map((row) => {
+      const climbSlug = row.filters.climb;
+      const preciseGrade =
+        gradeByClimbSlug && climbSlug
+          ? gradeByClimbSlug.get(climbSlug)
+          : undefined;
+      const itemFilters =
+        preciseGrade && preciseGrade !== row.filters.grade
+          ? { ...row.filters, grade: preciseGrade }
+          : row.filters;
+      return { ...row, filters: itemFilters };
+    })
     .filter((row) =>
       activeFilters.every(([key, value]) => {
         if (key === "year") {

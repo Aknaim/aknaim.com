@@ -19,13 +19,13 @@ export const siteData: SiteData = {
       {
         platform: "github",
         label: "GitHub",
-        url: "https://github.com/akN",
+        url: "https://github.com/aknaim",
         icon: "Github",
       },
       {
         platform: "linkedin",
         label: "LinkedIn",
-        url: "https://linkedin.com/in/akN",
+        url: "https://linkedin.com/in/syed-naim",
         icon: "Linkedin",
       },
       {

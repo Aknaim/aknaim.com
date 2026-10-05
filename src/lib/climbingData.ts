@@ -1,3 +1,5 @@
+import { gradeFilterKey } from "@/lib/climbing-grades";
+
 export type ProjectStatus = "in-progress" | "projecting" | "on-deck";
 export type ClimbType = "lead" | "bouldering" | "top-rope";
 /**
@@ -162,7 +164,7 @@ export const climbingGallerySeedItems: Array<{
     filters: {
       location: HALLOWEEN_GREEN.locationId,
       type: HALLOWEEN_GREEN.type,
-      grade: "5-12",
+      grade: gradeFilterKey(HALLOWEEN_GREEN.grade),
       color: HALLOWEEN_GREEN.color,
       result: HALLOWEEN_GREEN.result,
       climb: HALLOWEEN_GREEN.slug,
@@ -178,7 +180,7 @@ export const climbingGallerySeedItems: Array<{
     filters: {
       location: HALLOWEEN_GREEN.locationId,
       type: HALLOWEEN_GREEN.type,
-      grade: "5-12",
+      grade: gradeFilterKey(HALLOWEEN_GREEN.grade),
       color: HALLOWEEN_GREEN.color,
       result: HALLOWEEN_GREEN.result,
       climb: HALLOWEEN_GREEN.slug,
@@ -197,7 +199,7 @@ export const climbingGallerySeedItems: Array<{
     filters: {
       location: HALLOWEEN_GREEN.locationId,
       type: HALLOWEEN_GREEN.type,
-      grade: "5-12",
+      grade: gradeFilterKey(HALLOWEEN_GREEN.grade),
       color: HALLOWEEN_GREEN.color,
       result: HALLOWEEN_GREEN.result,
       climb: HALLOWEEN_GREEN.slug,

@@ -1,3 +1,5 @@
+import { gradeFromFilterKey } from "@/lib/climbing-grades";
+import { parseGrade } from "@/lib/climbing-progression";
 import type { GalleryFilters, GalleryItem } from "@/lib/types/gallery";
 
 export function filterGalleryItems(
@@ -12,6 +14,16 @@ export function filterGalleryItems(
   );
 }
 
+function distinctCount(items: GalleryItem[], distinctKey?: string): number {
+  if (!distinctKey) return items.length;
+  const keys = new Set<string>();
+  for (const item of items) {
+    const value = item.filters[distinctKey];
+    if (value) keys.add(value);
+  }
+  return keys.size;
+}
+
 export function sortGalleryItems(
   items: GalleryItem[],
   sortId: string
@@ -24,32 +36,16 @@ export function sortGalleryItems(
     case "title-asc":
       return sorted.sort((a, b) => (a.title ?? a.alt).localeCompare(b.title ?? b.alt));
     case "grade-desc": {
-      const gradeOrder = [
-        "v10",
-        "v9",
-        "v8",
-        "v7",
-        "v6",
-        "v5",
-        "v4",
-        "v3",
-        "v2",
-        "v1",
-        "v0",
-        "5-13",
-        "5-12",
-        "5-11",
-        "5-10",
-        "5-9",
-        "5-8",
-        "5-7",
-        "5-6",
-        "5-5",
-      ];
       return sorted.sort((a, b) => {
-        const ai = gradeOrder.indexOf(a.filters.grade ?? "");
-        const bi = gradeOrder.indexOf(b.filters.grade ?? "");
-        return (ai === -1 ? 999 : ai) - (bi === -1 ? 999 : bi);
+        const pa = parseGrade(gradeFromFilterKey(a.filters.grade ?? ""));
+        const pb = parseGrade(gradeFromFilterKey(b.filters.grade ?? ""));
+        const aKind = pa?.kind === "boulder" ? 0 : 1;
+        const bKind = pb?.kind === "boulder" ? 0 : 1;
+        if (aKind !== bKind) return aKind - bKind;
+        const ar = pa?.rank ?? -1;
+        const br = pb?.rank ?? -1;
+        if (br !== ar) return br - ar;
+        return b.dateTaken.localeCompare(a.dateTaken);
       });
     }
     case "date-desc":
@@ -62,15 +58,30 @@ export function countItemsForFilter(
   items: GalleryItem[],
   paramKey: string,
   optionId: string,
-  activeFilters: GalleryFilters
+  activeFilters: GalleryFilters,
+  distinctKey?: string
 ): number {
   const otherFilters = { ...activeFilters };
   delete otherFilters[paramKey];
   delete otherFilters.sort;
 
-  return filterGalleryItems(items, otherFilters).filter(
+  const matched = filterGalleryItems(items, otherFilters).filter(
     (item) => item.filters[paramKey] === optionId
-  ).length;
+  );
+  return distinctCount(matched, distinctKey);
+}
+
+export function countAllForFilterGroup(
+  items: GalleryItem[],
+  paramKey: string,
+  activeFilters: GalleryFilters,
+  distinctKey?: string
+): number {
+  const otherFilters = { ...activeFilters };
+  delete otherFilters[paramKey];
+  delete otherFilters.sort;
+
+  return distinctCount(filterGalleryItems(items, otherFilters), distinctKey);
 }
 
 export function parseGallerySearchParams(
