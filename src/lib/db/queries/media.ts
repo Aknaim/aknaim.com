@@ -1,4 +1,4 @@
-import { desc, eq } from "drizzle-orm";
+import { count, desc, eq } from "drizzle-orm";
 import { db } from "@/lib/db";
 import { mediaAssets } from "@/lib/db/schema";
 
@@ -46,6 +46,6 @@ export async function getMediaAssetById(id: string): Promise<MediaAssetRow | nul
 }
 
 export async function countMediaAssets(): Promise<number> {
-  const rows = await db.select({ id: mediaAssets.id }).from(mediaAssets);
-  return rows.length;
+  const [row] = await db.select({ value: count() }).from(mediaAssets);
+  return row?.value ?? 0;
 }

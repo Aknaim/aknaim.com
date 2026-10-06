@@ -1,4 +1,4 @@
-import { asc, eq } from "drizzle-orm";
+import { asc, count, eq } from "drizzle-orm";
 import { db } from "@/lib/db";
 import {
   gearItems,
@@ -36,6 +36,28 @@ export async function getAllRecipes(): Promise<RecipeDetail[]> {
   return details.filter((recipe): recipe is RecipeDetail => recipe !== null);
 }
 
+/** Admin list rows — no ingredients/steps/images hydration. */
+export async function listRecipesForAdmin(): Promise<
+  Array<{
+    slug: string;
+    title: string;
+    category: string;
+    cuisine: string;
+    published: boolean;
+  }>
+> {
+  return db
+    .select({
+      slug: recipes.slug,
+      title: recipes.title,
+      category: recipes.categoryLabel,
+      cuisine: recipes.cuisine,
+      published: recipes.published,
+    })
+    .from(recipes)
+    .orderBy(asc(recipes.dateTaken));
+}
+
 export async function getRecipeBySlug(slug: string): Promise<RecipeDetail | null> {
   return hydrateRecipe(slug);
 }
@@ -49,13 +71,30 @@ export async function getRecipeSlugs(): Promise<string[]> {
 }
 
 export async function getCookingStats() {
-  const all = await getAllRecipes();
+  // Lightweight row scan — never hydrate full recipes just for counts.
+  const rows = await db
+    .select({
+      categoryId: recipes.categoryId,
+      cuisine: recipes.cuisine,
+      dateTaken: recipes.dateTaken,
+    })
+    .from(recipes)
+    .where(eq(recipes.published, true));
+
   return {
-    recipes: all.length,
-    categories: new Set(all.map((r) => r.categoryId)).size,
-    cuisines: new Set(all.map((r) => r.cuisine)).size,
-    years: new Set(all.map((r) => r.dateTaken.slice(0, 4))).size,
+    recipes: rows.length,
+    categories: new Set(rows.map((r) => r.categoryId)).size,
+    cuisines: new Set(rows.map((r) => r.cuisine)).size,
+    years: new Set(rows.map((r) => String(r.dateTaken).slice(0, 4))).size,
   };
+}
+
+export async function countRecipes(): Promise<number> {
+  const [row] = await db
+    .select({ value: count() })
+    .from(recipes)
+    .where(eq(recipes.published, true));
+  return row?.value ?? 0;
 }
 
 export async function getCookingGearItems() {
@@ -70,10 +109,14 @@ export async function getCookingGearItems() {
 }
 
 export async function getCookingCategories(): Promise<CookingCategory[]> {
-  const all = await getAllRecipes();
-  const counts = all.reduce(
+  const rows = await db
+    .select({ categoryId: recipes.categoryId })
+    .from(recipes)
+    .where(eq(recipes.published, true));
+  const counts = rows.reduce(
     (acc, recipe) => {
-      acc[recipe.categoryId] = (acc[recipe.categoryId] ?? 0) + 1;
+      const id = recipe.categoryId as RecipeCategoryId;
+      acc[id] = (acc[id] ?? 0) + 1;
       return acc;
     },
     {} as Record<RecipeCategoryId, number>

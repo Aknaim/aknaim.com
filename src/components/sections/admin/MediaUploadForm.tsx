@@ -2,25 +2,44 @@
 
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
-import { uploadMediaAsset } from "@/lib/actions/admin/media";
+import { uploadAdminMediaFile } from "@/lib/media/upload-client";
 
 export function MediaUploadForm({ disabled }: { disabled?: boolean }) {
   const router = useRouter();
   const [message, setMessage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [status, setStatus] = useState<string | null>(null);
   const [pending, startTransition] = useTransition();
 
   function onSubmit(formData: FormData) {
     setMessage(null);
     setError(null);
+    setStatus(null);
     startTransition(async () => {
-      const result = await uploadMediaAsset(formData);
-      if (!result.ok) {
-        setError(result.error);
-        return;
+      try {
+        const file = formData.get("file");
+        if (!(file instanceof File)) {
+          setError("Choose a file to upload.");
+          return;
+        }
+        const folder = String(formData.get("folder") ?? "uploads");
+        const alt = String(formData.get("alt") ?? "").trim() || "Upload";
+        const result = await uploadAdminMediaFile({
+          file,
+          folder,
+          alt,
+          onProgress: (progress) => setStatus(progress.label),
+        });
+        if (!result.ok) {
+          setError(result.error);
+          return;
+        }
+        setMessage(`Uploaded ${result.url}`);
+        setStatus(null);
+        router.refresh();
+      } catch (err) {
+        setError(err instanceof Error ? err.message : "Upload failed.");
       }
-      setMessage(`Uploaded ${result.url}`);
-      router.refresh();
     });
   }
 
@@ -70,7 +89,7 @@ export function MediaUploadForm({ disabled }: { disabled?: boolean }) {
         disabled={disabled || pending}
         className="border border-[#262626] bg-[#141414] px-5 py-2.5 text-xs uppercase tracking-widest text-white hover:border-accent transition-colors disabled:opacity-40"
       >
-        {pending ? "Uploading…" : "Upload"}
+        {pending ? status || "Uploading…" : "Upload"}
       </button>
       {error ? <p className="font-mono text-[10px] text-red-400">{error}</p> : null}
       {message ? <p className="font-mono text-[10px] text-accent">{message}</p> : null}

@@ -12,7 +12,7 @@ import {
   recipeSteps,
   recipes,
 } from "@/lib/db/schema";
-import { ensureMediaAssetId } from "./media";
+import { ensureMediaAssetId } from "./ensure-media-asset";
 import { requireAdminAction } from "./require-admin";
 
 function slugify(value: string) {

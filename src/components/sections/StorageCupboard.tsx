@@ -73,7 +73,7 @@ export function StorageCupboard({
                   key={item.id}
                   item={item}
                   shelfIndex={index + 1}
-                  bagFallback={fallbackBySrc[item.bagImage] ?? true}
+                  bagFallback={fallbackBySrc[item.bagImage] ?? false}
                 />
               ))}
             </ul>

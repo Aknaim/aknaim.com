@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { deleteClimbingSend } from "@/lib/actions/admin/climbing";
+import { deleteClimbingSend } from "@/lib/actions/admin/climbing-delete";
 import { formatAdminDate, listClimbingSends } from "@/lib/db/queries/climbing";
 
 export const metadata: Metadata = {

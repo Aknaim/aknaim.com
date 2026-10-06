@@ -84,6 +84,22 @@ export async function getClimbingCurrentLevel(): Promise<string | null> {
   return hardestGradeLabel([...gradesFromBaseline(BASELINE_PROGRESSION), ...sends]);
 }
 
+/** One round-trip for the climbing page header + timeline. */
+export async function getClimbingProgressionBundle(): Promise<{
+  timeline: ProgressionMilestone[];
+  currentLevel: string | null;
+}> {
+  const sends = await loadProgressionSends();
+  const derived = buildProgressionFromSends(sends);
+  return {
+    timeline: mergeProgression(BASELINE_PROGRESSION, derived),
+    currentLevel: hardestGradeLabel([
+      ...gradesFromBaseline(BASELINE_PROGRESSION),
+      ...sends,
+    ]),
+  };
+}
+
 export async function getClimbingGearItems() {
   return db
     .select({
@@ -143,6 +159,11 @@ function formatAdminDate(isoDate: string | null, fallbackLabel: string): string 
     day: "numeric",
     year: "numeric",
   });
+}
+
+export async function countClimbingSends(): Promise<number> {
+  const [row] = await db.select({ value: count() }).from(climbingSends);
+  return row?.value ?? 0;
 }
 
 export async function listClimbingSends(): Promise<AdminClimbingSend[]> {

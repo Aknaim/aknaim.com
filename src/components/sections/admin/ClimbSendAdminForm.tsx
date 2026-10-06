@@ -1,8 +1,11 @@
 "use client";
 
-import { useMemo, useRef, useState } from "react";
-import { createOrUpdateClimbingSend } from "@/lib/actions/admin/climbing";
-import { uploadMediaAsset } from "@/lib/actions/admin/media";
+import { useActionState, useMemo, useRef, useState } from "react";
+import {
+  createOrUpdateClimbingSend,
+  type ClimbSendSaveState,
+} from "@/lib/actions/admin/climbing";
+import { uploadAdminMediaFile } from "@/lib/media/upload-client";
 import {
   CLIMB_COLOR_OPTIONS,
   gradesForClimbType,
@@ -140,8 +143,18 @@ export function ClimbSendAdminForm({
   const [stillUrl, setStillUrl] = useState(send?.imageSrc ?? "");
   const [stillMediaId, setStillMediaId] = useState("");
   const [posterBusy, setPosterBusy] = useState(false);
+  const [uploadsPending, setUploadsPending] = useState(0);
+  const [saveState, formAction, saving] = useActionState<
+    ClimbSendSaveState,
+    FormData
+  >(createOrUpdateClimbingSend, null);
   const stillUrlRef = useRef(stillUrl);
   stillUrlRef.current = stillUrl;
+  const busy = posterBusy || uploadsPending > 0 || saving;
+
+  function trackUploadPending(pending: boolean) {
+    setUploadsPending((count) => Math.max(0, count + (pending ? 1 : -1)));
+  }
 
   // Folder id always follows current name + color. Save migrates the old folder if needed.
   const climbSlug = useMemo(
@@ -182,12 +195,12 @@ export function ClimbSendAdminForm({
       setPosterBusy(true);
       try {
         const poster = await captureVideoPoster(file);
-        const formData = new FormData();
-        formData.set("file", poster);
-        formData.set("folder", mediaFolder);
-        formData.set("alt", "Photo");
-        formData.set("fileName", "still.webp");
-        const uploaded = await uploadMediaAsset(formData);
+        const uploaded = await uploadAdminMediaFile({
+          file: poster,
+          folder: mediaFolder,
+          alt: "Photo",
+          fileName: "still.webp",
+        });
         if (!uploaded.ok) {
           setMetaNote(
             `Video uploaded, but poster failed (${uploaded.error}). Add a photo manually.`
@@ -225,12 +238,12 @@ export function ClimbSendAdminForm({
 
   return (
     <form
-      action={createOrUpdateClimbingSend}
+      action={formAction}
       className="space-y-6"
       onSubmit={(event) => {
-        if (posterBusy) {
+        if (uploadsPending > 0 || posterBusy) {
           event.preventDefault();
-          setFormError("Still creating photo from the video — wait a moment, then save.");
+          setFormError("Wait for uploads to finish before saving.");
           return;
         }
         if (!stillUrl.trim()) {
@@ -375,21 +388,37 @@ export function ClimbSendAdminForm({
       {metaNote ? (
         <p className="font-mono text-[10px] text-accent/80">{metaNote}</p>
       ) : null}
-      {formError ? (
-        <p className="font-mono text-[10px] text-red-400">{formError}</p>
+      {formError || saveState?.error ? (
+        <p className="font-mono text-[10px] text-red-400">
+          {formError || saveState?.error}
+        </p>
       ) : null}
       {posterBusy ? (
-        <p className="font-mono text-[10px] text-foreground-muted">
+        <p className="font-mono text-[10px] text-amber-400/90">
           Creating photo from video frame…
         </p>
+      ) : null}
+      {uploadsPending > 0 ? (
+        <p className="font-mono text-[10px] text-amber-400/90">
+          Uploading {uploadsPending} file{uploadsPending === 1 ? "" : "s"}… save unlocks when done.
+        </p>
+      ) : null}
+      {saving ? (
+        <p className="font-mono text-[10px] text-accent/80">Saving climb…</p>
       ) : null}
 
       <p className="font-mono text-[10px] text-foreground-subtle">
         Files go to{" "}
-        <span className="text-foreground-muted">public/media/{mediaFolder}/</span>
-        . Video alone is fine — a poster frame is grabbed automatically if Photo is empty.
-        Grade card is optional.
+        <span className="text-foreground-muted">media.aknaim.com/{mediaFolder}/</span>
+        {" "}(or local /media in dev). Video alone is fine — a poster frame is grabbed
+        automatically if Photo is empty. Grade card is optional.
       </p>
+
+      {!climbSlug ? (
+        <p className="font-mono text-[10px] text-amber-400/90">
+          Enter a route name (and color) before uploading — files need the climb folder id.
+        </p>
+      ) : null}
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <MediaUploadField
@@ -401,8 +430,11 @@ export function ClimbSendAdminForm({
           accept="image/*"
           defaultUrl={send?.imageSrc}
           required={!send}
+          disabled={!climbSlug}
+          disabledReason="Enter route name first"
           externalUrl={stillUrl}
           externalMediaId={stillMediaId}
+          onPendingChange={trackUploadPending}
           onAssetChange={({ url, mediaId }) => {
             setStillUrl(url);
             setStillMediaId(mediaId);
@@ -416,6 +448,9 @@ export function ClimbSendAdminForm({
           fileName="grade.webp"
           accept="image/*"
           defaultUrl={gradeUrl}
+          disabled={!climbSlug}
+          disabledReason="Enter route name first"
+          onPendingChange={trackUploadPending}
         />
         <MediaUploadField
           name="videoUrl"
@@ -425,16 +460,23 @@ export function ClimbSendAdminForm({
           fileName="send.mp4"
           accept="video/mp4,video/webm"
           defaultUrl={videoUrl}
+          disabled={!climbSlug}
+          disabledReason="Enter route name first"
+          onPendingChange={trackUploadPending}
           onFileSelected={handleVideoSelected}
         />
       </div>
 
       <button
         type="submit"
-        disabled={posterBusy}
+        disabled={busy}
         className="border border-[#262626] bg-[#141414] px-5 py-2.5 text-xs uppercase tracking-widest text-white hover:border-accent transition-colors disabled:opacity-40"
       >
-        Save climb
+        {saving
+          ? "Saving…"
+          : uploadsPending > 0 || posterBusy
+            ? "Waiting for uploads…"
+            : "Save climb"}
       </button>
     </form>
   );

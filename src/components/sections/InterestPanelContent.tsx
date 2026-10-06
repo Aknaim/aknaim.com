@@ -19,7 +19,7 @@ function shouldFallback(
   fallbackBySrc: Record<string, boolean>,
   src: string,
 ): boolean {
-  return fallbackBySrc[src] ?? true;
+  return fallbackBySrc[src] ?? false;
 }
 
 export function InterestPanelContent({

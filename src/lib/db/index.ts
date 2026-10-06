@@ -36,6 +36,8 @@ function getDb(): AppDatabase {
 
   // Production / Neon: HTTP driver (Cloudflare Workers–friendly).
   // Local Docker: postgres.js over TCP.
+  // Always cache on the isolate — recreating Neon clients per query blows
+  // Worker CPU/memory (Error 1102) under OpenNext on Cloudflare.
   const db = isNeonUrl(url)
     ? drizzleNeon(neon(url), { schema })
     : drizzlePostgres(
@@ -43,18 +45,16 @@ function getDb(): AppDatabase {
         { schema }
       );
 
-  if (process.env.NODE_ENV !== "production") {
-    globalForDb.drizzleDb = db;
-  }
-
+  globalForDb.drizzleDb = db;
   return db;
 }
 
 /** Lazy proxy so importing this module during `next build` does not require DATABASE_URL. */
 export const db = new Proxy({} as AppDatabase, {
   get(_target, prop, receiver) {
-    const value = Reflect.get(getDb(), prop, receiver);
-    return typeof value === "function" ? value.bind(getDb()) : value;
+    const instance = getDb();
+    const value = Reflect.get(instance, prop, receiver);
+    return typeof value === "function" ? value.bind(instance) : value;
   },
 });
 

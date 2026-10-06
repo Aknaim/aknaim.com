@@ -1,4 +1,4 @@
-import { asc, eq } from "drizzle-orm";
+import { asc, count, eq } from "drizzle-orm";
 import { db } from "@/lib/db";
 import {
   destinations,
@@ -36,6 +36,11 @@ export async function getTravelStats() {
     notes: row?.notesLabel ?? "0",
     memories: row?.memoriesLabel ?? "0",
   };
+}
+
+export async function countDestinations(): Promise<number> {
+  const [row] = await db.select({ value: count() }).from(destinations);
+  return row?.value ?? 0;
 }
 
 export async function getDestinations(): Promise<Destination[]> {

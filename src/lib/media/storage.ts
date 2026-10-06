@@ -1,14 +1,11 @@
 import { copyFile, mkdir, readdir, rename, rm, writeFile } from "fs/promises";
 import path from "path";
 import { randomUUID } from "crypto";
-import {
-  convertImageToWebp,
-  shouldConvertImageToWebp,
-  toWebpFileName,
-} from "@/lib/media/image-convert";
-import { isR2Configured, uploadToR2 } from "@/lib/media/r2";
+import { getMediaDriver, isR2Configured, type MediaDriver } from "@/lib/media/driver";
+import { getLocalMediaRoot } from "@/lib/media/local-root";
 
-export type MediaDriver = "local" | "r2";
+export type { MediaDriver };
+export { getMediaDriver, isR2Configured, getLocalMediaRoot };
 
 export type MediaUploadInput = {
   body: Buffer | Uint8Array;
@@ -53,36 +50,53 @@ function sanitizeFileName(name: string): string {
   return name.replace(/[^a-zA-Z0-9._-]/g, "-").replace(/^-+|-+$/g, "") || "file";
 }
 
-/**
- * Local next dev → filesystem under public/media (default).
- * Production → R2 (requires R2_* secrets).
- * Override with MEDIA_DRIVER=local|r2 (never point local .env at prod R2).
- */
-export function getMediaDriver(): MediaDriver {
-  const forced = process.env.MEDIA_DRIVER?.trim().toLowerCase();
-  if (forced === "local") return "local";
-  if (forced === "r2") return "r2";
-  return process.env.NODE_ENV === "production" ? "r2" : "local";
-}
-
-export function getLocalMediaRoot(): string {
-  return path.join(process.cwd(), "public", "media");
+function isCloudflareWorker(): boolean {
+  return (
+    typeof navigator !== "undefined" &&
+    // workerd / Cloudflare Workers identify themselves this way
+    navigator.userAgent === "Cloudflare-Workers"
+  );
 }
 
 async function prepareUpload(input: MediaUploadInput): Promise<MediaUploadInput> {
+  const { shouldConvertImageToWebp, toWebpFileName } = await import(
+    "@/lib/media/webp-name"
+  );
+
   if (!shouldConvertImageToWebp(input.contentType)) {
     return input;
   }
 
-  const body = await convertImageToWebp(input.body);
-  const preferredFileName = toWebpFileName(input.preferredFileName);
-  return {
-    ...input,
-    body,
-    contentType: "image/webp",
-    preferredFileName,
-    filename: preferredFileName ?? "image.webp",
-  };
+  // Admin UI converts to WebP in the browser before upload. On Workers we must
+  // not load native sharp (it crashes unenv). Pass WebP through; leave other
+  // images alone rather than serving mislabeled .webp bytes.
+  if (isCloudflareWorker() || input.contentType.toLowerCase().includes("image/webp")) {
+    const preferredFileName = toWebpFileName(input.preferredFileName);
+    return {
+      ...input,
+      preferredFileName,
+      filename: preferredFileName ?? input.filename ?? "image.webp",
+      contentType: input.contentType.toLowerCase().includes("image/webp")
+        ? "image/webp"
+        : input.contentType,
+    };
+  }
+
+  // Local Node (next dev) — sharp for EXIF rotate + WebP.
+  try {
+    const { convertImageToWebp } = await import("@/lib/media/image-convert");
+    const body = await convertImageToWebp(input.body);
+    const preferredFileName = toWebpFileName(input.preferredFileName);
+    return {
+      ...input,
+      body,
+      contentType: "image/webp",
+      preferredFileName,
+      filename: preferredFileName ?? "image.webp",
+    };
+  } catch {
+    return input;
+  }
 }
 
 async function uploadToLocal(input: MediaUploadInput): Promise<MediaUploadResult> {
@@ -92,7 +106,10 @@ async function uploadToLocal(input: MediaUploadInput): Promise<MediaUploadResult
     input.preferredFileName?.trim() || `${randomUUID()}.${ext}`
   );
   const key = `${folder}/${fileName}`;
-  const absolute = path.join(getLocalMediaRoot(), ...key.split("/"));
+  const absolute = path.join(
+    /* turbopackIgnore: true */ getLocalMediaRoot(),
+    ...key.split("/")
+  );
 
   await mkdir(path.dirname(absolute), { recursive: true });
   await writeFile(absolute, input.body);
@@ -122,8 +139,14 @@ export async function relocateLocalMediaUrl(
   if (url === targetUrl) return url;
 
   const sourceKey = url.replace(/^\/media\//, "");
-  const sourceAbs = path.join(getLocalMediaRoot(), ...sourceKey.split("/"));
-  const targetAbs = path.join(getLocalMediaRoot(), ...targetKey.split("/"));
+  const sourceAbs = path.join(
+    /* turbopackIgnore: true */ getLocalMediaRoot(),
+    ...sourceKey.split("/")
+  );
+  const targetAbs = path.join(
+    /* turbopackIgnore: true */ getLocalMediaRoot(),
+    ...targetKey.split("/")
+  );
 
   try {
     await mkdir(path.dirname(targetAbs), { recursive: true });
@@ -144,7 +167,10 @@ export async function relocateLocalMediaUrl(
 /** Remove a local media folder if it exists (used after climb rename). */
 export async function removeLocalMediaFolder(folder: string): Promise<void> {
   const targetFolder = sanitizeFolder(folder);
-  const absolute = path.join(getLocalMediaRoot(), ...targetFolder.split("/"));
+  const absolute = path.join(
+    /* turbopackIgnore: true */ getLocalMediaRoot(),
+    ...targetFolder.split("/")
+  );
   try {
     await rm(absolute, { recursive: true, force: true });
   } catch {
@@ -155,7 +181,10 @@ export async function removeLocalMediaFolder(folder: string): Promise<void> {
 /** True when a local media folder has no files left. */
 export async function localMediaFolderIsEmpty(folder: string): Promise<boolean> {
   const targetFolder = sanitizeFolder(folder);
-  const absolute = path.join(getLocalMediaRoot(), ...targetFolder.split("/"));
+  const absolute = path.join(
+    /* turbopackIgnore: true */ getLocalMediaRoot(),
+    ...targetFolder.split("/")
+  );
   try {
     const entries = await readdir(absolute);
     return entries.length === 0;
@@ -179,6 +208,7 @@ export async function uploadMedia(input: MediaUploadInput): Promise<MediaUploadR
     );
   }
 
+  const { uploadToR2 } = await import("@/lib/media/r2");
   const uploaded = await uploadToR2({
     body: prepared.body,
     contentType: prepared.contentType,

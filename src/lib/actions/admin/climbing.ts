@@ -2,6 +2,7 @@
 
 import { and, eq, inArray, ne, sql } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
+import { isRedirectError } from "next/dist/client/components/redirect-error";
 import { redirect } from "next/navigation";
 import { db } from "@/lib/db";
 import {
@@ -12,13 +13,12 @@ import {
   mediaAssets,
 } from "@/lib/db/schema";
 import { gradeFilterKey } from "@/lib/climbing-grades";
-import {
-  localMediaFolderIsEmpty,
-  relocateLocalMediaUrl,
-  removeLocalMediaFolder,
-} from "@/lib/media/storage";
-import { ensureMediaAssetId } from "./media";
+import { ensureMediaAssetId } from "./ensure-media-asset";
 import { requireAdminAction } from "./require-admin";
+
+async function mediaStorage() {
+  return import("@/lib/media/storage");
+}
 
 function slugify(value: string) {
   return value
@@ -38,7 +38,12 @@ function formatDateLabel(dateTaken: string): string {
   });
 }
 
-export async function createOrUpdateClimbingSend(formData: FormData) {
+export type ClimbSendSaveState = { error: string } | null;
+
+export async function createOrUpdateClimbingSend(
+  _prev: ClimbSendSaveState,
+  formData: FormData
+): Promise<ClimbSendSaveState> {
   await requireAdminAction();
 
   const routeName = String(formData.get("routeName") ?? "").trim();
@@ -80,7 +85,7 @@ export async function createOrUpdateClimbingSend(formData: FormData) {
     missing.push("photo (upload a still, or a send video and wait for the auto poster)");
   }
   if (missing.length > 0) {
-    throw new Error(`Missing required fields: ${missing.join(", ")}.`);
+    return { error: `Missing required fields: ${missing.join(", ")}.` };
   }
 
   const [nameConflict] = await db
@@ -95,9 +100,9 @@ export async function createOrUpdateClimbingSend(formData: FormData) {
     .limit(1);
 
   if (nameConflict) {
-    throw new Error(
-      `A climb named "${routeName}" already exists. Use a unique route name.`
-    );
+    return {
+      error: `A climb named "${routeName}" already exists. Use a unique route name.`,
+    };
   }
 
   if (slugChanged) {
@@ -107,12 +112,13 @@ export async function createOrUpdateClimbingSend(formData: FormData) {
       .where(eq(climbingSends.slug, slug))
       .limit(1);
     if (slugConflict) {
-      throw new Error(
-        `Another climb already uses folder id "${slug}". Change the name or color.`
-      );
+      return {
+        error: `Another climb already uses folder id "${slug}". Change the name or color.`,
+      };
     }
   }
 
+  try {
   const climbFolder = `climbing/${slug}`;
 
   async function settleAsset(
@@ -122,7 +128,25 @@ export async function createOrUpdateClimbingSend(formData: FormData) {
     alt: string,
     mediaType: "image" | "video" = "image"
   ): Promise<{ id: string; url: string }> {
-    const finalUrl = await relocateLocalMediaUrl(url, climbFolder, fileName);
+    // Move into climbing/<slug>/… on save (local disk or R2).
+    // Avoid static storage imports — only load when needed.
+    let finalUrl = url;
+    if (url.startsWith("/media/")) {
+      const { relocateLocalMediaUrl } = await mediaStorage();
+      finalUrl = await relocateLocalMediaUrl(url, climbFolder, fileName);
+    } else {
+      try {
+        const { getR2PublicBaseUrl, relocateR2PublicUrl } = await import(
+          "@/lib/media/r2"
+        );
+        if (url.startsWith(`${getR2PublicBaseUrl()}/`)) {
+          finalUrl = await relocateR2PublicUrl(url, climbFolder, fileName);
+        }
+      } catch {
+        // R2 not configured or copy failed — keep original URL.
+        finalUrl = url;
+      }
+    }
 
     const [owner] = await db
       .select({ id: mediaAssets.id })
@@ -194,6 +218,7 @@ export async function createOrUpdateClimbingSend(formData: FormData) {
     await db.delete(climbingSends).where(eq(climbingSends.slug, previousSlug));
 
     const oldFolder = `climbing/${previousSlug}`;
+    const { localMediaFolderIsEmpty, removeLocalMediaFolder } = await mediaStorage();
     if (await localMediaFolderIsEmpty(oldFolder)) {
       await removeLocalMediaFolder(oldFolder);
     } else {
@@ -339,7 +364,14 @@ export async function createOrUpdateClimbingSend(formData: FormData) {
   revalidatePath("/climbing");
   revalidatePath("/gallery/climbing");
   revalidatePath("/admin/climbing");
+  revalidatePath(`/admin/climbing/${slug}`);
   redirect(`/admin/climbing/${slug}`);
+  } catch (error) {
+    if (isRedirectError(error)) throw error;
+    const message =
+      error instanceof Error ? error.message : "Could not save climb.";
+    return { error: message };
+  }
 }
 
 export async function createOrUpdateClimbingProject(formData: FormData) {
@@ -399,18 +431,3 @@ export async function createOrUpdateClimbingProject(formData: FormData) {
   redirect("/admin/climbing");
 }
 
-export async function deleteClimbingSend(formData: FormData) {
-  await requireAdminAction();
-  const slug = String(formData.get("slug") ?? "");
-  if (!slug) return;
-
-  await db.delete(galleryItems).where(eq(galleryItems.id, `climb-${slug}-still`));
-  await db.delete(galleryItems).where(eq(galleryItems.id, `climb-${slug}-grade`));
-  await db.delete(galleryItems).where(eq(galleryItems.id, `climb-${slug}-send`));
-  await db.delete(climbingSends).where(eq(climbingSends.slug, slug));
-
-  revalidatePath("/climbing");
-  revalidatePath("/gallery/climbing");
-  revalidatePath("/admin/climbing");
-  redirect("/admin/climbing");
-}

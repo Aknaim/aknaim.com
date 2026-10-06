@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { getMediaDriver } from "@/lib/media/storage";
-import { isR2Configured } from "@/lib/media/r2";
+import { getMediaDriver, isR2Configured } from "@/lib/media/driver";
 import { listMediaAssets } from "@/lib/db/queries/media";
 import { MediaUploadForm } from "@/components/sections/admin/MediaUploadForm";
 
@@ -36,7 +35,7 @@ export default async function AdminMediaPage() {
         Active driver:{" "}
         <span className="text-white">{driver}</span>
         {driver === "local"
-          ? " — files land under public/media (junction). Prod R2 is not used."
+          ? " — files land under LOCAL_MEDIA_ROOT (or public/media). Prod R2 is not used."
           : r2Ready
             ? " — uploading to Cloudflare R2."
             : " — R2 selected but credentials are missing."}

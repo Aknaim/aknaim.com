@@ -1,14 +1,14 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { deleteRecipe } from "@/lib/actions/admin/recipes";
-import { getAllRecipes } from "@/lib/db/queries/recipes";
+import { listRecipesForAdmin } from "@/lib/db/queries/recipes";
 
 export const metadata: Metadata = {
   title: "Admin Recipes",
 };
 
 export default async function AdminRecipesPage() {
-  const recipes = await getAllRecipes();
+  const recipes = await listRecipesForAdmin();
 
   return (
     <main className="space-y-8">

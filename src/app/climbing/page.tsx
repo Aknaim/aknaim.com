@@ -3,10 +3,9 @@ import Image from "next/image";
 import Link from "next/link";
 import { InterestGearList } from "@/components/sections/InterestGearList";
 import {
-  getClimbingCurrentLevel,
   getClimbingGalleryHref,
   getClimbingGearItems,
-  getClimbingProgression,
+  getClimbingProgressionBundle,
   getClimbingStats,
 } from "@/lib/db/queries/climbing";
 
@@ -14,15 +13,15 @@ export const metadata: Metadata = {
   title: "Climbing",
 };
 
-export const dynamic = "force-dynamic";
+/** Cache HTML briefly — stats/progression don't need per-request freshness. */
+export const revalidate = 60;
 
 export default async function ClimbingPage() {
-  const [climbingStats, climbingGearItems, progressionTimeline, currentLevel] =
+  const [climbingStats, climbingGearItems, { timeline: progressionTimeline, currentLevel }] =
     await Promise.all([
       getClimbingStats(),
       getClimbingGearItems(),
-      getClimbingProgression(),
-      getClimbingCurrentLevel(),
+      getClimbingProgressionBundle(),
     ]);
 
   return (

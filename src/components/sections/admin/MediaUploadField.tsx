@@ -1,7 +1,7 @@
 "use client";
 
-import { useEffect, useState, useTransition } from "react";
-import { uploadMediaAsset } from "@/lib/actions/admin/media";
+import { useEffect, useState } from "react";
+import { uploadAdminMediaFile } from "@/lib/media/upload-client";
 
 interface MediaUploadFieldProps {
   /** Hidden input name that receives the public URL after upload */
@@ -22,6 +22,8 @@ interface MediaUploadFieldProps {
   onFileSelected?: (file: File) => void;
   /** Notify parent when URL / media id change (upload, paste, or external sync) */
   onAssetChange?: (next: { url: string; mediaId: string }) => void;
+  /** Notify parent when an upload starts/finishes */
+  onPendingChange?: (pending: boolean) => void;
   /** Push an externally uploaded URL into this field (e.g. auto poster from video) */
   externalUrl?: string;
   externalMediaId?: string;
@@ -41,13 +43,15 @@ export function MediaUploadField({
   defaultMediaId = "",
   onFileSelected,
   onAssetChange,
+  onPendingChange,
   externalUrl,
   externalMediaId,
 }: MediaUploadFieldProps) {
   const [url, setUrl] = useState(defaultUrl);
   const [mediaId, setMediaId] = useState(defaultMediaId);
   const [error, setError] = useState<string | null>(null);
-  const [pending, startTransition] = useTransition();
+  const [pending, setPending] = useState(false);
+  const [status, setStatus] = useState<string | null>(null);
 
   useEffect(() => {
     if (externalUrl === undefined) return;
@@ -63,27 +67,36 @@ export function MediaUploadField({
     onAssetChange?.({ url: nextUrl, mediaId: nextMediaId });
   }
 
-  function onFileChange(fileList: FileList | null) {
+  async function onFileChange(fileList: FileList | null) {
     const file = fileList?.[0];
     if (!file || disabled) return;
 
     onFileSelected?.(file);
 
-    const formData = new FormData();
-    formData.set("file", file);
-    formData.set("folder", folder);
-    formData.set("alt", label);
-    if (fileName) formData.set("fileName", fileName);
-
     setError(null);
-    startTransition(async () => {
-      const result = await uploadMediaAsset(formData);
+    setStatus(null);
+    setPending(true);
+    onPendingChange?.(true);
+    try {
+      const result = await uploadAdminMediaFile({
+        file,
+        folder,
+        alt: label,
+        fileName,
+        onProgress: (progress) => setStatus(progress.label),
+      });
       if (!result.ok) {
         setError(result.error);
         return;
       }
       commit(result.url, result.id);
-    });
+      setStatus(null);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Upload failed.");
+    } finally {
+      setPending(false);
+      onPendingChange?.(false);
+    }
   }
 
   return (
@@ -108,7 +121,7 @@ export function MediaUploadField({
             type="file"
             accept={accept}
             disabled={pending}
-            onChange={(e) => onFileChange(e.target.files)}
+            onChange={(e) => void onFileChange(e.target.files)}
             className="block w-full text-xs text-foreground-muted file:mr-3 file:border file:border-[#262626] file:bg-[#141414] file:px-3 file:py-1.5 file:text-[10px] file:uppercase file:tracking-widest file:text-white hover:file:border-accent disabled:opacity-40"
           />
 
@@ -131,12 +144,14 @@ export function MediaUploadField({
       )}
 
       {pending ? (
-        <p className="font-mono text-[10px] text-foreground-muted">Uploading…</p>
+        <p className="font-mono text-[10px] text-amber-400/90">
+          {status ?? "Uploading… wait before saving"}
+        </p>
       ) : null}
       {error ? <p className="font-mono text-[10px] text-red-400">{error}</p> : null}
       {url && !pending && !disabled ? (
         <p className="font-mono text-[10px] text-accent/80 truncate" title={url}>
-          {url}
+          Ready · {url}
         </p>
       ) : null}
     </div>

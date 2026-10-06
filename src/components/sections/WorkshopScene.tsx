@@ -98,7 +98,7 @@ export function WorkshopScene({
                           src={item.bagImage}
                           alt=""
                           icon={item.icon}
-                          forceFallback={fallbackBySrc[item.bagImage] ?? true}
+                          forceFallback={fallbackBySrc[item.bagImage] ?? false}
                           fill
                           sizes="40px"
                           fallbackVariant="cupboard"
@@ -137,7 +137,7 @@ export function WorkshopScene({
                   key={item.id}
                   item={item}
                   isActive={item.id === focused?.id}
-                  bagFallback={fallbackBySrc[item.bagImage] ?? true}
+                  bagFallback={fallbackBySrc[item.bagImage] ?? false}
                   onEnter={() => setHoveredId(item.id)}
                 />
               ))}
@@ -150,7 +150,7 @@ export function WorkshopScene({
               >
                 <PeekCard
                   item={focused}
-                  peekFallback={fallbackBySrc[focused.peekImage] ?? true}
+                  peekFallback={fallbackBySrc[focused.peekImage] ?? false}
                 />
               </Link>
             ) : null}

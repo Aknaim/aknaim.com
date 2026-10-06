@@ -54,7 +54,7 @@ export function ActiveWorkbench({
                   key={item.id}
                   item={item}
                   isActive={item.id === focused?.id}
-                  bagFallback={fallbackBySrc[item.bagImage] ?? true}
+                  bagFallback={fallbackBySrc[item.bagImage] ?? false}
                   onEnter={() => setHoveredId(item.id)}
                   onFocus={() => setHoveredId(item.id)}
                 />
@@ -70,7 +70,7 @@ export function ActiveWorkbench({
               >
                 <PeekFrame
                   item={focused}
-                  peekFallback={fallbackBySrc[focused.peekImage] ?? true}
+                  peekFallback={fallbackBySrc[focused.peekImage] ?? false}
                 />
               </Link>
             ) : (

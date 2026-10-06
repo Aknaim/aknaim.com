@@ -5,7 +5,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { db } from "@/lib/db";
 import { galleryItems } from "@/lib/db/schema";
-import { ensureMediaAssetId } from "./media";
+import { ensureMediaAssetId } from "./ensure-media-asset";
 import { requireAdminAction } from "./require-admin";
 
 function slugify(value: string) {
