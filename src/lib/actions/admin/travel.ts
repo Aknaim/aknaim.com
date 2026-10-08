@@ -17,6 +17,7 @@ import {
 import { countDestinations } from "@/lib/db/queries/travel";
 import { tripMediaPaths } from "@/lib/media/trip-paths";
 import { ensureMediaAssetId } from "./ensure-media-asset";
+import { revalidateTravelPublicPages } from "@/lib/cache/revalidate-public";
 import { requireAdminAction } from "./require-admin";
 
 export type TravelPlaceSaveState = { error: string } | null;
@@ -492,11 +493,6 @@ export async function deleteDestination(formData: FormData) {
 /** Bust stale ISR for public travel pages (R2 long-lived cache). */
 export async function refreshTravelPublicPages() {
   await requireAdminAction();
-  revalidatePath("/travel");
-  revalidatePath("/gallery/travel");
-  const rows = await db.select({ id: destinations.id }).from(destinations);
-  for (const row of rows) {
-    revalidatePath(`/travel/${row.id}`);
-  }
+  await revalidateTravelPublicPages();
   redirect("/admin/travel?refreshed=1");
 }

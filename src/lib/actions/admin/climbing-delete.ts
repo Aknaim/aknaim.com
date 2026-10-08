@@ -3,6 +3,7 @@
 import { eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
+import { revalidateClimbingPublicPages } from "@/lib/cache/revalidate-public";
 import { db } from "@/lib/db";
 import { climbingSends, galleryItems } from "@/lib/db/schema";
 import { requireAdminAction } from "./require-admin";
@@ -26,7 +27,6 @@ export async function deleteClimbingSend(formData: FormData) {
 /** Bust stale ISR for the public climbing page (R2 long-lived cache). */
 export async function refreshClimbingPublicPage() {
   await requireAdminAction();
-  revalidatePath("/climbing");
-  revalidatePath("/gallery/climbing");
+  revalidateClimbingPublicPages();
   redirect("/admin/climbing?refreshed=1");
 }

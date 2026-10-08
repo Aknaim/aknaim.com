@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
+import { revalidateCoursePublicPages } from "@/lib/cache/revalidate-public";
 import { isIsoDate } from "@/lib/dates";
 import { getCourseDefinition } from "@/lib/db/queries/courses";
 import { db } from "@/lib/db";
@@ -69,14 +70,6 @@ export async function saveCourseCompletion(
   revalidateCoursePublicPages();
 
   redirect(`/admin/courses/${id}?saved=1`);
-}
-
-/** Bust stale ISR for all public course pages (R2 long-lived cache). */
-function revalidateCoursePublicPages() {
-  revalidatePath("/photography");
-  revalidatePath("/cooking");
-  revalidatePath("/carpentry");
-  revalidatePath("/languages");
 }
 
 export async function refreshCoursePublicPages() {
