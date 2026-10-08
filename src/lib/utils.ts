@@ -31,6 +31,7 @@ const INTEREST_PAGE_HREF: Partial<Record<InterestId, string>> = {
   "video-games": "/video-games",
   photography: "/photography",
   woodworking: "/carpentry",
+  languages: "/languages",
 };
 
 export function getInterestHref(interestId: InterestId): string {

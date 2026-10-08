@@ -184,6 +184,39 @@ export const siteData: SiteData = {
       ],
     },
     {
+      id: "languages",
+      label: "Languages",
+      icon: "Languages",
+      status: "dormant",
+      bagImage: "/images/hero/bag-languages.jpg",
+      peekImage: "/images/hero/peek-languages.jpg",
+      peekCaption: "Notebook, pencil, and the slow work of a new alphabet.",
+      workbenchNote: "Arabic script and MSA — building fluency one class at a time.",
+      panelAnchor: "languages",
+      tagline: "Script, sound, and the slow work of becoming fluent enough to mean it.",
+      heroImage: "/images/hero/hero-languages.jpg",
+      tabs: [
+        {
+          id: "courses",
+          label: "Courses",
+          items: [
+            {
+              id: "lgc1",
+              title: "Arabic Script",
+              meta: "SCS 3127 · U of T SCS",
+              linkUrl: "/languages",
+            },
+            {
+              id: "lgc2",
+              title: "Arabic (Modern Standard): Level I",
+              meta: "SCS 2388 · U of T SCS",
+              linkUrl: "/languages",
+            },
+          ],
+        },
+      ],
+    },
+    {
       id: "travel",
       label: "Travel",
       icon: "Plane",
@@ -752,5 +785,6 @@ export const siteData: SiteData = {
       { id: "league", label: "LEAGUE" },
       { id: "profiles", label: "PROFILES" },
     ],
+    languages: [{ id: "courses", label: "COURSES" }],
   },
 };

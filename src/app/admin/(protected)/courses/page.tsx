@@ -20,9 +20,14 @@ export default async function AdminCoursesPage({
     <main className="space-y-8">
       <div className="flex items-end justify-between gap-4">
         <div>
-          <h1 className="font-display text-3xl font-light text-white">Courses</h1>
+          <h1 className="font-display text-3xl font-light text-white">
+            Courses{" "}
+            <span className="font-mono text-base text-foreground-muted align-middle">
+              ({courses.length})
+            </span>
+          </h1>
           <p className="text-sm text-foreground-muted mt-2">
-            Set start and end dates for photography, cooking, and carpentry courses.
+            Set start and end dates for photography, cooking, carpentry, and languages courses.
             Titles and syllabi stay in code.
           </p>
           {refreshed ? (

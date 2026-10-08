@@ -1,6 +1,7 @@
 import { asc } from "drizzle-orm";
 import { CARPENTRY_COURSES } from "@/lib/courses/carpentry";
 import { COOKING_COURSES } from "@/lib/courses/cooking";
+import { LANGUAGES_COURSES } from "@/lib/courses/languages";
 import { PHOTOGRAPHY_COURSES } from "@/lib/courses/photography";
 import type { Course, CourseDefinition, CourseInterest } from "@/lib/courses/types";
 import { toIsoDate } from "@/lib/dates";
@@ -11,6 +12,7 @@ const ALL_COURSES: CourseDefinition[] = [
   ...PHOTOGRAPHY_COURSES,
   ...COOKING_COURSES,
   ...CARPENTRY_COURSES,
+  ...LANGUAGES_COURSES,
 ];
 
 type CourseDates = {

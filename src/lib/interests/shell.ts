@@ -42,7 +42,25 @@ export async function readInterestShellMap(): Promise<InterestShellMap> {
   try {
     const stored = await kv.get<InterestShellMap>(KV_KEY, "json");
     if (!stored || typeof stored !== "object") return fallback;
-    return { ...fallback, ...stored };
+    // Per-id merge so newly added interests keep siteData defaults when KV
+    // was published before they existed (spread alone left stale gaps).
+    const merged = { ...fallback };
+    for (const id of Object.keys(fallback) as InterestId[]) {
+      const override = stored[id];
+      if (!override || typeof override !== "object") continue;
+      merged[id] = {
+        status: override.status ?? fallback[id].status,
+        workbenchNote:
+          override.workbenchNote !== undefined
+            ? override.workbenchNote
+            : fallback[id].workbenchNote,
+        lastActive:
+          override.lastActive !== undefined
+            ? override.lastActive
+            : fallback[id].lastActive,
+      };
+    }
+    return merged;
   } catch {
     return fallback;
   }

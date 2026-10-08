@@ -1,12 +1,11 @@
 import "dotenv/config";
-import { eq, notInArray } from "drizzle-orm";
+import { eq, inArray, notInArray } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/postgres-js";
 import postgres from "postgres";
 import {
   allRecipes,
   cookingGearItems,
 } from "../data/recipes";
-import { omanTripData } from "../data/trips/oman";
 import {
   climbingGallerySeedItems,
   climbingGearItems,
@@ -16,6 +15,9 @@ import {
 } from "../climbingData";
 import {
   destinations,
+  legacyTravelGallerySeedIds,
+  omanTripMomentSeeds,
+  omanTripRouteMapSrc,
   travelGallerySeedItems,
   travelStats as travelStatsData,
 } from "../travelData";
@@ -385,7 +387,7 @@ async function seed() {
           photosCount: dest.photosCount,
           notesCount: dest.notesCount,
           dateLabel: dest.date,
-          imageMediaId,
+          // Do not overwrite imageMediaId — admin uploads win after first seed.
           mapX: dest.mapCoordinates.x,
           mapY: dest.mapCoordinates.y,
           sortOrder: index,
@@ -393,94 +395,59 @@ async function seed() {
       });
   }
 
-  const trip = omanTripData;
-  const heroMediaId = await ensureMedia(db, trip.heroImage, trip.country);
-  const routeMapMediaId = await ensureMedia(db, trip.route.mapImage, "Route map");
-  const gearMediaId = await ensureMedia(db, trip.gearImage, "Gear");
-
-  await db
-    .insert(schema.trips)
-    .values({
-      id: trip.id,
-      country: trip.country,
-      dateLabel: trip.date,
-      summary: trip.summary,
-      heroMediaId,
-      statDays: trip.stats.days,
-      statRegions: trip.stats.stops,
-      statPhotos: trip.stats.photos,
-      statCountries: 1,
-      routeMapMediaId,
-      routeNote: trip.route.note,
-      gearMediaId,
-      reflectionExcerpt: trip.reflection.excerpt,
-      reflectionSlug: trip.reflection.slug,
+  // Oman trip: keep curated route map + moments; do not touch hero/summary/admin fields.
+  const [omanTrip] = await db
+    .select({
+      id: schema.trips.id,
+      heroMediaId: schema.trips.heroMediaId,
+      routeMapMediaId: schema.trips.routeMapMediaId,
     })
-    .onConflictDoUpdate({
-      target: schema.trips.id,
-      set: {
-        country: trip.country,
-        dateLabel: trip.date,
-        summary: trip.summary,
-        heroMediaId,
-        statDays: trip.stats.days,
-        statRegions: trip.stats.stops,
-        statPhotos: trip.stats.photos,
-        statCountries: 1,
-        routeMapMediaId,
-        routeNote: trip.route.note,
-        gearMediaId,
-        reflectionExcerpt: trip.reflection.excerpt,
-        reflectionSlug: trip.reflection.slug,
-      },
-    });
+    .from(schema.trips)
+    .where(eq(schema.trips.id, "oman"))
+    .limit(1);
 
-  await db.delete(schema.tripRouteStops).where(eq(schema.tripRouteStops.tripId, trip.id));
-  await db.delete(schema.tripTimeline).where(eq(schema.tripTimeline.tripId, trip.id));
-  await db.delete(schema.tripMoments).where(eq(schema.tripMoments.tripId, trip.id));
-  await db.delete(schema.tripFieldNotes).where(eq(schema.tripFieldNotes.tripId, trip.id));
-  await db
-    .delete(schema.tripFavoritePlaces)
-    .where(eq(schema.tripFavoritePlaces.tripId, trip.id));
+  if (omanTrip) {
+    const [routeMapAsset] = await db
+      .select({ url: schema.mediaAssets.url })
+      .from(schema.mediaAssets)
+      .where(eq(schema.mediaAssets.id, omanTrip.routeMapMediaId))
+      .limit(1);
 
-  if (trip.route.stops.length > 0) {
-    await db.insert(schema.tripRouteStops).values(
-      trip.route.stops.map((stop, index) => ({
-        tripId: trip.id,
-        name: stop.name,
-        coordX: stop.coordinates.x,
-        coordY: stop.coordinates.y,
-        sortOrder: index,
-      }))
-    );
-  }
-  for (const [index, moment] of trip.moments.entries()) {
-    const imageMediaId = await ensureMedia(db, moment.imageSrc, moment.title);
-    await db.insert(schema.tripMoments).values({
-      tripId: trip.id,
-      title: moment.title,
-      photoCount: moment.photoCount,
-      imageMediaId,
-      sortOrder: index,
-    });
-  }
-  await db.insert(schema.tripFieldNotes).values(
-    trip.fieldNotes.map((note, index) => ({
-      tripId: trip.id,
-      noteText: note,
-      sortOrder: index,
-    }))
-  );
-  for (const [index, place] of trip.favoritePlaces.entries()) {
-    const imageMediaId = await ensureMedia(db, place.imageSrc, place.title);
-    await db.insert(schema.tripFavoritePlaces).values({
-      tripId: trip.id,
-      title: place.title,
-      location: place.location,
-      description: place.description,
-      imageMediaId,
-      sortOrder: index,
-    });
+    const routeIsPlaceholder =
+      omanTrip.routeMapMediaId === omanTrip.heroMediaId ||
+      !routeMapAsset ||
+      routeMapAsset.url === omanTripRouteMapSrc;
+
+    if (routeIsPlaceholder) {
+      const routeMapMediaId = await ensureMedia(
+        db,
+        omanTripRouteMapSrc,
+        "Oman route map"
+      );
+      await db
+        .update(schema.trips)
+        .set({ routeMapMediaId })
+        .where(eq(schema.trips.id, "oman"));
+    }
+
+    const existingMoments = await db
+      .select({ id: schema.tripMoments.id })
+      .from(schema.tripMoments)
+      .where(eq(schema.tripMoments.tripId, "oman"))
+      .limit(1);
+
+    if (existingMoments.length === 0) {
+      for (const [index, moment] of omanTripMomentSeeds.entries()) {
+        const imageMediaId = await ensureMedia(db, moment.imageSrc, moment.title);
+        await db.insert(schema.tripMoments).values({
+          tripId: "oman",
+          title: moment.title,
+          photoCount: moment.photoCount,
+          imageMediaId,
+          sortOrder: index,
+        });
+      }
+    }
   }
 
   await db
@@ -501,6 +468,13 @@ async function seed() {
         memoriesLabel: travelStatsData.memories,
       },
     });
+
+  // Drop legacy Oman stock gallery rows; keep real admin uploads.
+  if (legacyTravelGallerySeedIds.length > 0) {
+    await db
+      .delete(schema.galleryItems)
+      .where(inArray(schema.galleryItems.id, [...legacyTravelGallerySeedIds]));
+  }
 
   for (const [index, item] of travelGallerySeedItems.entries()) {
     const mediaAssetId = await ensureMedia(db, item.src, item.alt);

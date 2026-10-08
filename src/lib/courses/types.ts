@@ -1,4 +1,4 @@
-export type CourseInterest = "photography" | "cooking" | "carpentry";
+export type CourseInterest = "photography" | "cooking" | "carpentry" | "languages";
 
 export interface CourseSession {
   label: string;

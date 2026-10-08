@@ -5,7 +5,8 @@ export type InterestId =
   | "travel"
   | "woodworking"
   | "chess"
-  | "video-games";
+  | "video-games"
+  | "languages";
 
 export type NavItemId = "travel" | "notes" | "about";
 

@@ -76,6 +76,7 @@ function revalidateCoursePublicPages() {
   revalidatePath("/photography");
   revalidatePath("/cooking");
   revalidatePath("/carpentry");
+  revalidatePath("/languages");
 }
 
 export async function refreshCoursePublicPages() {

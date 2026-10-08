@@ -31,6 +31,11 @@ const defaults = {
     workbenchNote: "Chasing light — primes, landscapes, and golden-hour alarms.",
     lastActive: "2024-10-01",
   },
+  languages: {
+    status: "dormant",
+    workbenchNote: "Arabic script and MSA — building fluency one class at a time.",
+    lastActive: null,
+  },
   travel: {
     status: "active",
     workbenchNote: "Trip notes, galleries, and mapping the next slow road.",
