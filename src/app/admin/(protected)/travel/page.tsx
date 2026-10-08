@@ -69,12 +69,18 @@ export default async function AdminTravelPage({
                 </div>
               </div>
               <div className="flex items-center gap-3">
-                <Link
-                  href={`/travel/${dest.id}`}
-                  className="font-mono text-[10px] uppercase tracking-widest text-foreground-muted hover:text-white"
-                >
-                  View
-                </Link>
+                {dest.hasDetail ? (
+                  <Link
+                    href={`/travel/${dest.id}`}
+                    className="font-mono text-[10px] uppercase tracking-widest text-foreground-muted hover:text-white"
+                  >
+                    View
+                  </Link>
+                ) : (
+                  <span className="font-mono text-[10px] uppercase tracking-widest text-foreground-subtle">
+                    Card only
+                  </span>
+                )}
                 <form action={deleteDestination}>
                   <input type="hidden" name="id" value={dest.id} />
                   <button

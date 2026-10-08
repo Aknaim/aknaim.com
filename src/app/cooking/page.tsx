@@ -90,7 +90,7 @@ export default async function CookingPage() {
 
           <div className="relative aspect-[4/3] lg:aspect-square order-1 lg:order-2 rounded-card border border-[#141414] overflow-hidden bg-[#0c0c0c]">
             <Image
-              src="/images/hero/peek-cooking.jpg"
+              src="/images/hero/hero-cooking.jpg"
               alt="Wood-fired pizza on a dark wooden surface"
               fill
               className="object-cover"

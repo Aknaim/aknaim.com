@@ -244,7 +244,7 @@ export function TravelPlaceAdminForm({
             accept="image/*"
             defaultUrl={
               trip?.route.mapImage &&
-              trip.route.mapImage.split("?")[0] !== trip.heroImage.split("?")[0]
+              trip.route.mapImage.split("?")[0] !== (trip.heroImage ?? "").split("?")[0]
                 ? trip.route.mapImage
                 : ""
             }

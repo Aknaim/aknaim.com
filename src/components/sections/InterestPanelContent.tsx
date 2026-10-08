@@ -115,15 +115,6 @@ function PanelBody({
           fallbackBySrc={fallbackBySrc}
         />
       );
-    case "engineering":
-      return (
-        <EngineeringBody
-          projects={projects}
-          label={label}
-          icon={icon}
-          fallbackBySrc={fallbackBySrc}
-        />
-      );
     default:
       return null;
   }
@@ -332,53 +323,3 @@ function WoodworkingBody({
   );
 }
 
-function EngineeringBody({
-  projects,
-  label,
-  icon,
-  fallbackBySrc,
-}: {
-  projects: Project[];
-  label: string;
-  icon: string;
-  fallbackBySrc: Record<string, boolean>;
-}) {
-  const engineering = projects.filter((p) => p.category === "engineering");
-  const featured =
-    engineering.find((p) => p.featured) ?? engineering[0];
-
-  return (
-    <div className="grid flex-1 gap-4 lg:grid-cols-[1fr_1fr]">
-      <ul className="flex flex-col gap-2">
-        {engineering.map((project) => (
-          <li key={project.id}>
-            <ListRow
-              title={project.title}
-              date={project.date}
-              href={project.href}
-              badge={project.stack[0]}
-            />
-          </li>
-        ))}
-      </ul>
-      {featured ? (
-        <div className="flex flex-col gap-3">
-          <ImageFrame
-            src={featured.diagramImage}
-            alt={`${label} system diagram`}
-            icon={icon}
-            forceFallback={shouldFallback(
-              fallbackBySrc,
-              featured.diagramImage,
-            )}
-            className="min-h-[200px] flex-1"
-            scrim={false}
-          />
-          <p className="text-meta leading-relaxed text-foreground-muted">
-            {featured.description}
-          </p>
-        </div>
-      ) : null}
-    </div>
-  );
-}

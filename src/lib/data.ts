@@ -39,12 +39,6 @@ export const siteData: SiteData = {
 
   navigation: [
     {
-      id: "journal",
-      label: "Journal",
-      href: "/journal",
-      external: false,
-    },
-    {
       id: "about",
       label: "About",
       href: "/about",
@@ -53,46 +47,6 @@ export const siteData: SiteData = {
   ],
 
   interests: [
-    {
-      id: "engineering",
-      label: "Engineering",
-      icon: "Cpu",
-      status: "active",
-      bagImage: "/images/hero/bag-engineering.jpg",
-      peekImage: "/images/hero/peek-engineering.jpg",
-      peekCaption: "Mechanical keyboard, observability diagrams, and dense system specs.",
-      workbenchNote: "Building and tuning systems — the day job on the bench.",
-      panelAnchor: "engineering",
-      tagline: "Systems, code, and solving problems at scale.",
-      heroImage: "/images/hero/hero-engineering.jpg",
-      tabs: [
-        {
-          id: "projects",
-          label: "Projects",
-          items: [
-            { id: "e1", title: "ML Inference Pipeline", meta: "Apr 30, 2026", linkUrl: "/projects/inference" },
-            { id: "e2", title: "Event Processing System", meta: "Mar 22, 2026" },
-            { id: "e3", title: "API Rate Limiter", meta: "Feb 8, 2026" }
-          ]
-        },
-        {
-          id: "notes",
-          label: "Notes",
-          items: [
-            { id: "en1", title: "Distributed Consensus Mechanics", meta: "Core Engineering Architecture" },
-            { id: "en2", title: "Linux Kernel Memory Tuning", meta: "Performance Optimization" }
-          ]
-        },
-        {
-          id: "systems",
-          label: "Systems",
-          items: [
-            { id: "es1", title: "Kubernetes Core Cluster", meta: "Bare metal setup" },
-            { id: "es2", title: "Grafana Stack", meta: "Distributed Metrics Pipeline" }
-          ]
-        }
-      ]
-    },
     {
       id: "climbing",
       label: "Climbing",
@@ -770,66 +724,6 @@ export const siteData: SiteData = {
       featured: false,
       material: "Ash",
     },
-    {
-      id: "eng-portfolio",
-      category: "engineering",
-      tag: "projects",
-      title: "akN.com",
-      date: "2026-05-22",
-      description:
-        "Personal portfolio built with Next.js App Router and Tailwind v4.",
-      image: "/images/engineering/system-diagram.jpg",
-      href: "https://github.com/akN/akN.com",
-      stack: ["Next.js", "TypeScript", "Tailwind CSS"],
-      diagramImage: "/images/engineering/system-diagram.jpg",
-      featured: true,
-      repositoryUrl: "https://github.com/akN/akN.com",
-    },
-    {
-      id: "eng-api-gateway",
-      category: "engineering",
-      tag: "system-design",
-      title: "API gateway service",
-      date: "2024-08-01",
-      description:
-        "Rate-limited edge gateway with JWT validation and observability.",
-      image: "/images/engineering/system-diagram.jpg",
-      href: "/engineering/api-gateway",
-      stack: ["Node.js", "Redis", "Docker", "AWS"],
-      diagramImage: "/images/engineering/system-diagram.jpg",
-      featured: false,
-      repositoryUrl: "https://github.com/akN/api-gateway",
-    },
-    {
-      id: "eng-data-pipeline",
-      category: "engineering",
-      tag: "system-design",
-      title: "Event ingestion pipeline",
-      date: "2024-02-15",
-      description:
-        "Batch and stream processing with idempotent writes to warehouse.",
-      image: "/images/engineering/system-diagram.jpg",
-      href: "/engineering/data-pipeline",
-      stack: ["Python", "PostgreSQL", "S3", "Lambda"],
-      diagramImage: "/images/engineering/system-diagram.jpg",
-      featured: false,
-      repositoryUrl: "https://github.com/akN/data-pipeline",
-    },
-    {
-      id: "eng-infra-automation",
-      category: "engineering",
-      tag: "docs",
-      title: "Infrastructure automation",
-      date: "2023-12-01",
-      description:
-        "Terraform modules for reproducible staging and production environments.",
-      image: "/images/engineering/system-diagram.jpg",
-      href: "/engineering/infra-automation",
-      stack: ["Terraform", "AWS", "GitHub Actions"],
-      diagramImage: "/images/engineering/system-diagram.jpg",
-      featured: false,
-      repositoryUrl: "https://github.com/akN/infra-automation",
-    },
   ],
 
   sectionTabs: {
@@ -869,11 +763,6 @@ export const siteData: SiteData = {
       { id: "games", label: "GAMES" },
       { id: "league", label: "LEAGUE" },
       { id: "profiles", label: "PROFILES" },
-    ],
-    engineering: [
-      { id: "projects", label: "PROJECTS" },
-      { id: "system-design", label: "SYSTEM DESIGN" },
-      { id: "docs", label: "DOCS" },
     ],
   },
 };

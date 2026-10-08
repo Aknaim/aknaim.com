@@ -64,7 +64,7 @@ export function getFeaturedProject(category: InterestId): Project | undefined {
     if (project.category === "climbing") {
       return project.highlight;
     }
-    if (project.category === "woodworking" || project.category === "engineering") {
+    if (project.category === "woodworking") {
       return project.featured;
     }
     return false;

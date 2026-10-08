@@ -22,19 +22,19 @@ export interface Destination {
   
   export const destinations: Destination[] = [
     {
-      id: "toronto",
+      id: "canada",
       number: "01",
-      title: "Toronto, Canada",
+      title: "Canada",
       photosCount: 48,
       notesCount: 12,
       date: "May 2024",
-      imageSrc: "/images/travel/toronto.jpg",
+      imageSrc: "/images/travel/canada.jpg",
       mapCoordinates: { x: 31.5, y: 32.5 },
     },
     {
       id: "usa",
       number: "02",
-      title: "USA",
+      title: "United States",
       photosCount: 156,
       notesCount: 18,
       date: "Sep 2023",
@@ -42,23 +42,23 @@ export interface Destination {
       mapCoordinates: { x: 23.5, y: 35.0 },
     },
     {
-      id: "moscow",
+      id: "russia",
       number: "03",
-      title: "Moscow, Russia",
+      title: "Russia",
       photosCount: 72,
       notesCount: 9,
       date: "Jan 2023",
-      imageSrc: "/images/travel/moscow.jpg",
+      imageSrc: "/images/travel/russia.jpg",
       mapCoordinates: { x: 57.0, y: 24.5 },
     },
     {
-      id: "berlin",
+      id: "germany",
       number: "04",
-      title: "Berlin, Germany",
+      title: "Germany",
       photosCount: 64,
       notesCount: 11,
       date: "Jun 2023",
-      imageSrc: "/images/travel/berlin.jpg",
+      imageSrc: "/images/travel/germany.jpg",
       mapCoordinates: { x: 51.5, y: 28.5 },
     },
     {
@@ -78,17 +78,17 @@ export interface Destination {
       photosCount: 138,
       notesCount: 20,
       date: "Mar 2024",
-      imageSrc: "/images/travel/oman.jpg",
+      imageSrc: "https://media.aknaim.com/travel/oman/highlight.webp",
       mapCoordinates: { x: 61.8, y: 47.5 },
     },
     {
-      id: "delhi",
+      id: "india",
       number: "07",
-      title: "Delhi, India",
+      title: "India",
       photosCount: 111,
       notesCount: 16,
       date: "Feb 2024",
-      imageSrc: "/images/travel/delhi.jpg",
+      imageSrc: "https://media.aknaim.com/travel/india/highlight.webp",
       mapCoordinates: { x: 68.2, y: 42.0 },
     },
     {
@@ -113,22 +113,6 @@ export interface Destination {
     },
   ];
 
-const CATEGORY_LABELS: Record<string, string> = {
-  landscapes: "Landscapes",
-  portraits: "Portraits",
-  architecture: "Architecture",
-  food: "Food & Dining",
-  details: "Details",
-  urban: "Urban",
-};
-
-const OTHER_TRIP_CATEGORIES = ["landscapes", "urban", "portraits", "architecture"] as const;
-
-function parseYear(date: string): number {
-  const match = date.match(/\d{4}/);
-  return match ? Number.parseInt(match[0], 10) : new Date().getFullYear();
-}
-
 const omanPhotos = [
   { id: "oman-hero", src: "/images/travel/oman/hero-oman.jpg", alt: "Oman landscape at golden hour", title: "Golden Hour", dateTaken: "2025-03-02", year: 2025, filters: { trip: "oman", category: "landscapes" } },
   { id: "oman-m1", src: "/images/travel/oman/moment-1.jpg", alt: "Desert light across Wahiba Sands", title: "Desert Light", dateTaken: "2025-03-04", year: 2025, filters: { trip: "oman", category: "landscapes" } },
@@ -142,24 +126,9 @@ const omanPhotos = [
   { id: "oman-route", src: "/images/travel/oman/oman-route-map.jpg", alt: "Oman route map", title: "The Route", dateTaken: "2025-03-01", year: 2025, filters: { trip: "oman", category: "details" } },
 ];
 
-function buildDestinationPhotos() {
-  return destinations
-    .filter((d) => d.id !== "oman")
-    .flatMap((dest, destIndex) => {
-      const year = parseYear(dest.date);
-      return OTHER_TRIP_CATEGORIES.map((category, catIndex) => ({
-        id: `${dest.id}-${category}`,
-        src: dest.imageSrc,
-        alt: `${dest.title} — ${CATEGORY_LABELS[category]}`,
-        title: dest.title,
-        dateTaken: `${year}-${String((destIndex % 12) + 1).padStart(2, "0")}-${String(catIndex + 1).padStart(2, "0")}`,
-        year,
-        filters: { trip: dest.id, category },
-      }));
-    });
-}
-
-/** Used by the DB seed script. Prefer `getGalleryItems("travel")` in pages. */
-export const travelGallerySeedItems = [...omanPhotos, ...buildDestinationPhotos()];
+/** Used by the DB seed script. Prefer `getGalleryItems("travel")` in pages.
+ *  Only Oman ships with curated seed photos — other countries get real uploads via admin.
+ */
+export const travelGallerySeedItems = [...omanPhotos];
 
 export { getTripGalleryHref } from "@/lib/db/queries/travel";

@@ -1,5 +1,4 @@
 export type InterestId =
-  | "engineering"
   | "photography"
   | "climbing"
   | "cooking"
@@ -8,7 +7,7 @@ export type InterestId =
   | "chess"
   | "video-games";
 
-export type NavItemId = "journal" | "travel" | "notes" | "about";
+export type NavItemId = "travel" | "notes" | "about";
 
 export type SkillCategory =
   | "language"
@@ -40,8 +39,6 @@ export type WoodworkingTag = "projects" | "tools" | "lessons";
 export type ChessTag = "peaks" | "games" | "profiles";
 
 export type VideoGamesTag = "games" | "league" | "profiles";
-
-export type EngineeringTag = "projects" | "system-design" | "docs";
 
 export interface AboutCta {
   label: string;
@@ -175,22 +172,12 @@ export interface WoodworkingProject extends BaseEntry {
   material: string;
 }
 
-export interface EngineeringProject extends BaseEntry {
-  category: "engineering";
-  tag: EngineeringTag;
-  stack: string[];
-  diagramImage: string;
-  featured: boolean;
-  repositoryUrl: string;
-}
-
 export type Project =
   | PhotographyProject
   | ClimbingProject
   | CookingProject
   | TravelProject
-  | WoodworkingProject
-  | EngineeringProject;
+  | WoodworkingProject;
 
 export type SectionTabsMap = Record<InterestId, TabDefinition[]>;
 

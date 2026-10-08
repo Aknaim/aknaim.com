@@ -7,6 +7,7 @@ export function AdminField({
   required,
   placeholder,
   type = "text",
+  hint,
   onChange,
 }: {
   label: string;
@@ -15,6 +16,7 @@ export function AdminField({
   required?: boolean;
   placeholder?: string;
   type?: string;
+  hint?: string;
   onChange?: ChangeEventHandler<HTMLInputElement>;
 }) {
   return (
@@ -31,6 +33,9 @@ export function AdminField({
         onChange={onChange}
         className="w-full bg-[#111111] border border-[#262626] px-3 py-2 text-sm text-white outline-none focus:border-accent"
       />
+      {hint ? (
+        <span className="font-mono text-[9px] text-foreground-subtle">{hint}</span>
+      ) : null}
     </label>
   );
 }

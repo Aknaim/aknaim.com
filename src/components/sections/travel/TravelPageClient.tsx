@@ -228,6 +228,8 @@ export function TravelPageClient({ destinations, travelStats }: TravelPageClient
                     fill
                     className="object-cover"
                     sizes="(max-width: 1024px) 50vw, 33vw"
+                    // Already compressed JPGs / R2 webps — avoid CF Images Worker spikes (1102).
+                    unoptimized
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/65 via-black/10 to-transparent" />
                 </div>

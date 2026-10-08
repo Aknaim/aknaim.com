@@ -39,11 +39,13 @@ function displayTravelDate(label: string): string {
   return isIsoDate(label) ? formatMonthYear(label) : label;
 }
 
-function versioned(url: string | undefined, createdAt: Date | undefined): string {
+function versioned(url: string | undefined, createdAt: Date | string | null | undefined): string {
   if (!url) return "";
-  if (!createdAt) return url;
+  if (createdAt == null) return url;
+  const ms = new Date(createdAt).getTime();
+  if (Number.isNaN(ms)) return url;
   const sep = url.includes("?") ? "&" : "?";
-  return `${url}${sep}v=${createdAt.getTime()}`;
+  return `${url}${sep}v=${ms}`;
 }
 
 /** Homepage metrics — places/photos/days from live rows; memories stays ∞. */
