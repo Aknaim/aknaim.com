@@ -1,6 +1,12 @@
 "use client";
 
-import { useEffect, useState, useRef } from "react";
+import {
+  useEffect,
+  useState,
+  useRef,
+  useCallback,
+  type MouseEvent,
+} from "react";
 import Image from "next/image";
 import Link from "next/link";
 import type { Destination } from "@/lib/travelData";
@@ -13,6 +19,8 @@ interface TravelPageClientProps {
     notes: string;
     memories: string;
   };
+  /** Temporary placement aid: open /travel?pinGrid=1 — remove query to hide. */
+  showPinGrid?: boolean;
 }
 
 /** Must match public/images/travel/world-map-dark.jpg (object-cover pin math). */
@@ -20,12 +28,7 @@ const WORLD_MAP_NATURAL = { width: 1536, height: 1024 };
 /** Prefer western hemisphere in frame so NA isn’t crushed under the copy wash. */
 const WORLD_MAP_OBJECT_POSITION = { x: 28, y: 50 };
 
-function mapPinPosition(
-  containerW: number,
-  containerH: number,
-  xPercent: number,
-  yPercent: number
-) {
+function mapImageRect(containerW: number, containerH: number) {
   const containerRatio = containerW / containerH;
   const imageRatio = WORLD_MAP_NATURAL.width / WORLD_MAP_NATURAL.height;
 
@@ -35,16 +38,28 @@ function mapPinPosition(
   let offsetY = 0;
 
   if (containerRatio > imageRatio) {
-    // Image fills width; crop top/bottom — object-position Y
     renderedHeight = containerW / imageRatio;
     offsetY =
       (containerH - renderedHeight) * (WORLD_MAP_OBJECT_POSITION.y / 100);
   } else {
-    // Image fills height; crop sides — object-position X
     renderedWidth = containerH * imageRatio;
     offsetX =
       (containerW - renderedWidth) * (WORLD_MAP_OBJECT_POSITION.x / 100);
   }
+
+  return { renderedWidth, renderedHeight, offsetX, offsetY };
+}
+
+function mapPinPosition(
+  containerW: number,
+  containerH: number,
+  xPercent: number,
+  yPercent: number
+) {
+  const { renderedWidth, renderedHeight, offsetX, offsetY } = mapImageRect(
+    containerW,
+    containerH
+  );
 
   return {
     left: offsetX + (xPercent / 100) * renderedWidth,
@@ -52,9 +67,129 @@ function mapPinPosition(
   };
 }
 
-export function TravelPageClient({ destinations, travelStats }: TravelPageClientProps) {
+function screenToImagePercent(
+  containerW: number,
+  containerH: number,
+  clientX: number,
+  clientY: number,
+  containerLeft: number,
+  containerTop: number
+) {
+  const { renderedWidth, renderedHeight, offsetX, offsetY } = mapImageRect(
+    containerW,
+    containerH
+  );
+  const x =
+    ((clientX - containerLeft - offsetX) / renderedWidth) * 100;
+  const y =
+    ((clientY - containerTop - offsetY) / renderedHeight) * 100;
+  return {
+    x: Math.round(x * 10) / 10,
+    y: Math.round(y * 10) / 10,
+  };
+}
+
+function PinGridOverlay({
+  width,
+  height,
+  sample,
+}: {
+  width: number;
+  height: number;
+  sample: { x: number; y: number } | null;
+}) {
+  if (width === 0 || height === 0) return null;
+
+  const { renderedWidth, renderedHeight, offsetX, offsetY } = mapImageRect(
+    width,
+    height
+  );
+  const step = 5;
+  const majors = new Set([0, 25, 50, 75, 100]);
+
+  return (
+    <div
+      className="absolute z-[35] pointer-events-none"
+      style={{
+        left: offsetX,
+        top: offsetY,
+        width: renderedWidth,
+        height: renderedHeight,
+      }}
+    >
+      {Array.from({ length: 100 / step + 1 }, (_, i) => i * step).map((pct) => {
+        const major = majors.has(pct);
+        const lineClass = major
+          ? "bg-[#e6ca65]/45"
+          : "bg-[#e6ca65]/15";
+        return (
+          <div key={`v-${pct}`}>
+            <div
+              className={`absolute top-0 bottom-0 w-px ${lineClass}`}
+              style={{ left: `${pct}%` }}
+            />
+            {major ? (
+              <span
+                className="absolute top-1 -translate-x-1/2 font-mono text-[9px] text-[#e6ca65] [text-shadow:0_1px_2px_rgba(0,0,0,0.9)]"
+                style={{ left: `${pct}%` }}
+              >
+                {pct}
+              </span>
+            ) : null}
+          </div>
+        );
+      })}
+      {Array.from({ length: 100 / step + 1 }, (_, i) => i * step).map((pct) => {
+        const major = majors.has(pct);
+        const lineClass = major
+          ? "bg-[#e6ca65]/45"
+          : "bg-[#e6ca65]/15";
+        return (
+          <div key={`h-${pct}`}>
+            <div
+              className={`absolute left-0 right-0 h-px ${lineClass}`}
+              style={{ top: `${pct}%` }}
+            />
+            {major ? (
+              <span
+                className="absolute left-1 -translate-y-1/2 font-mono text-[9px] text-[#e6ca65] [text-shadow:0_1px_2px_rgba(0,0,0,0.9)]"
+                style={{ top: `${pct}%` }}
+              >
+                {pct}
+              </span>
+            ) : null}
+          </div>
+        );
+      })}
+      {sample ? (
+        <>
+          <div
+            className="absolute w-3 h-3 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-white bg-red-500 shadow-[0_0_0_1px_rgba(0,0,0,0.6)]"
+            style={{ left: `${sample.x}%`, top: `${sample.y}%` }}
+          />
+          <div
+            className="absolute h-px bg-red-400/70 left-0 right-0"
+            style={{ top: `${sample.y}%` }}
+          />
+          <div
+            className="absolute w-px bg-red-400/70 top-0 bottom-0"
+            style={{ left: `${sample.x}%` }}
+          />
+        </>
+      ) : null}
+    </div>
+  );
+}
+
+export function TravelPageClient({
+  destinations,
+  travelStats,
+  showPinGrid = false,
+}: TravelPageClientProps) {
   const mapRef = useRef<HTMLDivElement>(null);
   const [dimensions, setDimensions] = useState({ width: 0, height: 0 });
+  const [sample, setSample] = useState<{ x: number; y: number } | null>(null);
+  const [copied, setCopied] = useState(false);
 
   useEffect(() => {
     const el = mapRef.current;
@@ -77,6 +212,28 @@ export function TravelPageClient({ destinations, travelStats }: TravelPageClient
     };
   }, []);
 
+  const handleGridClick = useCallback(
+    (event: MouseEvent<HTMLDivElement>) => {
+      if (!showPinGrid || !mapRef.current) return;
+      const rect = mapRef.current.getBoundingClientRect();
+      const next = screenToImagePercent(
+        dimensions.width,
+        dimensions.height,
+        event.clientX,
+        event.clientY,
+        rect.left,
+        rect.top
+      );
+      setSample(next);
+      setCopied(false);
+      void navigator.clipboard.writeText(`${next.x}, ${next.y}`).then(() => {
+        setCopied(true);
+        window.setTimeout(() => setCopied(false), 1500);
+      });
+    },
+    [showPinGrid, dimensions.width, dimensions.height]
+  );
+
   return (
     <main className="min-h-screen bg-[#0b0a09] text-[#eaeaea] font-body selection:bg-accent/30 selection:text-white">
       <section className="relative w-full h-[95vh] min-h-[750px] flex flex-col justify-between px-6 py-12 md:p-16 overflow-hidden border-b border-[#141414]">
@@ -93,12 +250,44 @@ export function TravelPageClient({ destinations, travelStats }: TravelPageClient
           />
         </div>
 
-        {/* Soft wash behind copy only — keeps NA readable while text still blends */}
-        <div className="absolute inset-y-0 left-0 w-full md:w-[min(34rem,42%)] z-10 bg-gradient-to-r from-[#0b0a09] via-[#0b0a09]/55 to-transparent pointer-events-none" />
+        {/* Soft wash behind copy — kept narrow so eastern NA pins stay clear */}
+        <div className="absolute inset-y-0 left-0 w-full md:w-[min(22rem,32%)] z-10 bg-gradient-to-r from-[#0b0a09] via-[#0b0a09]/55 to-transparent pointer-events-none" />
         <div className="absolute inset-0 z-12 bg-[radial-gradient(ellipse_at_center,transparent_35%,rgba(11,10,9,0.45)_100%)] pointer-events-none" />
 
+        {showPinGrid ? (
+          <>
+            <div
+              className="absolute inset-0 z-[32] cursor-crosshair"
+              onClick={handleGridClick}
+              role="presentation"
+            />
+            <div className="absolute inset-0 z-[33] pointer-events-none">
+              <PinGridOverlay
+                width={dimensions.width}
+                height={dimensions.height}
+                sample={sample}
+              />
+            </div>
+            <div className="absolute top-6 right-6 z-40 max-w-xs rounded border border-[#e6ca65]/30 bg-[#0b0a09]/90 px-3 py-2 font-mono text-[10px] text-[#e6ca65] shadow-lg">
+              <p className="uppercase tracking-widest text-[#baa482]">Pin grid</p>
+              <p className="mt-1 text-[#eaeaea]/90 normal-case tracking-normal leading-relaxed">
+                Click a city → copies <span className="text-[#e6ca65]">X, Y</span> image %.
+                Hide: remove <span className="text-[#e6ca65]">?pinGrid=1</span> from the URL.
+              </p>
+              {sample ? (
+                <p className="mt-2 text-sm text-white">
+                  {sample.x}, {sample.y}
+                  {copied ? (
+                    <span className="ml-2 text-[#e6ca65]/80">copied</span>
+                  ) : null}
+                </p>
+              ) : null}
+            </div>
+          </>
+        ) : null}
+
         {/* Same box as the map image so pin % stay aligned on resize */}
-        <div className="absolute inset-0 z-30 hidden md:block pointer-events-none">
+        <div className="absolute inset-0 z-[38] hidden md:block pointer-events-none">
           {destinations.map((dest) => {
             if (dimensions.width === 0 || dimensions.height === 0) return null;
 
@@ -167,15 +356,16 @@ export function TravelPageClient({ destinations, travelStats }: TravelPageClient
           </Link>
         </div>
 
-        <div className="relative z-20 max-w-xl mt-12 md:mt-20 space-y-6 pointer-events-none">
+        {/* Sit above the mid-lat pin belt so Canada/USA aren’t covered */}
+        <div className="relative z-20 max-w-[18rem] sm:max-w-xs mt-10 md:mt-12 space-y-4 pointer-events-none">
           <span className="font-mono text-[10px] uppercase tracking-[0.25em] text-accent/80 block">
             Travel
           </span>
-          <h1 className="font-display text-4xl sm:text-5xl font-medium tracking-tight leading-[1.15] text-white">
+          <h1 className="font-display text-3xl sm:text-4xl font-medium tracking-tight leading-[1.15] text-white">
             Places I’ve been.<br />
             Stories I’m <span className="font-serif italic text-accent font-normal">carrying.</span>
           </h1>
-          <p className="text-foreground-muted text-sm leading-relaxed max-w-sm">
+          <p className="text-foreground-muted text-sm leading-relaxed max-w-[16rem]">
             A map of chapters—each place leaving its mark, each journey shaping how I see the world.
           </p>
 

@@ -249,13 +249,17 @@ export async function createOrUpdateTravelPlace(
 
     const routePlacesPreview = parseRoutePlaces(formData);
 
+    const galleryUploadsPreview = parseGalleryUploads(
+      String(formData.get("galleryUploads") ?? "")
+    );
+
     const hasDetailExtras =
       Boolean(heroUrl || heroMediaIdInput) ||
       Boolean(routeMapUrl || routeMapMediaIdInput) ||
       Boolean(routeNote) ||
       routePlacesPreview.length > 0 ||
       days > 0 ||
-      Boolean(String(formData.get("galleryUploads") ?? "").trim()) ||
+      galleryUploadsPreview.length > 0 ||
       [0, 1, 2, 3].some((index) => {
         const momentTitle = String(formData.get(`momentTitle_${index}`) ?? "").trim();
         const momentUrl = String(formData.get(`momentUrl_${index}`) ?? "").trim();

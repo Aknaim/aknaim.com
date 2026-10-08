@@ -29,7 +29,8 @@ export interface Destination {
       notesCount: 12,
       date: "May 2024",
       imageSrc: "/images/travel/canada.jpg",
-      mapCoordinates: { x: 31.5, y: 32.5 },
+      // Toronto
+      mapCoordinates: { x: 22.5, y: 31.0 },
     },
     {
       id: "usa",
@@ -39,7 +40,8 @@ export interface Destination {
       notesCount: 18,
       date: "Sep 2023",
       imageSrc: "/images/travel/usa.jpg",
-      mapCoordinates: { x: 23.5, y: 35.0 },
+      // New York
+      mapCoordinates: { x: 24.5, y: 33.0 },
     },
     {
       id: "russia",
@@ -49,7 +51,8 @@ export interface Destination {
       notesCount: 9,
       date: "Jan 2023",
       imageSrc: "/images/travel/russia.jpg",
-      mapCoordinates: { x: 57.0, y: 24.5 },
+      // Moscow
+      mapCoordinates: { x: 56.5, y: 25.0 },
     },
     {
       id: "germany",
@@ -59,6 +62,7 @@ export interface Destination {
       notesCount: 11,
       date: "Jun 2023",
       imageSrc: "/images/travel/germany.jpg",
+      // Berlin
       mapCoordinates: { x: 51.5, y: 28.5 },
     },
     {
@@ -69,7 +73,8 @@ export interface Destination {
       notesCount: 14,
       date: "Nov 2023",
       imageSrc: "/images/travel/uae.jpg",
-      mapCoordinates: { x: 61.2, y: 44.5 },
+      // Dubai
+      mapCoordinates: { x: 61.5, y: 44.5 },
     },
     {
       id: "oman",
@@ -79,7 +84,8 @@ export interface Destination {
       notesCount: 20,
       date: "Mar 2024",
       imageSrc: "https://media.aknaim.com/travel/oman/highlight.webp",
-      mapCoordinates: { x: 61.8, y: 47.5 },
+      // Muscat
+      mapCoordinates: { x: 62.5, y: 47.0 },
     },
     {
       id: "india",
@@ -89,7 +95,8 @@ export interface Destination {
       notesCount: 16,
       date: "Feb 2024",
       imageSrc: "https://media.aknaim.com/travel/india/highlight.webp",
-      mapCoordinates: { x: 68.2, y: 42.0 },
+      // Lucknow
+      mapCoordinates: { x: 68.5, y: 42.5 },
     },
     {
       id: "iceland",
@@ -99,7 +106,8 @@ export interface Destination {
       notesCount: 13,
       date: "Dec 2023",
       imageSrc: "/images/travel/iceland.jpg",
-      mapCoordinates: { x: 44.5, y: 20.5 },
+      // Reykjavik
+      mapCoordinates: { x: 45.0, y: 21.5 },
     },
     {
       id: "japan",
@@ -109,7 +117,8 @@ export interface Destination {
       notesCount: 17,
       date: "Apr 2024",
       imageSrc: "/images/travel/japan.jpg",
-      mapCoordinates: { x: 84.0, y: 35.5 },
+      // Tokyo
+      mapCoordinates: { x: 84.5, y: 35.5 },
     },
   ];
 

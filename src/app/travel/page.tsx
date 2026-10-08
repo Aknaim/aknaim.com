@@ -8,11 +8,22 @@ export const metadata: Metadata = {
 
 export const revalidate = 60;
 
-export default async function TravelPage() {
+export default async function TravelPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ pinGrid?: string }>;
+}) {
+  const { pinGrid } = await searchParams;
   const [destinations, travelStats] = await Promise.all([
     getDestinations(),
     getTravelStats(),
   ]);
 
-  return <TravelPageClient destinations={destinations} travelStats={travelStats} />;
+  return (
+    <TravelPageClient
+      destinations={destinations}
+      travelStats={travelStats}
+      showPinGrid={pinGrid === "1" || pinGrid === "true"}
+    />
+  );
 }
