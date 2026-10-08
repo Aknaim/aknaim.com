@@ -75,6 +75,7 @@ export function StorageCupboard({
                   item={item}
                   shelfIndex={index + 1}
                   bagFallback={fallbackBySrc[item.bagImage] ?? false}
+                  peekFallback={fallbackBySrc[item.peekImage] ?? false}
                 />
               ))}
             </ul>
@@ -89,10 +90,12 @@ function CupboardBag({
   item,
   shelfIndex,
   bagFallback,
+  peekFallback,
 }: {
   item: InterestCategory;
   shelfIndex: number;
   bagFallback: boolean;
+  peekFallback: boolean;
 }) {
   const Icon = getIcon(item.icon);
   const lastActiveLabel = formatLastActive(item.lastActive);
@@ -101,9 +104,9 @@ function CupboardBag({
     <li>
       <Link
         href={getInterestHref(item.id)}
-        className="cupboard-dusty-bag group flex gap-3 rounded-card border border-[#2a2a2a] bg-[#121212]/70 p-3 transition-colors hover:border-[#3a3a3a] hover:bg-[#161616]/90"
+        className="cupboard-dusty-bag group flex gap-3 rounded-card border border-[#2a2a2a] bg-[#121212]/70 p-3 transition-colors duration-300 hover:border-accent/35 hover:bg-[#1a1a1a]/95"
       >
-        <div className="relative h-16 w-16 shrink-0 overflow-hidden rounded-image border border-[#1a1a1a] sm:h-20 sm:w-20">
+        <div className="relative h-16 w-16 shrink-0 overflow-hidden rounded-image border border-[#1a1a1a] sm:h-20 sm:w-20 group-hover:border-[#2e2e2e]">
           <AssetImage
             src={item.bagImage}
             alt={`${item.label} stowed on shelf ${shelfIndex}`}
@@ -113,10 +116,22 @@ function CupboardBag({
             sizes="80px"
             fallbackVariant="cupboard"
             fallbackMuted
-            imageClassName="object-cover grayscale brightness-75 contrast-90 transition-all group-hover:brightness-90"
+            imageClassName="object-cover grayscale brightness-75 contrast-90 transition-opacity duration-300 group-hover:opacity-0"
+          />
+          <AssetImage
+            src={item.peekImage}
+            alt={`${item.label} opened on shelf ${shelfIndex}`}
+            icon={item.icon}
+            forceFallback={peekFallback}
+            fill
+            sizes="80px"
+            fallbackVariant="cupboard"
+            fallbackMuted
+            className="opacity-0 transition-opacity duration-300 group-hover:opacity-100"
+            imageClassName="object-cover brightness-110 contrast-100"
           />
           <div
-            className="pointer-events-none absolute inset-0 bg-[#0a0a0a]/35 mix-blend-multiply"
+            className="pointer-events-none absolute inset-0 bg-[#0a0a0a]/40 mix-blend-multiply transition-opacity duration-300 group-hover:opacity-0"
             aria-hidden
           />
         </div>
@@ -124,16 +139,16 @@ function CupboardBag({
         <div className="min-w-0 flex-1 self-center">
           <div className="flex items-center gap-2">
             <Icon
-              className="h-3.5 w-3.5 text-foreground-subtle"
+              className="h-3.5 w-3.5 text-foreground-subtle transition-colors duration-300 group-hover:text-accent"
               strokeWidth={1.5}
               aria-hidden
             />
-            <span className="text-tab text-foreground-subtle group-hover:text-foreground-muted">
+            <span className="text-tab text-foreground-subtle transition-colors duration-300 group-hover:text-white">
               {item.label}
             </span>
           </div>
           {item.workbenchNote ? (
-            <p className="mt-1.5 line-clamp-2 text-meta leading-snug text-foreground-subtle/80">
+            <p className="mt-1.5 line-clamp-2 text-meta leading-snug text-foreground-subtle/80 transition-colors duration-300 group-hover:text-foreground-muted">
               {item.workbenchNote}
             </p>
           ) : null}

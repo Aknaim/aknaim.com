@@ -53,7 +53,7 @@ export default async function CarpentryPage() {
 
           <div className="relative aspect-[4/3] lg:aspect-square order-1 lg:order-2 rounded-card border border-[#141414] overflow-hidden bg-[#0c0c0c]">
             <Image
-              src="/images/hero/bag-woodworking.jpg"
+              src="/images/hero/hero-woodworking.jpg"
               alt="Woodworking and carpentry tools"
               fill
               className="object-cover"
