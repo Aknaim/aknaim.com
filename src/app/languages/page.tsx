@@ -8,7 +8,8 @@ export const metadata: Metadata = {
   title: "Languages",
 };
 
-export const revalidate = 3600;
+/** Match cooking — short TTL so course dates from Neon don't stick stale. */
+export const revalidate = 60;
 
 export default async function LanguagesPage() {
   const courses = await getCoursesForInterest("languages");

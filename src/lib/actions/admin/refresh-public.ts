@@ -17,6 +17,7 @@ const STATIC_PUBLIC_PATHS = [
   "/gallery/cooking",
   "/photography",
   "/carpentry",
+  "/languages",
   "/chess",
   "/video-games",
 ] as const;

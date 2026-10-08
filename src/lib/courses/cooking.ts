@@ -14,11 +14,11 @@ export const COOKING_COURSES: CourseDefinition[] = [
     hours: 48,
     sessions: [
       {
-        label: "1 · Stocks",
+        label: "Stocks",
         items: ["Fish stock", "Beef stock", "Chicken stock"],
       },
       {
-        label: "2 · Salads",
+        label: "Salads",
         items: [
           "Tuscan bean salad",
           "Cucumber onion salad",
@@ -26,11 +26,11 @@ export const COOKING_COURSES: CourseDefinition[] = [
         ],
       },
       {
-        label: "3 · Soups",
+        label: "Soups",
         items: ["Chicken velouté", "Minestrone soup", "Wild mushroom soup"],
       },
       {
-        label: "4 · Fish & potatoes",
+        label: "Fish & potatoes",
         items: [
           "Potatoes — duchesse, marquis",
           "Fish velouté",
@@ -38,7 +38,7 @@ export const COOKING_COURSES: CourseDefinition[] = [
         ],
       },
       {
-        label: "5 · Pasta",
+        label: "Pasta",
         items: [
           "Sauce Bolognese",
           "Lasagna al Forno",
@@ -48,7 +48,7 @@ export const COOKING_COURSES: CourseDefinition[] = [
         ],
       },
       {
-        label: "6 · Eggs & sauces",
+        label: "Eggs & sauces",
         items: [
           "Basic yellow sauces",
           "Pie pastry",
@@ -59,7 +59,7 @@ export const COOKING_COURSES: CourseDefinition[] = [
         ],
       },
       {
-        label: "7 · Braising",
+        label: "Braising",
         items: [
           "Vegetable cookery",
           "Carbonnade à la Flammande",
@@ -68,7 +68,7 @@ export const COOKING_COURSES: CourseDefinition[] = [
         ],
       },
       {
-        label: "8 · Roast chicken",
+        label: "Roast chicken",
         items: [
           "Roast chicken",
           "Onion and sage dressing",
@@ -76,11 +76,11 @@ export const COOKING_COURSES: CourseDefinition[] = [
         ],
       },
       {
-        label: "9 · Eastern Europe",
+        label: "Eastern Europe",
         items: ["Veal goulash", "Beef Stroganoff", "Spätzle"],
       },
       {
-        label: "10 · Poached chicken",
+        label: "Poached chicken",
         items: [
           "Poached chicken with lemongrass cream",
           "Béchamel sauce",
@@ -88,7 +88,7 @@ export const COOKING_COURSES: CourseDefinition[] = [
         ],
       },
       {
-        label: "11 · Stuffed steak",
+        label: "Stuffed steak",
         items: [
           "Baked pork steak with apple and Stilton stuffing",
           "Apple sauce",
@@ -96,7 +96,7 @@ export const COOKING_COURSES: CourseDefinition[] = [
         ],
       },
       {
-        label: "12 · Roast lamb",
+        label: "Roast lamb",
         items: ["Roasted leg of lamb", "Mint sauce", "Cauliflower polonaise"],
       },
     ],
@@ -112,7 +112,7 @@ export const COOKING_COURSES: CourseDefinition[] = [
     hours: 24,
     sessions: [
       {
-        label: "1 · Lebanon",
+        label: "Lebanon",
         items: [
           "Khubz Arabee — Pita Bread",
           "Hummus bi-Taheena — Chickpea Purée",
@@ -123,7 +123,7 @@ export const COOKING_COURSES: CourseDefinition[] = [
         ],
       },
       {
-        label: "2 · Tunisia & Morocco",
+        label: "Tunisia & Morocco",
         items: [
           "Slata Mechouia Nablia — Pepper Relish",
           "Marka Sfaxia — Fish Couscous from Sfax",
@@ -132,7 +132,7 @@ export const COOKING_COURSES: CourseDefinition[] = [
         ],
       },
       {
-        label: "3 · Spain",
+        label: "Spain",
         items: [
           "Gazpacho — Andalusían Cold Tomato Soup",
           "Ensalada Mixta de Jamón Serrano con Queso Manchego",
@@ -140,7 +140,7 @@ export const COOKING_COURSES: CourseDefinition[] = [
         ],
       },
       {
-        label: "4 · France & Italy",
+        label: "France & Italy",
         items: [
           "Thon à la Marseillaise — Tuna Marseilles Style",
           "Insalata Panzanella",
@@ -148,7 +148,7 @@ export const COOKING_COURSES: CourseDefinition[] = [
         ],
       },
       {
-        label: "5 · Greece",
+        label: "Greece",
         items: [
           "Avgolemono Soupa — Soup with Lemon and Egg",
           "Horiatiki Salata — Greek Salad",
@@ -156,7 +156,7 @@ export const COOKING_COURSES: CourseDefinition[] = [
         ],
       },
       {
-        label: "6 · Turkey",
+        label: "Turkey",
         items: [
           "Iman Bayildi — Cold Stuffed Eggplant",
           "Istanbul Pilavi — Istanbul Style Pilaf",
@@ -176,7 +176,7 @@ export const COOKING_COURSES: CourseDefinition[] = [
     hours: 24,
     sessions: [
       {
-        label: "1 · Spices & snacks",
+        label: "Spices & snacks",
         items: [
           "Introduction to Indian spices",
           "Onion bhajia",
@@ -186,19 +186,19 @@ export const COOKING_COURSES: CourseDefinition[] = [
         ],
       },
       {
-        label: "2 · Aloo gobi",
+        label: "Aloo gobi",
         items: ["Aloo gobi", "Vegetable pulao", "Dal panchratan"],
       },
       {
-        label: "3 · Kashmiri",
+        label: "Kashmiri",
         items: ["Kashmiri pulao", "Baigan bhartha", "Gajjar halwa"],
       },
       {
-        label: "4 · Saag & channa",
+        label: "Saag & channa",
         items: ["Saag paneer", "Channa bhaturas", "Shahi tukrha"],
       },
       {
-        label: "5 · Tandoori",
+        label: "Tandoori",
         items: [
           "Tandoori gobi",
           "Vegetable and paneer kebabs",
@@ -208,7 +208,7 @@ export const COOKING_COURSES: CourseDefinition[] = [
         ],
       },
       {
-        label: "6 · Biryani",
+        label: "Biryani",
         items: ["Vegetable biryani", "Dal makhni", "Kachumber raita"],
       },
     ],
@@ -224,7 +224,7 @@ export const COOKING_COURSES: CourseDefinition[] = [
     hours: 12,
     sessions: [
       {
-        label: "1 · Fundamentals",
+        label: "Fundamentals",
         items: [
           "Knife care & safety",
           "Grip, stance, and sharpening",
@@ -232,7 +232,7 @@ export const COOKING_COURSES: CourseDefinition[] = [
         ],
       },
       {
-        label: "2 · Classic cuts",
+        label: "Classic cuts",
         items: [
           "Julienne, allumette, batonnet, brunoise",
           "Paysanne, chiffonade, tourné",
@@ -240,7 +240,7 @@ export const COOKING_COURSES: CourseDefinition[] = [
         ],
       },
       {
-        label: "3 · Protein butchery",
+        label: "Protein butchery",
         items: ["Carving", "Deboning chicken", "Filleting fish"],
       },
     ],
@@ -256,19 +256,19 @@ export const COOKING_COURSES: CourseDefinition[] = [
     hours: 48,
     sessions: [
       {
-        label: "1 · Pie dough",
+        label: "Pie dough",
         items: ["Pie dough make-up", "Rolling exercise"],
       },
       {
-        label: "2 · Apple pie",
+        label: "Apple pie",
         items: ["Fresh apple pie"],
       },
       {
-        label: "3 · Muffins & biscuits",
+        label: "Muffins & biscuits",
         items: ["Bran muffins", "Tea biscuits"],
       },
       {
-        label: "4 · Custards",
+        label: "Custards",
         items: [
           "Custards",
           "Crème caramel",
@@ -277,11 +277,11 @@ export const COOKING_COURSES: CourseDefinition[] = [
         ],
       },
       {
-        label: "5 · Soft rolls",
+        label: "Soft rolls",
         items: ["Soft rolls"],
       },
       {
-        label: "6 · Piping & meringue",
+        label: "Piping & meringue",
         items: [
           "Piping — stars and plain",
           "Masking skills",
@@ -290,19 +290,19 @@ export const COOKING_COURSES: CourseDefinition[] = [
         ],
       },
       {
-        label: "7 · Cookies",
+        label: "Cookies",
         items: ["Piped cookies", "Peanut butter cookies"],
       },
       {
-        label: "8 · Choux",
+        label: "Choux",
         items: ["Choux paste", "Crème puffs", "Éclairs"],
       },
       {
-        label: "9 · Black Forest",
+        label: "Black Forest",
         items: ["Black Forest cake"],
       },
       {
-        label: "10 · Chocolate cake",
+        label: "Chocolate cake",
         items: [
           "Chocolate Swiss roll",
           "Chocolate sponge",
@@ -311,11 +311,11 @@ export const COOKING_COURSES: CourseDefinition[] = [
         ],
       },
       {
-        label: "11 · Tarts",
+        label: "Tarts",
         items: ["Fresh fruit flan / tarts"],
       },
       {
-        label: "12 · Tempering",
+        label: "Tempering",
         items: ["Chocolate tempering"],
       },
     ],
@@ -331,7 +331,7 @@ export const COOKING_COURSES: CourseDefinition[] = [
     hours: 40,
     sessions: [
       {
-        label: "1 · Foundations",
+        label: "Foundations",
         items: [
           "Moulding dough & exercises",
           "Buns",
@@ -340,39 +340,39 @@ export const COOKING_COURSES: CourseDefinition[] = [
         ],
       },
       {
-        label: "2 · Baguette",
+        label: "Baguette",
         items: ["Baguette"],
       },
       {
-        label: "3 · Vienna & burenbrot",
+        label: "Vienna & burenbrot",
         items: ["Vienna bread", "Burenbrot"],
       },
       {
-        label: "4 · Whole grain",
+        label: "Whole grain",
         items: ["Sourdough starter", "Whole wheat bread", "Six grain bread"],
       },
       {
-        label: "5 · Enriched",
+        label: "Enriched",
         items: ["Brioche", "Challah"],
       },
       {
-        label: "6 · Sourdough",
+        label: "Sourdough",
         items: ["Basic sourdough"],
       },
       {
-        label: "7 · Cheese buns & fougasse",
+        label: "Cheese buns & fougasse",
         items: ["Cheese buns", "Fougasse"],
       },
       {
-        label: "8 · Pizza",
+        label: "Pizza",
         items: ["Pizza"],
       },
       {
-        label: "9 · Hot cross & paskas",
+        label: "Hot cross & paskas",
         items: ["Hot cross buns", "Paskas"],
       },
       {
-        label: "10 · Flatbreads",
+        label: "Flatbreads",
         items: ["Pita", "Focaccia"],
       },
     ],
