@@ -17,6 +17,8 @@ interface TravelPageClientProps {
 
 /** Must match public/images/travel/world-map-dark.jpg (object-cover pin math). */
 const WORLD_MAP_NATURAL = { width: 1536, height: 1024 };
+/** Prefer western hemisphere in frame so NA isn’t crushed under the copy wash. */
+const WORLD_MAP_OBJECT_POSITION = { x: 28, y: 50 };
 
 function mapPinPosition(
   containerW: number,
@@ -33,11 +35,15 @@ function mapPinPosition(
   let offsetY = 0;
 
   if (containerRatio > imageRatio) {
+    // Image fills width; crop top/bottom — object-position Y
     renderedHeight = containerW / imageRatio;
-    offsetY = (containerH - renderedHeight) / 2;
+    offsetY =
+      (containerH - renderedHeight) * (WORLD_MAP_OBJECT_POSITION.y / 100);
   } else {
+    // Image fills height; crop sides — object-position X
     renderedWidth = containerH * imageRatio;
-    offsetX = (containerW - renderedWidth) / 2;
+    offsetX =
+      (containerW - renderedWidth) * (WORLD_MAP_OBJECT_POSITION.x / 100);
   }
 
   return {
@@ -76,19 +82,20 @@ export function TravelPageClient({ destinations, travelStats }: TravelPageClient
       <section className="relative w-full h-[95vh] min-h-[750px] flex flex-col justify-between px-6 py-12 md:p-16 overflow-hidden border-b border-[#141414]">
         <div
           ref={mapRef}
-          className="absolute inset-0 z-0 opacity-[0.45] mix-blend-screen pointer-events-none select-none"
+          className="absolute inset-0 z-0 opacity-[0.55] mix-blend-screen pointer-events-none select-none"
         >
           <Image
             src="/images/travel/world-map-dark.jpg"
             alt=""
             fill
-            className="object-cover object-center filter sepia-[0.35] brightness-[0.55] contrast-[1.15]"
+            className="object-cover object-[28%_50%] filter sepia-[0.3] brightness-[0.72] contrast-[1.12]"
             priority
           />
         </div>
 
-        <div className="absolute inset-y-0 left-0 w-full md:w-[50%] z-10 bg-gradient-to-r from-[#0b0a09] via-[#0b0a09]/80 to-transparent pointer-events-none" />
-        <div className="absolute inset-0 z-12 bg-radial-gradient from-transparent via-[#0b0a09]/10 to-[#0b0a09] pointer-events-none" />
+        {/* Soft wash behind copy only — keeps NA readable while text still blends */}
+        <div className="absolute inset-y-0 left-0 w-full md:w-[min(34rem,42%)] z-10 bg-gradient-to-r from-[#0b0a09] via-[#0b0a09]/55 to-transparent pointer-events-none" />
+        <div className="absolute inset-0 z-12 bg-[radial-gradient(ellipse_at_center,transparent_35%,rgba(11,10,9,0.45)_100%)] pointer-events-none" />
 
         {/* Same box as the map image so pin % stay aligned on resize */}
         <div className="absolute inset-0 z-30 hidden md:block pointer-events-none">
