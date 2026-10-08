@@ -40,6 +40,24 @@ export const projectStatusEnum = pgEnum("project_status", [
   "projecting",
   "on-deck",
 ]);
+export const activityStatusEnum = pgEnum("activity_status", ["active", "dormant"]);
+
+/** Home workbench/cupboard shell fields — tabs/hero stay in siteData. */
+export const interestSettings = pgTable("interest_settings", {
+  id: text("id").primaryKey(),
+  status: activityStatusEnum("status").notNull(),
+  workbenchNote: text("workbench_note"),
+  lastActive: text("last_active"),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+});
+
+/** Date range for static course catalogs (photography, cooking, carpentry, …). */
+export const courseCompletions = pgTable("course_completions", {
+  id: text("id").primaryKey(),
+  startedOn: date("started_on"),
+  completedOn: date("completed_on"),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+});
 
 export const mediaAssets = pgTable("media_assets", {
   id: uuid("id").defaultRandom().primaryKey(),
@@ -259,6 +277,7 @@ export const trips = pgTable("trips", {
   routeMapMediaId: uuid("route_map_media_id")
     .notNull()
     .references(() => mediaAssets.id, { onDelete: "restrict" }),
+  routeNote: text("route_note").notNull().default(""),
   gearMediaId: uuid("gear_media_id")
     .notNull()
     .references(() => mediaAssets.id, { onDelete: "restrict" }),

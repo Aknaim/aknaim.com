@@ -19,6 +19,7 @@ import {
   travelGallerySeedItems,
   travelStats as travelStatsData,
 } from "../travelData";
+import { siteData } from "../data";
 import * as schema from "./schema";
 
 async function ensureMedia(
@@ -396,10 +397,11 @@ async function seed() {
       summary: trip.summary,
       heroMediaId,
       statDays: trip.stats.days,
-      statRegions: trip.stats.regions,
+      statRegions: trip.stats.stops,
       statPhotos: trip.stats.photos,
-      statCountries: trip.stats.countries,
+      statCountries: 1,
       routeMapMediaId,
+      routeNote: trip.route.note,
       gearMediaId,
       reflectionExcerpt: trip.reflection.excerpt,
       reflectionSlug: trip.reflection.slug,
@@ -412,10 +414,11 @@ async function seed() {
         summary: trip.summary,
         heroMediaId,
         statDays: trip.stats.days,
-        statRegions: trip.stats.regions,
+        statRegions: trip.stats.stops,
         statPhotos: trip.stats.photos,
-        statCountries: trip.stats.countries,
+        statCountries: 1,
         routeMapMediaId,
+        routeNote: trip.route.note,
         gearMediaId,
         reflectionExcerpt: trip.reflection.excerpt,
         reflectionSlug: trip.reflection.slug,
@@ -430,23 +433,17 @@ async function seed() {
     .delete(schema.tripFavoritePlaces)
     .where(eq(schema.tripFavoritePlaces.tripId, trip.id));
 
-  await db.insert(schema.tripRouteStops).values(
-    trip.route.stops.map((stop, index) => ({
-      tripId: trip.id,
-      name: stop.name,
-      coordX: stop.coordinates.x,
-      coordY: stop.coordinates.y,
-      sortOrder: index,
-    }))
-  );
-  await db.insert(schema.tripTimeline).values(
-    trip.timeline.map((item, index) => ({
-      tripId: trip.id,
-      dayLabel: item.day,
-      label: item.label,
-      sortOrder: index,
-    }))
-  );
+  if (trip.route.stops.length > 0) {
+    await db.insert(schema.tripRouteStops).values(
+      trip.route.stops.map((stop, index) => ({
+        tripId: trip.id,
+        name: stop.name,
+        coordX: stop.coordinates.x,
+        coordY: stop.coordinates.y,
+        sortOrder: index,
+      }))
+    );
+  }
   for (const [index, moment] of trip.moments.entries()) {
     const imageMediaId = await ensureMedia(db, moment.imageSrc, moment.title);
     await db.insert(schema.tripMoments).values({
@@ -520,6 +517,21 @@ async function seed() {
           published: true,
         },
       });
+  }
+
+  console.log("Seeding interest settings…");
+  for (const interest of siteData.interests) {
+    // Insert-only — do not overwrite admin edits on re-seed.
+    await db
+      .insert(schema.interestSettings)
+      .values({
+        id: interest.id,
+        status: interest.status,
+        workbenchNote: interest.workbenchNote ?? null,
+        lastActive: interest.lastActive ?? null,
+        updatedAt: new Date(),
+      })
+      .onConflictDoNothing({ target: schema.interestSettings.id });
   }
 
   console.log("Seed complete.");

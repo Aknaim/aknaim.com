@@ -7,18 +7,30 @@ import type {
   SkillCategory,
 } from "../types";
 
+function byLabel(a: InterestCategory, b: InterestCategory): number {
+  return a.label.localeCompare(b.label, undefined, { sensitivity: "base" });
+}
+
 export function getActiveInterests(): InterestCategory[] {
-  return siteData.interests.filter((interest) => interest.status === "active");
+  return siteData.interests
+    .filter((interest) => interest.status === "active")
+    .sort(byLabel);
 }
 
 export function getDormantInterests(): InterestCategory[] {
-  return siteData.interests.filter((interest) => interest.status === "dormant");
+  return siteData.interests
+    .filter((interest) => interest.status === "dormant")
+    .sort(byLabel);
 }
 
 const INTEREST_PAGE_HREF: Partial<Record<InterestId, string>> = {
   climbing: "/climbing",
   cooking: "/cooking",
   travel: "/travel",
+  chess: "/chess",
+  "video-games": "/video-games",
+  photography: "/photography",
+  woodworking: "/carpentry",
 };
 
 export function getInterestHref(interestId: InterestId): string {

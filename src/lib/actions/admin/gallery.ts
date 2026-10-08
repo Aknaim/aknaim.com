@@ -92,6 +92,7 @@ export async function createOrUpdateGalleryItem(formData: FormData) {
     });
 
   revalidatePath(`/gallery/${interest}`);
+  if (interest === "climbing") revalidatePath("/climbing");
   revalidatePath("/admin/gallery");
   redirect(`/admin/gallery/${id}`);
 }
@@ -109,7 +110,10 @@ export async function deleteGalleryItem(formData: FormData) {
 
   await db.delete(galleryItems).where(eq(galleryItems.id, id));
 
-  if (row) revalidatePath(`/gallery/${row.interest}`);
+  if (row) {
+    revalidatePath(`/gallery/${row.interest}`);
+    if (row.interest === "climbing") revalidatePath("/climbing");
+  }
   revalidatePath("/admin/gallery");
   redirect("/admin/gallery");
 }

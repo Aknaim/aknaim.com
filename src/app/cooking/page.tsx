@@ -1,7 +1,9 @@
 import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
+import { CoursesList } from "@/components/sections/CoursesList";
 import { InterestGearList } from "@/components/sections/InterestGearList";
+import { getCoursesForInterest } from "@/lib/db/queries/courses";
 import {
   getCookingGalleryHref,
   getCookingGearItems,
@@ -12,12 +14,13 @@ export const metadata: Metadata = {
   title: "Cooking",
 };
 
-export const dynamic = "force-dynamic";
+export const revalidate = 60;
 
 export default async function CookingPage() {
-  const [cookingStats, cookingGearItems] = await Promise.all([
+  const [cookingStats, cookingGearItems, courses] = await Promise.all([
     getCookingStats(),
     getCookingGearItems(),
+    getCoursesForInterest("cooking"),
   ]);
 
   return (
@@ -29,7 +32,9 @@ export default async function CookingPage() {
               href="/"
               className="inline-flex items-center gap-2 font-mono text-[10px] uppercase tracking-widest text-foreground-muted hover:text-white transition-colors group"
             >
-              <span className="transform group-hover:-translate-x-0.5 transition-transform">←</span>
+              <span className="transform group-hover:-translate-x-0.5 transition-transform">
+                ←
+              </span>
               Workbench
             </Link>
 
@@ -37,11 +42,12 @@ export default async function CookingPage() {
               <span className="font-mono text-[10px] uppercase tracking-[0.25em] text-accent/80 block">
                 Cooking
               </span>
-              <h1 className="font-display text-4xl sm:text-5xl font-light tracking-tight text-white">
-                Cooking
+              <h1 className="font-display text-4xl sm:text-5xl font-medium tracking-tight leading-[1.15] text-white">
+                Flavours I&apos;m still{" "}
+                <span className="font-serif italic text-accent font-normal">craving.</span>
               </h1>
               <p className="text-foreground-muted text-sm leading-relaxed max-w-sm">
-                Recipes, experiments, and the final shot.
+                Continuing-ed kitchens, sharp knives, and the dish that earns a remake.
               </p>
             </div>
 
@@ -50,10 +56,12 @@ export default async function CookingPage() {
                 { value: cookingStats.recipes, label: "Recipes" },
                 { value: cookingStats.categories, label: "Categories" },
                 { value: cookingStats.cuisines, label: "Cuisines" },
-                { value: cookingStats.years, label: "Years" },
+                { value: String(courses.length), label: "Courses" },
               ].map((stat) => (
                 <div key={stat.label} className="flex flex-col gap-1">
-                  <span className="text-2xl font-light text-white tracking-tight">{stat.value}</span>
+                  <span className="text-2xl font-light text-white tracking-tight">
+                    {stat.value}
+                  </span>
                   <span className="font-mono text-[9px] uppercase tracking-widest text-foreground-muted">
                     {stat.label}
                   </span>
@@ -61,13 +69,23 @@ export default async function CookingPage() {
               ))}
             </div>
 
-            <Link
-              href={getCookingGalleryHref()}
-              className="inline-flex items-center gap-3 border border-[#262626] bg-[#111111]/40 px-5 py-2.5 rounded-full text-xs font-medium tracking-wide text-foreground-subtle hover:border-[#3a3a3a] hover:text-white hover:bg-[#141414] transition-all group"
+            <nav
+              aria-label="On this page"
+              className="flex flex-wrap gap-x-5 gap-y-2 pt-2 font-mono text-[10px] uppercase tracking-widest"
             >
-              Browse Recipes
-              <span className="transform group-hover:translate-x-0.5 transition-transform">→</span>
-            </Link>
+              <a href="#courses" className="text-foreground-muted hover:text-white transition-colors">
+                Courses
+              </a>
+              <a href="#gear" className="text-foreground-muted hover:text-white transition-colors">
+                Gear
+              </a>
+              <a
+                href={getCookingGalleryHref()}
+                className="text-foreground-muted hover:text-white transition-colors"
+              >
+                Gallery
+              </a>
+            </nav>
           </div>
 
           <div className="relative aspect-[4/3] lg:aspect-square order-1 lg:order-2 rounded-card border border-[#141414] overflow-hidden bg-[#0c0c0c]">
@@ -84,8 +102,12 @@ export default async function CookingPage() {
         </div>
       </section>
 
-      <section className="max-w-7xl mx-auto px-6 py-16 md:py-20">
-        <InterestGearList items={cookingGearItems} />
+      <section className="max-w-7xl mx-auto px-6 py-16 md:py-20 space-y-16">
+        <CoursesList
+          courses={courses}
+          heading="Continuing education · George Brown"
+        />
+        <InterestGearList items={cookingGearItems} heading="Gear & Equipment" />
       </section>
     </main>
   );

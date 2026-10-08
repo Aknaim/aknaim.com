@@ -1,13 +1,21 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { deleteClimbingSend } from "@/lib/actions/admin/climbing-delete";
+import {
+  deleteClimbingSend,
+  refreshClimbingPublicPage,
+} from "@/lib/actions/admin/climbing-delete";
 import { formatAdminDate, listClimbingSends } from "@/lib/db/queries/climbing";
 
 export const metadata: Metadata = {
   title: "Admin Climbing",
 };
 
-export default async function AdminClimbingPage() {
+export default async function AdminClimbingPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ refreshed?: string }>;
+}) {
+  const { refreshed } = await searchParams;
   const sends = await listClimbingSends();
 
   return (
@@ -18,13 +26,28 @@ export default async function AdminClimbingPage() {
           <p className="text-sm text-foreground-muted mt-2">
             Create sends with still / grade / video uploads and duration labels.
           </p>
+          {refreshed ? (
+            <p className="font-mono text-[10px] uppercase tracking-widest text-accent mt-2">
+              Public climbing page cache cleared
+            </p>
+          ) : null}
         </div>
-        <Link
-          href="/admin/climbing/new"
-          className="border border-[#262626] px-4 py-2 text-xs uppercase tracking-widest text-white hover:border-accent transition-colors"
-        >
-          New climb
-        </Link>
+        <div className="flex items-center gap-2">
+          <form action={refreshClimbingPublicPage}>
+            <button
+              type="submit"
+              className="border border-[#262626] px-4 py-2 text-xs uppercase tracking-widest text-foreground-muted hover:border-accent hover:text-white transition-colors"
+            >
+              Refresh public page
+            </button>
+          </form>
+          <Link
+            href="/admin/climbing/new"
+            className="border border-[#262626] px-4 py-2 text-xs uppercase tracking-widest text-white hover:border-accent transition-colors"
+          >
+            New climb
+          </Link>
+        </div>
       </div>
 
       <section className="space-y-3">

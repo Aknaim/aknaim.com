@@ -8,6 +8,7 @@ import {
   Cpu,
   Database,
   FileCode,
+  Gamepad2,
   Hammer,
   Layers,
   Link2,
@@ -16,6 +17,7 @@ import {
   Network,
   Plane,
   Server,
+  Swords,
   type LucideIcon,
 } from "lucide-react";
 
@@ -28,6 +30,7 @@ const iconMap: Record<string, LucideIcon> = {
   Cpu,
   Database,
   FileCode,
+  Gamepad2,
   Github: Code2,
   Hammer,
   Layers,
@@ -37,6 +40,7 @@ const iconMap: Record<string, LucideIcon> = {
   Network,
   Plane,
   Server,
+  Swords,
 };
 
 export function getIcon(name: string): LucideIcon {

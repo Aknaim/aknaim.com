@@ -28,13 +28,16 @@ export interface RouteStop {
     summary: string;
     heroImage: string;
     stats: {
+      /** Manual days field from admin */
       days: number;
-      regions: number;
+      /** Route place names */
+      stops: number;
+      /** Gallery photos for this trip */
       photos: number;
-      countries: number;
     };
     route: {
       mapImage: string;
+      note: string;
       stops: RouteStop[];
     };
     timeline: TimelineMilestone[];

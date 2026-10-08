@@ -41,14 +41,15 @@ export default async function ClimbingPage() {
               <span className="font-mono text-[10px] uppercase tracking-[0.25em] text-accent/80 block">
                 Climbing
               </span>
-              <h1 className="font-display text-4xl sm:text-5xl font-light tracking-tight text-white">
-                Climbing
+              <h1 className="font-display text-4xl sm:text-5xl font-medium tracking-tight leading-[1.15] text-white">
+                Heights I&apos;m still{" "}
+                <span className="font-serif italic text-accent font-normal">chasing.</span>
               </h1>
               <p className="font-display text-xl text-accent tracking-wide border-b border-accent/30 pb-3 inline-block">
                 Max Grades {currentLevel ?? "—"}
               </p>
               <p className="text-foreground-muted text-sm leading-relaxed max-w-sm">
-                Climbing hard, or hardly climbing.
+                Gravity, on purpose.
               </p>
             </div>
 

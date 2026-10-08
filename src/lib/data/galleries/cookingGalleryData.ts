@@ -3,7 +3,7 @@ import type { GalleryConfig } from "@/lib/types/gallery";
 export const cookingGalleryConfig: GalleryConfig = {
   interest: "cooking",
   title: "Cooking Gallery",
-  subtitle: "Browse recipes by photo — filter by category, cuisine, or date.",
+  subtitle: "Plates and bakes — some with full recipes, some just the finished dish.",
   defaultSort: "date-desc",
   sortOptions: [
     { id: "date-desc", label: "Most Recent" },

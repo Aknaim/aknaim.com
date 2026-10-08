@@ -23,5 +23,38 @@
   "routes": [
     { "pattern": "aknaim.com", "custom_domain": true },
     { "pattern": "www.aknaim.com", "custom_domain": true }
+  ],
+  "r2_buckets": [
+    {
+      "binding": "NEXT_INC_CACHE_R2_BUCKET",
+      "bucket_name": "aknaim-next-cache"
+    }
+  ],
+  "kv_namespaces": [
+    {
+      "binding": "INTEREST_SETTINGS",
+      "id": "dbba19053ceb4acf8a75a8db1e564d53"
+    }
+  ],
+  "d1_databases": [
+    {
+      "binding": "NEXT_TAG_CACHE_D1",
+      "database_name": "aknaim-next-tag-cache",
+      "database_id": "fd8cd77d-3dd8-44f1-8ccc-19b2398e1232"
+    }
+  ],
+  "durable_objects": {
+    "bindings": [
+      {
+        "name": "NEXT_CACHE_DO_QUEUE",
+        "class_name": "DOQueueHandler"
+      }
+    ]
+  },
+  "migrations": [
+    {
+      "tag": "v1",
+      "new_sqlite_classes": ["DOQueueHandler"]
+    }
   ]
 }

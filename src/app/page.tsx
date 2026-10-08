@@ -1,13 +1,16 @@
 import { ActiveWorkbench } from "@/components/sections/ActiveWorkbench";
 import { Hero } from "@/components/sections/Hero";
 import { StorageCupboard } from "@/components/sections/StorageCupboard";
-import { buildAssetFallbackMap } from "@/lib/asset-utils";
-import { getActiveInterests, getDormantInterests } from "@/lib/utils";
+import { buildHomeAssetFallbackMap } from "@/lib/asset-utils";
+import { getWorkbenchInterestLists } from "@/lib/interests/public";
 
-export default function Home() {
-  const fallbackBySrc = buildAssetFallbackMap();
-  const activeInterests = getActiveInterests();
-  const dormantInterests = getDormantInterests();
+/** Longer TTL — homepage is mostly static; admin save calls revalidatePath. */
+export const revalidate = 3600;
+
+export default async function Home() {
+  const fallbackBySrc = buildHomeAssetFallbackMap();
+  const { active: activeInterests, dormant: dormantInterests } =
+    await getWorkbenchInterestLists();
 
   return (
     <main className="flex min-h-screen flex-col bg-background text-foreground">
@@ -15,8 +18,8 @@ export default function Home() {
       <ActiveWorkbench
         items={activeInterests}
         fallbackBySrc={fallbackBySrc}
+        bagPeekHint="Hover over a bag to peek inside."
       />
-      {/* BentoGrid intentionally omitted for now */}
       <StorageCupboard
         items={dormantInterests}
         fallbackBySrc={fallbackBySrc}

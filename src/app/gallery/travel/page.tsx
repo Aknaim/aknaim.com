@@ -8,7 +8,7 @@ export const metadata: Metadata = {
   title: "Travel Gallery",
 };
 
-export const dynamic = "force-dynamic";
+export const revalidate = 60;
 
 export default async function TravelGalleryPage({
   searchParams,

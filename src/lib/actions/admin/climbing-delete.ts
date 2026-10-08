@@ -22,3 +22,11 @@ export async function deleteClimbingSend(formData: FormData) {
   revalidatePath("/admin/climbing");
   redirect("/admin/climbing");
 }
+
+/** Bust stale ISR for the public climbing page (R2 long-lived cache). */
+export async function refreshClimbingPublicPage() {
+  await requireAdminAction();
+  revalidatePath("/climbing");
+  revalidatePath("/gallery/climbing");
+  redirect("/admin/climbing?refreshed=1");
+}

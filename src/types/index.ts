@@ -4,7 +4,9 @@ export type InterestId =
   | "climbing"
   | "cooking"
   | "travel"
-  | "woodworking";
+  | "woodworking"
+  | "chess"
+  | "video-games";
 
 export type NavItemId = "journal" | "travel" | "notes" | "about";
 
@@ -34,6 +36,10 @@ export type CookingTag = "all" | "savoury" | "sweet";
 export type TravelTag = "all" | "europe" | "asia";
 
 export type WoodworkingTag = "projects" | "tools" | "lessons";
+
+export type ChessTag = "peaks" | "games" | "profiles";
+
+export type VideoGamesTag = "games" | "league" | "profiles";
 
 export type EngineeringTag = "projects" | "system-design" | "docs";
 
@@ -97,9 +103,9 @@ export interface InterestCategory {
   peekImage: string;       // The open/revealed internal contents image
   peekCaption: string;     // Contextual description of the gear inside
   
-  // Table/Cupboard display text
-  workbenchNote?: string;  // e.g., "Projecting 5.12+ TR / Training Lead"
-  stowedDate?: string;     // e.g., "Last active: Winter 2024"
+  // Shelf copy (workbench + cupboard)
+  workbenchNote?: string; // Status note under the bag on either shelf
+  lastActive?: string; // Optional season/date, e.g. "Fall 2024"
   panelAnchor: string;
 
   // New Fields for the Bento Inner Detail Page

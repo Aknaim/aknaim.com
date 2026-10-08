@@ -5,6 +5,7 @@ import { useState } from "react";
 import type { InterestCategory } from "@/types";
 import { AssetImage } from "@/components/ui/AssetImage";
 import { getIcon } from "@/lib/icon-map";
+import { formatLastActive } from "@/lib/interests/format";
 import { getInterestHref } from "@/lib/utils";
 
 interface StorageCupboardProps {
@@ -94,6 +95,7 @@ function CupboardBag({
   bagFallback: boolean;
 }) {
   const Icon = getIcon(item.icon);
+  const lastActiveLabel = formatLastActive(item.lastActive);
 
   return (
     <li>
@@ -130,9 +132,14 @@ function CupboardBag({
               {item.label}
             </span>
           </div>
-          {item.stowedDate ? (
-            <p className="mt-1.5 text-meta text-foreground-subtle/80">
-              {item.stowedDate}
+          {item.workbenchNote ? (
+            <p className="mt-1.5 line-clamp-2 text-meta leading-snug text-foreground-subtle/80">
+              {item.workbenchNote}
+            </p>
+          ) : null}
+          {lastActiveLabel ? (
+            <p className="mt-1 font-mono text-[9px] uppercase tracking-widest text-foreground-subtle/60">
+              {lastActiveLabel}
             </p>
           ) : null}
         </div>

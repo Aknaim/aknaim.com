@@ -61,6 +61,12 @@ export function MediaUploadField({
     // eslint-disable-next-line react-hooks/exhaustive-deps -- sync only when parent pushes a new asset
   }, [externalUrl, externalMediaId]);
 
+  // After save+redirect, server props change — reset local state so fields don't keep stale URLs.
+  useEffect(() => {
+    setUrl(defaultUrl);
+    setMediaId(defaultMediaId);
+  }, [defaultUrl, defaultMediaId]);
+
   function commit(nextUrl: string, nextMediaId: string) {
     setUrl(nextUrl);
     setMediaId(nextMediaId);

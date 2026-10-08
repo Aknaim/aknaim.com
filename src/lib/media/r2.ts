@@ -187,7 +187,15 @@ export async function relocateR2PublicUrl(
     })
   );
 
-  if (sourceKey !== destKey) {
+  // Only delete the source when it looks like a temporary upload (uuid filename).
+  // Never delete canonical keys like highlight.webp / hero.webp / still.jpg — other
+  // media_assets rows may still reference them after a "fallback" copy.
+  const sourceBase = sourceKey.split("/").pop() ?? "";
+  const looksTemporary =
+    /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\.[a-z0-9]+$/i.test(
+      sourceBase
+    );
+  if (sourceKey !== destKey && looksTemporary) {
     try {
       await client.send(
         new DeleteObjectCommand({

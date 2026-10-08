@@ -61,7 +61,7 @@ export const siteData: SiteData = {
       bagImage: "/images/hero/bag-engineering.jpg",
       peekImage: "/images/hero/peek-engineering.jpg",
       peekCaption: "Mechanical keyboard, observability diagrams, and dense system specs.",
-      workbenchNote: "Currently optimizing high-throughput distributed systems & infrastructure scaling.",
+      workbenchNote: "Building and tuning systems — the day job on the bench.",
       panelAnchor: "engineering",
       tagline: "Systems, code, and solving problems at scale.",
       heroImage: "/images/hero/hero-engineering.jpg",
@@ -101,7 +101,7 @@ export const siteData: SiteData = {
       bagImage: "/images/hero/bag-climbing.jpg",
       peekImage: "/images/hero/peek-climbing.jpg",
       peekCaption: "Aggressive downturned shoes, harness, Edelrid Ohmega, and chalk bag.",
-      workbenchNote: "Logging gym sessions, sends, and training — one climb at a time.",
+      workbenchNote: "Gym sessions, projects, and the next grade — logged one send at a time.",
       panelAnchor: "climbing",
       tagline: "Progress, lessons, and mountain days.",
       heroImage: "/images/hero/hero-climbing.jpg",
@@ -156,7 +156,7 @@ export const siteData: SiteData = {
       bagImage: "/images/hero/bag-cooking.jpg",
       peekImage: "/images/hero/peek-cooking.jpg",
       peekCaption: "Infrared thermometer, cast-iron pans, and outdoor pizza deck tooling.",
-      workbenchNote: "Perfecting high-heat outdoor roasting, custom dough hydration levels, and curry styles.",
+      workbenchNote: "Outdoor pizza nights, dough experiments, and curry on rotation.",
       panelAnchor: "cooking",
       tagline: "Recipes, techniques, and delicious experiments.",
       heroImage: "/images/hero/hero-cooking.jpg",
@@ -196,35 +196,38 @@ export const siteData: SiteData = {
       bagImage: "/images/hero/bag-photography.jpg",
       peekImage: "/images/hero/peek-photography.jpg",
       peekCaption: "Sony full-frame body, manual prime lenses, and landscape filters.",
-      stowedDate: "Active season: Fall 2024",
+      workbenchNote: "Chasing light — primes, landscapes, and golden-hour alarms.",
+      lastActive: "2024-10-01",
       panelAnchor: "photography",
-      tagline: "Capturing moments and chasing light.",
+      tagline: "Exposure, composition, and the frame that finally sticks.",
       heroImage: "/images/hero/hero-photography.jpg",
       tabs: [
         {
-          id: "galleries",
-          label: "Galleries",
+          id: "courses",
+          label: "Courses",
           items: [
-            { id: "ph1", title: "Pacific Northwest Mist", meta: "12 Photos", thumbnail: "/images/thumbs/pnw.jpg" },
-            { id: "ph2", title: "Tokyo Neon Nights", meta: "8 Photos", thumbnail: "/images/thumbs/tokyo.jpg" }
-          ]
+            {
+              id: "phc1",
+              title: "Digital Photography 1",
+              meta: "PHOT 9037 · George Brown",
+              linkUrl: "/photography",
+            },
+          ],
         },
         {
           id: "gear",
           label: "Gear",
           items: [
-            { id: "phg1", title: "Sony Alpha 7 IV", meta: "Full-Frame Mirrorless Body" },
-            { id: "phg2", title: "35mm f/1.4 GM Lens", meta: "Primary Prime Unit" }
-          ]
+            { id: "phg1", title: "Sony A7 III", meta: "Full-frame body", linkUrl: "/photography" },
+            {
+              id: "phg2",
+              title: "Tamron 28-200",
+              meta: "Travel zoom",
+              linkUrl: "/photography",
+            },
+          ],
         },
-        {
-          id: "stories",
-          label: "Stories",
-          items: [
-            { id: "phs1", title: "Chasing Golden Hour at 5 AM", meta: "Field Journal" }
-          ]
-        }
-      ]
+      ],
     },
     {
       id: "travel",
@@ -233,8 +236,9 @@ export const siteData: SiteData = {
       status: "active",
       bagImage: "/images/hero/bag-travel.jpg",
       peekImage: "/images/hero/peek-travel.jpg",
-      peekCaption: "Passports, field notes, and topographic maps.",
-      stowedDate: "Last expedition: Summer 2024",
+      peekCaption: "Camera, passport, and the kit for the next road.",
+      workbenchNote: "Trip notes, galleries, and mapping the next slow road.",
+      lastActive: "2024-07-01",
       panelAnchor: "travel",
       tagline: "Stories from places that shape perspective.",
       heroImage: "/images/hero/hero-travel.jpg",
@@ -267,43 +271,160 @@ export const siteData: SiteData = {
     },
     {
       id: "woodworking",
-      label: "Woodworking",
+      label: "Carpentry & Home Renovation",
       icon: "Hammer",
       status: "dormant",
       bagImage: "/images/hero/bag-woodworking.jpg",
       peekImage: "/images/hero/peek-woodworking.jpg",
-      peekCaption: "Japanese hand saws, marking gauges, and walnut timber offcuts.",
-      stowedDate: "Stowed away since: Winter 2023",
+      peekCaption: "Shop classes, home repairs, and the next cut that fits.",
+      workbenchNote: "Shop skills, home repairs, and the next cut that fits.",
+      lastActive: "2023-01-01",
       panelAnchor: "woodworking",
-      tagline: "Building things that last.",
+      tagline: "Shop skills and home repairs, one course at a time.",
       heroImage: "/images/hero/hero-woodworking.jpg",
       tabs: [
         {
-          id: "projects",
-          label: "Projects",
+          id: "courses",
+          label: "Courses",
           items: [
-            { id: "w1", title: "Walnut Coffee Table", meta: "Apr 20, 2025", thumbnail: "/images/thumbs/table.jpg" },
-            { id: "w2", title: "Tool Chest", meta: "Mar 15, 2024", thumbnail: "/images/thumbs/chest.jpg" },
-            { id: "w3", title: "Shelving Unit", meta: "Feb 2, 2024", thumbnail: "/images/thumbs/shelves.jpg" }
-          ]
+            {
+              id: "wc2",
+              title: "Home Maintenance and Improvements: Basics",
+              meta: "BLDG 9077 · George Brown",
+              linkUrl: "/carpentry",
+            },
+            {
+              id: "wc1",
+              title: "Carpentry 1: Basic Woodworking",
+              meta: "BLDG 9037 · George Brown",
+              linkUrl: "/carpentry",
+            },
+          ],
+        },
+      ],
+    },
+    {
+      id: "chess",
+      label: "Chess",
+      icon: "Swords",
+      status: "active",
+      bagImage: "/images/hero/bag-chess.jpg",
+      peekImage: "/images/hero/peek-chess.jpg",
+      peekCaption: "Board, clock, and a notebook of sharp lines.",
+      workbenchNote: "Peak ratings and titled wins — sharp lines under the clock.",
+      panelAnchor: "chess",
+      tagline: "Peak ratings, peak games, and titled wins.",
+      heroImage: "/images/hero/peek-chess.jpg",
+      tabs: [
+        {
+          id: "peaks",
+          label: "Peaks",
+          items: [
+            { id: "ch1", title: "Peak ratings", meta: "Chess.com & Lichess", linkUrl: "/chess#ratings" },
+          ],
         },
         {
-          id: "journal",
-          label: "Journal",
+          id: "games",
+          label: "Games",
           items: [
-            { id: "wj1", title: "Mortise & Tenon Joint Tuning", meta: "Refining hand-chisel techniques" },
-            { id: "wj2", title: "Oil vs Wax Wood Finishes", meta: "Long-term walnut durability test" }
-          ]
+            { id: "ch2", title: "Titled wins", meta: "Unique opponents", linkUrl: "/chess#titled-wins" },
+          ],
         },
         {
-          id: "plans",
-          label: "Plans",
+          id: "profiles",
+          label: "Profiles",
           items: [
-            { id: "wp1", title: "Minimalist Work Desk Blueprint", meta: "CAD Vector Formats Included" }
-          ]
-        }
-      ]
-    }
+            {
+              id: "ch4",
+              title: "Chess.com · Aknaim",
+              meta: "Main account",
+              linkUrl: "https://www.chess.com/member/aknaim",
+            },
+            {
+              id: "ch3",
+              title: "Chess.com · ABlindChessPlayer",
+              meta: "Profile",
+              linkUrl: "https://www.chess.com/member/ABlindChessPlayer",
+            },
+            {
+              id: "ch5",
+              title: "Lichess · Aknaim",
+              meta: "Profile",
+              linkUrl: "https://lichess.org/@/Aknaim",
+            },
+          ],
+        },
+      ],
+    },
+    {
+      id: "video-games",
+      label: "Video Games",
+      icon: "Gamepad2",
+      status: "dormant",
+      bagImage: "/images/hero/bag-video-games.jpg",
+      peekImage: "/images/hero/peek-video-games.jpg",
+      peekCaption: "Controllers, headset, and a queue that went quiet.",
+      workbenchNote: "Favorites on the shelf — campaigns, co-op nights, and long queues.",
+      panelAnchor: "video-games",
+      tagline: "A shelf of favorites and matches worth remembering.",
+      heroImage: "/images/hero/peek-video-games.jpg",
+      tabs: [
+        {
+          id: "games",
+          label: "Games",
+          items: [
+            {
+              id: "vg1",
+              title: "League of Legends",
+              meta: "Expanded on shelf",
+              linkUrl: "/video-games#shelf",
+            },
+            {
+              id: "vg-shelf",
+              title: "Shelf",
+              meta: "RS3 + classics",
+              linkUrl: "/video-games#shelf",
+            },
+          ],
+        },
+        {
+          id: "league",
+          label: "League",
+          items: [
+            {
+              id: "vg2",
+              title: "Season ranks",
+              meta: "Diamond 5 peak era",
+              linkUrl: "/video-games#shelf",
+            },
+          ],
+        },
+        {
+          id: "profiles",
+          label: "Profiles",
+          items: [
+            {
+              id: "vg3",
+              title: "aknaim",
+              meta: "op.gg NA",
+              linkUrl: "https://op.gg/lol/summoners/na/aknaim-NA1",
+            },
+            {
+              id: "vg4",
+              title: "kungfuscyther",
+              meta: "op.gg NA",
+              linkUrl: "https://op.gg/lol/summoners/na/kungfuscyther-NA1",
+            },
+            {
+              id: "vg5",
+              title: "aknaim",
+              meta: "RS3 hiscores",
+              linkUrl: "https://secure.runescape.com/m=hiscore/a=13/compare?user1=aknaim",
+            },
+          ],
+        },
+      ],
+    },
   ],
 
   skills: [
@@ -738,6 +859,16 @@ export const siteData: SiteData = {
       { id: "projects", label: "PROJECTS" },
       { id: "tools", label: "TOOLS" },
       { id: "lessons", label: "LESSONS" },
+    ],
+    chess: [
+      { id: "peaks", label: "PEAKS" },
+      { id: "games", label: "GAMES" },
+      { id: "profiles", label: "PROFILES" },
+    ],
+    "video-games": [
+      { id: "games", label: "GAMES" },
+      { id: "league", label: "LEAGUE" },
+      { id: "profiles", label: "PROFILES" },
     ],
     engineering: [
       { id: "projects", label: "PROJECTS" },

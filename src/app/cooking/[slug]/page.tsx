@@ -111,7 +111,7 @@ export default async function RecipePage({ params }: RecipePageProps) {
             href={getCookingGalleryHref()}
             className="inline-flex items-center gap-2 font-mono text-[10px] uppercase tracking-widest text-foreground-subtle hover:text-accent transition-colors group"
           >
-            Browse more recipes
+            Browse gallery
             <span className="transform group-hover:translate-x-0.5 transition-transform">→</span>
           </Link>
         </div>

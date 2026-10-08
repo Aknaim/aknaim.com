@@ -31,9 +31,10 @@ export function GalleryAdminForm({ item }: GalleryAdminFormProps) {
           defaultValue={item?.dateTaken}
         />
         <AdminField
-          label="Recipe slug (cooking)"
+          label="Recipe slug (optional)"
           name="recipeSlug"
           defaultValue={item?.recipeSlug ?? ""}
+          hint="Cooking only. Leave blank for a photo-only plate — no recipe page link."
         />
         <AdminField
           label="Duration label"

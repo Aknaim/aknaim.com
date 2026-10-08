@@ -1,4 +1,4 @@
-'use client';
+"use client";
 
 import { useEffect, useState, useRef } from "react";
 import Image from "next/image";
@@ -15,34 +15,69 @@ interface TravelPageClientProps {
   };
 }
 
+/** Must match public/images/travel/world-map-dark.jpg (object-cover pin math). */
+const WORLD_MAP_NATURAL = { width: 1536, height: 1024 };
+
+function mapPinPosition(
+  containerW: number,
+  containerH: number,
+  xPercent: number,
+  yPercent: number
+) {
+  const containerRatio = containerW / containerH;
+  const imageRatio = WORLD_MAP_NATURAL.width / WORLD_MAP_NATURAL.height;
+
+  let renderedWidth = containerW;
+  let renderedHeight = containerH;
+  let offsetX = 0;
+  let offsetY = 0;
+
+  if (containerRatio > imageRatio) {
+    renderedHeight = containerW / imageRatio;
+    offsetY = (containerH - renderedHeight) / 2;
+  } else {
+    renderedWidth = containerH * imageRatio;
+    offsetX = (containerW - renderedWidth) / 2;
+  }
+
+  return {
+    left: offsetX + (xPercent / 100) * renderedWidth,
+    top: offsetY + (yPercent / 100) * renderedHeight,
+  };
+}
+
 export function TravelPageClient({ destinations, travelStats }: TravelPageClientProps) {
-  const containerRef = useRef<HTMLDivElement>(null);
+  const mapRef = useRef<HTMLDivElement>(null);
   const [dimensions, setDimensions] = useState({ width: 0, height: 0 });
 
   useEffect(() => {
-    if (!containerRef.current) return;
+    const el = mapRef.current;
+    if (!el) return;
 
     const handleResize = () => {
-      if (containerRef.current) {
-        setDimensions({
-          width: containerRef.current.clientWidth,
-          height: containerRef.current.clientHeight,
-        });
-      }
+      setDimensions({
+        width: el.clientWidth,
+        height: el.clientHeight,
+      });
     };
 
     handleResize();
+    const observer = new ResizeObserver(handleResize);
+    observer.observe(el);
     window.addEventListener("resize", handleResize);
-    return () => window.removeEventListener("resize", handleResize);
+    return () => {
+      observer.disconnect();
+      window.removeEventListener("resize", handleResize);
+    };
   }, []);
 
   return (
     <main className="min-h-screen bg-[#0b0a09] text-[#eaeaea] font-body selection:bg-accent/30 selection:text-white">
-      <section
-        ref={containerRef}
-        className="relative w-full h-[95vh] min-h-[750px] flex flex-col justify-between px-6 py-12 md:p-16 overflow-hidden border-b border-[#141414]"
-      >
-        <div className="absolute inset-0 z-0 opacity-[0.45] mix-blend-screen pointer-events-none select-none">
+      <section className="relative w-full h-[95vh] min-h-[750px] flex flex-col justify-between px-6 py-12 md:p-16 overflow-hidden border-b border-[#141414]">
+        <div
+          ref={mapRef}
+          className="absolute inset-0 z-0 opacity-[0.45] mix-blend-screen pointer-events-none select-none"
+        >
           <Image
             src="/images/travel/world-map-dark.jpg"
             alt=""
@@ -55,42 +90,20 @@ export function TravelPageClient({ destinations, travelStats }: TravelPageClient
         <div className="absolute inset-y-0 left-0 w-full md:w-[50%] z-10 bg-gradient-to-r from-[#0b0a09] via-[#0b0a09]/80 to-transparent pointer-events-none" />
         <div className="absolute inset-0 z-12 bg-radial-gradient from-transparent via-[#0b0a09]/10 to-[#0b0a09] pointer-events-none" />
 
-        <div
-          ref={containerRef}
-          className="absolute inset-y-0 left-0 w-full md:w-[80%] md:left-[20%] h-full z-30 hidden md:block pointer-events-none"
-        >
+        {/* Same box as the map image so pin % stay aligned on resize */}
+        <div className="absolute inset-0 z-30 hidden md:block pointer-events-none">
           {destinations.map((dest) => {
-            const IMAGE_NATURAL_WIDTH = 1920;
-            const IMAGE_NATURAL_HEIGHT = 1200;
-
             if (dimensions.width === 0 || dimensions.height === 0) return null;
 
-            const containerRatio = dimensions.width / dimensions.height;
-            const imageRatio = IMAGE_NATURAL_WIDTH / IMAGE_NATURAL_HEIGHT;
+            const { left: posX, top: posY } = mapPinPosition(
+              dimensions.width,
+              dimensions.height,
+              dest.mapCoordinates.x,
+              dest.mapCoordinates.y
+            );
 
-            let renderedWidth = dimensions.width;
-            let renderedHeight = dimensions.height;
-            let offsetX = 0;
-            let offsetY = 0;
-
-            if (containerRatio > imageRatio) {
-              renderedHeight = dimensions.width / imageRatio;
-              offsetY = (dimensions.height - renderedHeight) / 2;
-            } else {
-              renderedWidth = dimensions.height * imageRatio;
-              offsetX = (dimensions.width - renderedWidth) / 2;
-            }
-
-            const posX = offsetX + (dest.mapCoordinates.x / 100) * renderedWidth;
-            const posY = offsetY + (dest.mapCoordinates.y / 100) * renderedHeight;
-
-            return (
-              <Link
-                key={`pin-${dest.id}`}
-                href={`/travel/${dest.id}`}
-                className="absolute group flex flex-col items-center pointer-events-auto cursor-pointer -translate-x-1/2 -translate-y-8"
-                style={{ top: `${posY}px`, left: `${posX}px` }}
-              >
+            const pinBody = (
+              <>
                 <div className="relative w-6 h-8 pointer-events-none select-none transition-transform duration-300 ease-out group-hover:-translate-y-0.5">
                   <div className="absolute top-2 left-3 w-3 h-6 origin-bottom rotate-[40deg] opacity-75 blur-[1.2px] z-0">
                     <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-[1.5px] h-3.5 bg-black" />
@@ -113,7 +126,27 @@ export function TravelPageClient({ destinations, travelStats }: TravelPageClient
                 <span className="absolute top-8 font-serif italic text-[11px] text-[#baa482]/80 whitespace-nowrap tracking-wider pointer-events-none select-none transition-all duration-300 group-hover:text-[#e6ca65] group-hover:translate-y-[0.5px] [text-shadow:0_1px_2px_rgba(0,0,0,0.8)]">
                   {dest.title.split(",")[0]}
                 </span>
+              </>
+            );
+
+            return dest.hasDetail ? (
+              <Link
+                key={`pin-${dest.id}`}
+                href={`/travel/${dest.id}`}
+                className="absolute group flex flex-col items-center pointer-events-auto cursor-pointer -translate-x-1/2 -translate-y-8"
+                style={{ top: `${posY}px`, left: `${posX}px` }}
+              >
+                {pinBody}
               </Link>
+            ) : (
+              <div
+                key={`pin-${dest.id}`}
+                className="absolute group flex flex-col items-center pointer-events-auto cursor-default -translate-x-1/2 -translate-y-8 opacity-70"
+                style={{ top: `${posY}px`, left: `${posX}px` }}
+                title={`${dest.title} — trip page coming soon`}
+              >
+                {pinBody}
+              </div>
             );
           })}
         </div>
@@ -161,7 +194,7 @@ export function TravelPageClient({ destinations, travelStats }: TravelPageClient
           {[
             { value: travelStats.places, label: "Places" },
             { value: travelStats.photos, label: "Photos" },
-            { value: travelStats.notes, label: "Notes" },
+            { value: travelStats.notes, label: "Days" },
             { value: travelStats.memories, label: "Memories" },
           ].map((stat) => (
             <div key={stat.label} className="flex flex-col gap-1">
@@ -179,59 +212,68 @@ export function TravelPageClient({ destinations, travelStats }: TravelPageClient
           <h2 className="font-mono text-[10px] uppercase tracking-widest text-foreground-muted">
             Destinations
           </h2>
-          <div className="flex items-center gap-1.5 font-mono text-[10px] text-foreground-muted">
-            <span>Sort by:</span>
-            <span className="text-foreground cursor-pointer hover:text-accent transition-colors">
-              Recent ↓
-            </span>
-          </div>
+          <span className="font-mono text-[10px] text-foreground-muted">Most recent</span>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {destinations.map((dest) => (
-            <Link
-              key={dest.id}
-              href={`/travel/${dest.id}`}
-              className="relative aspect-[4/3] w-full block rounded-md border border-[#141414] bg-[#0c0c0c] overflow-hidden group hover:border-[#262626] transition-all duration-500 cursor-pointer"
-            >
-              <div className="absolute inset-0 z-0 transform scale-100 group-hover:scale-[1.03] transition-transform duration-700 ease-out filter mix-blend-luminosity brightness-[0.4] group-hover:brightness-[0.55] group-hover:mix-blend-normal">
-                <Image
-                  src={dest.imageSrc}
-                  alt={dest.title}
-                  fill
-                  className="object-cover"
-                  sizes="(max-width: 1024px) 50vw, 33vw"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-[#070707] via-transparent to-transparent opacity-80" />
-              </div>
+          {destinations.map((dest) => {
+            const cardClassName =
+              "relative aspect-[4/3] w-full block rounded-md border border-[#141414] bg-[#0c0c0c] overflow-hidden group transition-all duration-500";
+            const cardInner = (
+              <>
+                <div className="absolute inset-0 z-0 transform scale-100 group-hover:scale-[1.03] transition-transform duration-700 ease-out">
+                  <Image
+                    src={dest.imageSrc}
+                    alt={dest.title}
+                    fill
+                    className="object-cover"
+                    sizes="(max-width: 1024px) 50vw, 33vw"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/65 via-black/10 to-transparent" />
+                </div>
 
-              <div className="absolute inset-0 z-10 p-5 flex flex-col justify-between pointer-events-none">
-                <span className="font-mono text-[10px] text-accent/60 tracking-wider">
-                  {dest.number}
-                </span>
-
-                <div className="space-y-3">
-                  <h3 className="font-display text-xl text-white font-medium tracking-wide group-hover:text-accent transition-colors duration-300">
-                    {dest.title}
-                  </h3>
-
-                  <div className="flex items-center justify-between pt-2 border-t border-white/10 font-mono text-[9px] text-foreground-muted uppercase tracking-wider">
-                    <div className="flex items-center gap-4">
-                      <span className="flex items-center gap-1">
-                        🖼️ {dest.photosCount} Photos
+                <div className="absolute inset-0 z-10 p-5 flex flex-col justify-between pointer-events-none">
+                  <div className="flex items-start justify-end gap-3">
+                    {!dest.hasDetail ? (
+                      <span className="font-mono text-[9px] uppercase tracking-widest text-foreground-subtle">
+                        Coming soon
                       </span>
-                      <span className="flex items-center gap-1">
-                        📝 {dest.notesCount} Notes
+                    ) : null}
+                  </div>
+
+                  <div className="space-y-3">
+                    <h3 className="font-display text-xl text-white font-medium tracking-wide group-hover:text-accent transition-colors duration-300">
+                      {dest.title}
+                    </h3>
+
+                    <div className="flex items-center justify-between pt-2 border-t border-white/10 font-mono text-[9px] text-foreground-muted uppercase tracking-wider">
+                      <span className="text-[10px] lowercase text-foreground-subtle group-hover:text-white transition-colors">
+                        {dest.date}
                       </span>
                     </div>
-                    <span className="text-[10px] lowercase text-foreground-subtle group-hover:text-white transition-colors">
-                      {dest.date}
-                    </span>
                   </div>
                 </div>
+              </>
+            );
+
+            return dest.hasDetail ? (
+              <Link
+                key={dest.id}
+                href={`/travel/${dest.id}`}
+                className={`${cardClassName} hover:border-[#262626] cursor-pointer`}
+              >
+                {cardInner}
+              </Link>
+            ) : (
+              <div
+                key={dest.id}
+                className={`${cardClassName} cursor-default opacity-80`}
+                aria-disabled
+              >
+                {cardInner}
               </div>
-            </Link>
-          ))}
+            );
+          })}
         </div>
       </section>
 

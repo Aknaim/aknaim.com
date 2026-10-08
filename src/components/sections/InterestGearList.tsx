@@ -6,11 +6,18 @@ export interface GearItem {
 interface InterestGearListProps {
   items: GearItem[];
   heading?: string;
+  id?: string;
 }
 
-export function InterestGearList({ items, heading = "Gear & Equipment" }: InterestGearListProps) {
+export function InterestGearList({
+  items,
+  heading = "Gear & Equipment",
+  id = "gear",
+}: InterestGearListProps) {
+  if (items.length === 0) return null;
+
   return (
-    <section className="space-y-6">
+    <section id={id} className="space-y-6 scroll-mt-8">
       <div className="border-b border-[#141414] pb-3">
         <h2 className="font-mono text-[10px] uppercase tracking-widest text-foreground-muted">
           {heading}

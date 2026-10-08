@@ -54,6 +54,7 @@ async function upsertMediaAsset(input: {
       .where(eq(mediaAssets.id, existing[0].id));
     revalidatePath("/admin/media");
     revalidatePath("/gallery/climbing");
+    revalidatePath("/climbing");
     return {
       ok: true,
       id: existing[0].id,
@@ -74,6 +75,7 @@ async function upsertMediaAsset(input: {
     .returning();
 
   revalidatePath("/admin/media");
+  revalidatePath("/climbing");
   return { ok: true, id: row.id, url: row.url, driver: input.driver };
 }
 

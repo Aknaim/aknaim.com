@@ -76,10 +76,18 @@ export interface GearItem {
 }
 
 export const cookingGearItems: GearItem[] = [
-  { title: "Gozney Roccbox", description: "High-Heat Outdoor Propane Oven" },
-  { title: "Lodge 12-Inch Cast Iron Skillet", description: "Heat Retention Baseline" },
-  { title: "Infrared Thermometer", description: "Oven Floor Calibration" },
-  { title: "Kitchen Scale", description: "Baker's Percentage Weighing" },
+  {
+    title: "Le Creuset Round Dutch Oven 6.7 L — Cerise",
+    description: "Enameled cast iron",
+  },
+  {
+    title: "Masakage Kumo Gyuto 210mm",
+    description: "Primary chef's knife",
+  },
+  {
+    title: 'CCK Cleaver "Mulberry Knife" Small Slicer 210mm',
+    description: "Cleaver / slicer",
+  },
 ];
 
 export function getRecipeHref(slug: string): string {

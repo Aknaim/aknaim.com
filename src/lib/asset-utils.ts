@@ -16,17 +16,14 @@ export function publicAssetExists(src: string): boolean {
     return true;
   }
 
-  // Absolute remote URLs (R2, etc.)
   if (src.startsWith("http://") || src.startsWith("https://")) {
     return true;
   }
 
-  // Bundled static marketing/hero assets — always available via asset CDN in prod.
   if (process.env.NODE_ENV === "production" && src.startsWith("/images/")) {
     return true;
   }
 
-  // Cloudflare / edge runtimes have no real public/ tree to probe.
   if (process.env.NEXT_RUNTIME === "edge") {
     return true;
   }
@@ -35,13 +32,12 @@ export function publicAssetExists(src: string): boolean {
     const filePath = join(process.cwd(), "public", src);
     return existsSync(filePath);
   } catch {
-    // fs unavailable — assume present; AssetImage onError still covers real 404s.
     return true;
   }
 }
 
-/** Precompute fallback flags for all image paths in siteData (avoids network 404s). */
-export function buildAssetFallbackMap(): Record<string, boolean> {
+/** Home shelf only — bag/peek images. Avoid scanning all projects on every SSR. */
+export function buildHomeAssetFallbackMap(): Record<string, boolean> {
   const paths = new Set<string>();
 
   for (const interest of siteData.interests) {
@@ -49,20 +45,14 @@ export function buildAssetFallbackMap(): Record<string, boolean> {
     paths.add(interest.peekImage);
   }
 
-  for (const project of siteData.projects) {
-    paths.add(project.image);
-    if (project.category === "cooking" || project.category === "travel") {
-      paths.add(project.thumbnail);
-    }
-    if (project.category === "engineering") {
-      paths.add(project.diagramImage);
-    }
-  }
-
   const map: Record<string, boolean> = {};
   for (const src of paths) {
     map[src] = !publicAssetExists(src);
   }
-
   return map;
+}
+
+/** @deprecated Prefer buildHomeAssetFallbackMap on the homepage. */
+export function buildAssetFallbackMap(): Record<string, boolean> {
+  return buildHomeAssetFallbackMap();
 }

@@ -12,7 +12,7 @@ import {
   type ClimbType,
 } from "@/lib/climbing-grades";
 import type { AdminClimbingSend } from "@/lib/db/queries/climbing";
-import { AdminSelect } from "./AdminField";
+import { AdminDateField, AdminSelect } from "./AdminField";
 import { MediaUploadField } from "./MediaUploadField";
 
 interface ClimbSendAdminFormProps {
@@ -352,22 +352,14 @@ export function ClimbSendAdminForm({
             { id: "project", label: "Project" },
           ]}
         />
-        <label className="block space-y-2">
-          <span className="font-mono text-[10px] uppercase tracking-widest text-foreground-muted">
-            Session date
-          </span>
-          <input
-            type="date"
-            name="sessionDate"
-            required
-            value={sessionDate}
-            onChange={(e) => setSessionDate(e.target.value)}
-            className="w-full bg-[#111111] border border-[#262626] px-3 py-2 text-sm text-white outline-none focus:border-accent"
-          />
-          <span className="font-mono text-[9px] text-foreground-subtle">
-            Auto-filled from the video file date when you upload send.mp4
-          </span>
-        </label>
+        <AdminDateField
+          label="Session date"
+          name="sessionDate"
+          required
+          value={sessionDate}
+          onChange={(e) => setSessionDate(e.target.value)}
+          hint="Auto-filled from the video file date when you upload send.mp4"
+        />
         <label className="block space-y-2">
           <span className="font-mono text-[10px] uppercase tracking-widest text-foreground-muted">
             Duration

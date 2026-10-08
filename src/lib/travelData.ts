@@ -8,7 +8,9 @@ export interface Destination {
     date: string;
     imageSrc: string;
     // Percentage coordinates to place pins precisely over your custom world map background image
-    mapCoordinates: { x: number; y: number }; 
+    mapCoordinates: { x: number; y: number };
+    /** True when a trips row exists for this destination (detail page is available). */
+    hasDetail?: boolean;
   }
   
   export const travelStats = {

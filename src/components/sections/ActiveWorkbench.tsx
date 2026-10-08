@@ -5,17 +5,19 @@ import { useState } from "react";
 import type { InterestCategory } from "@/types";
 import { AssetImage } from "@/components/ui/AssetImage";
 import { getIcon } from "@/lib/icon-map";
-import { siteData } from "@/lib/data";
+import { formatLastActive } from "@/lib/interests/format";
 import { getInterestHref } from "@/lib/utils";
 
 interface ActiveWorkbenchProps {
   items: InterestCategory[];
   fallbackBySrc: Record<string, boolean>;
+  bagPeekHint?: string;
 }
 
 export function ActiveWorkbench({
   items,
   fallbackBySrc,
+  bagPeekHint = "Hover over a bag to peek inside.",
 }: ActiveWorkbenchProps) {
   const [hoveredId, setHoveredId] = useState<string | null>(
     items[0]?.id ?? null,
@@ -37,7 +39,7 @@ export function ActiveWorkbench({
           </h2>
         </div>
         <p className="hidden max-w-xs text-right text-meta text-foreground-muted sm:block">
-          {siteData.personal.bagPeekHint} Click to open.
+          {bagPeekHint} Click to open.
         </p>
       </div>
 
@@ -83,7 +85,7 @@ export function ActiveWorkbench({
       </div>
 
       <p className="mt-3 text-center text-meta text-foreground-muted sm:hidden">
-        {siteData.personal.bagPeekHint} Tap to open.
+        {bagPeekHint} Tap to open.
       </p>
     </section>
   );
@@ -105,6 +107,7 @@ function WorkbenchItem({
   onFocus,
 }: WorkbenchItemProps) {
   const Icon = getIcon(item.icon);
+  const lastActiveLabel = formatLastActive(item.lastActive);
 
   return (
     <li className="relative">
@@ -166,6 +169,11 @@ function WorkbenchItem({
               {item.workbenchNote}
             </p>
           ) : null}
+          {lastActiveLabel ? (
+            <p className="mt-1 font-mono text-[9px] uppercase tracking-widest text-foreground-subtle">
+              {lastActiveLabel}
+            </p>
+          ) : null}
         </div>
       </Link>
     </li>
@@ -179,6 +187,8 @@ function PeekFrame({
   item: InterestCategory;
   peekFallback: boolean;
 }) {
+  const lastActiveLabel = formatLastActive(item.lastActive);
+
   return (
     <article
       key={item.id}
@@ -207,9 +217,16 @@ function PeekFrame({
           </p>
         </div>
       </div>
-      {item.workbenchNote ? (
-        <div className="relative z-10 border-t border-[#3a342c] bg-[#1a1510]/85 px-5 py-3.5 lg:px-6">
-          <p className="text-meta text-foreground-muted">{item.workbenchNote}</p>
+      {item.workbenchNote || lastActiveLabel ? (
+        <div className="relative z-10 border-t border-[#3a342c] bg-[#1a1510]/85 px-5 py-3.5 lg:px-6 space-y-1">
+          {item.workbenchNote ? (
+            <p className="text-meta text-foreground-muted">{item.workbenchNote}</p>
+          ) : null}
+          {lastActiveLabel ? (
+            <p className="font-mono text-[9px] uppercase tracking-widest text-foreground-subtle">
+              {lastActiveLabel}
+            </p>
+          ) : null}
         </div>
       ) : null}
     </article>
