@@ -180,7 +180,7 @@ function LolAccountPanel({ account }: { account: LolAccount }) {
                   <td className="px-4 py-3">
                     {top && season.percentile != null ? (
                       <span
-                        className="font-mono text-[9px] text-accent/75 cursor-help underline decoration-accent/25 underline-offset-2"
+                        className="font-mono text-xs text-accent/80 cursor-help underline decoration-accent/25 underline-offset-2"
                         title={`~${season.percentile}% · approx. for ${season.tier} in that era`}
                       >
                         ~{top}

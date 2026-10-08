@@ -1,3 +1,8 @@
+import type { RecipeCuisineId } from "@/lib/recipe/cuisines";
+import type { IngredientUnitId } from "@/lib/recipe/units";
+
+export type { RecipeCuisineId } from "@/lib/recipe/cuisines";
+
 export type RecipeCategoryId =
   | "dinner"
   | "breakfast"
@@ -6,17 +11,13 @@ export type RecipeCategoryId =
   | "baking"
   | "snacks";
 
-export type RecipeCuisineId =
-  | "italian"
-  | "middle-eastern"
-  | "japanese"
-  | "mexican"
-  | "european";
-
 export interface IngredientItem {
-  quantity: string;
-  quantityMetric: string;
+  /** Numeric/fraction amount, or freeform text when unit is `text`. */
+  amount: string;
+  unit: IngredientUnitId;
   name: string;
+  /** Prep note, e.g. "finely chopped". */
+  note?: string;
 }
 
 export interface IngredientGroup {
@@ -32,10 +33,10 @@ export interface RecipeStep {
 }
 
 export interface RecipeNutrition {
-  calories: number;
-  protein: string;
-  carbs: string;
-  fat: string;
+  calories?: number;
+  protein?: string;
+  carbs?: string;
+  fat?: string;
 }
 
 export interface RecipeQuickStats {
@@ -63,8 +64,8 @@ export interface RecipeDetail extends RecipeSummary {
   info: {
     cuisine: string;
     course: string;
-    method: string;
-    diet: string;
+    method?: string;
+    diet?: string;
     keywords: string[];
   };
   nutrition: RecipeNutrition;

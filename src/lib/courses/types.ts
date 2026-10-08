@@ -22,6 +22,8 @@ export interface CourseDefinition {
   school: string;
   href?: string;
   blurb?: string;
+  /** Contact hours from the school catalog (e.g. George Brown CE). */
+  hours?: number;
   /** Expandable weeks / assignments */
   sessions: CourseSession[];
   /**

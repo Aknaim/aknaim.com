@@ -134,8 +134,14 @@ export const ingredients = pgTable("ingredients", {
   groupId: integer("group_id")
     .notNull()
     .references(() => ingredientGroups.id, { onDelete: "cascade" }),
+  /** Amount only (e.g. "2", "1/2"), or freeform when unit is `text`. */
   quantity: text("quantity").notNull(),
-  quantityMetric: text("quantity_metric").notNull(),
+  /** Legacy dual-field display; kept for older rows / seed fallback. */
+  quantityMetric: text("quantity_metric").notNull().default(""),
+  /** Canonical unit id — see `@/lib/recipe/units`. */
+  unit: text("unit").notNull().default(""),
+  /** Prep note, e.g. finely chopped. */
+  note: text("note").notNull().default(""),
   name: text("name").notNull(),
   sortOrder: integer("sort_order").notNull().default(0),
 });

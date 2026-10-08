@@ -149,20 +149,20 @@ export function TitledWinsTable({
         </FilterRow>
       </div>
 
-      <p className="font-mono text-[9px] text-foreground-subtle">
+      <p className="font-mono text-[11px] text-foreground-subtle">
         {filtered.length} of {wins.length}
       </p>
 
       <div className="overflow-x-auto border border-[#141414]">
-        <table className="w-full min-w-[40rem] text-left text-sm">
+        <table className="w-full min-w-[40rem] text-left text-base">
           <thead>
-            <tr className="border-b border-[#141414] font-mono text-[9px] uppercase tracking-widest text-foreground-muted">
-              <th className="px-4 py-3 font-normal">Title</th>
-              <th className="px-4 py-3 font-normal">Opponent</th>
-              <th className="px-4 py-3 font-normal">Account</th>
-              <th className="px-4 py-3 font-normal">Site</th>
-              <th className="px-4 py-3 font-normal">Date</th>
-              <th className="px-4 py-3 font-normal text-right">Game</th>
+            <tr className="border-b border-[#141414] font-mono text-[11px] uppercase tracking-widest text-foreground-muted">
+              <th className="px-5 py-3.5 font-normal">Title</th>
+              <th className="px-5 py-3.5 font-normal">Opponent</th>
+              <th className="px-5 py-3.5 font-normal">Account</th>
+              <th className="px-5 py-3.5 font-normal">Site</th>
+              <th className="px-5 py-3.5 font-normal">Date</th>
+              <th className="px-5 py-3.5 font-normal text-right">Game</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-[#141414]">
@@ -170,9 +170,9 @@ export function TitledWinsTable({
               const account = accountMeta(win.accountId);
               return (
                 <tr key={win.id} className="hover:bg-[#111111]/40 transition-colors">
-                  <td className="px-4 py-3">
+                  <td className="px-5 py-3.5">
                     <span
-                      className="font-mono text-[10px] text-accent/90 cursor-help underline decoration-accent/25 underline-offset-2"
+                      className="font-mono text-xs text-accent/90 cursor-help underline decoration-accent/25 underline-offset-2"
                       title={
                         TITLE_BLURBS[win.title as (typeof TITLE_ORDER)[number]] ??
                         win.title
@@ -181,22 +181,22 @@ export function TitledWinsTable({
                       {win.title}
                     </span>
                   </td>
-                  <td className="px-4 py-3 text-white">{win.opponent}</td>
-                  <td className="px-4 py-3 text-foreground-subtle">
+                  <td className="px-5 py-3.5 text-white">{win.opponent}</td>
+                  <td className="px-5 py-3.5 text-foreground-subtle">
                     {account?.label ?? win.accountId}
                   </td>
-                  <td className="px-4 py-3 font-mono text-[9px] uppercase tracking-widest text-foreground-subtle">
+                  <td className="px-5 py-3.5 font-mono text-[11px] uppercase tracking-widest text-foreground-subtle">
                     {account?.site ?? "—"}
                   </td>
-                  <td className="px-4 py-3 font-mono text-[9px] text-foreground-subtle tabular-nums">
+                  <td className="px-5 py-3.5 font-mono text-[11px] text-foreground-subtle tabular-nums">
                     {win.playedAt ?? "—"}
                   </td>
-                  <td className="px-4 py-3 text-right">
+                  <td className="px-5 py-3.5 text-right">
                     <a
                       href={win.url}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="font-mono text-[9px] uppercase tracking-widest text-accent/80 hover:text-accent transition-colors"
+                      className="font-mono text-[11px] uppercase tracking-widest text-accent/80 hover:text-accent transition-colors"
                     >
                       Open ↗
                     </a>
@@ -220,7 +220,7 @@ function FilterRow({
 }) {
   return (
     <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-4">
-      <span className="font-mono text-[9px] uppercase tracking-widest text-foreground-subtle shrink-0 w-16">
+      <span className="font-mono text-[11px] uppercase tracking-widest text-foreground-subtle shrink-0 w-16">
         {label}
       </span>
       <div className="flex flex-wrap gap-2" role="group" aria-label={label}>
@@ -243,7 +243,7 @@ function FilterChip({
     <button
       type="button"
       onClick={onClick}
-      className={`font-mono text-[9px] uppercase tracking-widest px-3 py-1.5 border transition-colors ${
+      className={`font-mono text-[11px] uppercase tracking-widest px-3 py-1.5 border transition-colors ${
         active
           ? "border-accent/50 text-accent bg-accent/10"
           : "border-[#262626] text-foreground-muted hover:border-[#3a3a3a] hover:text-white"

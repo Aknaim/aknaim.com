@@ -1,3 +1,4 @@
+import { RECIPE_CUISINE_OPTIONS } from "@/lib/recipe/cuisines";
 import type { GalleryConfig } from "@/lib/types/gallery";
 
 export const cookingGalleryConfig: GalleryConfig = {
@@ -32,13 +33,7 @@ export const cookingGalleryConfig: GalleryConfig = {
       type: "select",
       paramKey: "cuisine",
       allowAll: true,
-      options: [
-        { id: "italian", label: "Italian" },
-        { id: "middle-eastern", label: "Middle Eastern" },
-        { id: "japanese", label: "Japanese" },
-        { id: "mexican", label: "Mexican" },
-        { id: "european", label: "European" },
-      ],
+      options: RECIPE_CUISINE_OPTIONS,
     },
   ],
 };

@@ -19,8 +19,10 @@ export type AdminGalleryItem = {
   posterUrl: string | null;
 };
 
-export async function listAdminGalleryItems(): Promise<AdminGalleryItem[]> {
-  const rows = await db
+export async function listAdminGalleryItems(
+  interest?: GalleryInterest
+): Promise<AdminGalleryItem[]> {
+  const base = db
     .select({
       id: galleryItems.id,
       interest: galleryItems.interest,
@@ -37,8 +39,13 @@ export async function listAdminGalleryItems(): Promise<AdminGalleryItem[]> {
       posterUrl: mediaAssets.posterUrl,
     })
     .from(galleryItems)
-    .innerJoin(mediaAssets, eq(galleryItems.mediaAssetId, mediaAssets.id))
-    .orderBy(asc(galleryItems.interest), desc(galleryItems.dateTaken));
+    .innerJoin(mediaAssets, eq(galleryItems.mediaAssetId, mediaAssets.id));
+
+  const rows = interest
+    ? await base
+        .where(eq(galleryItems.interest, interest))
+        .orderBy(desc(galleryItems.dateTaken))
+    : await base.orderBy(asc(galleryItems.interest), desc(galleryItems.dateTaken));
 
   return rows.map((row) => ({
     ...row,

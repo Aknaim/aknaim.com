@@ -71,6 +71,14 @@ async function seed() {
 
   console.log("Seeding media + recipes…");
 
+  // Keep DB in sync with the static seed list (empty = wipe legacy placeholders).
+  const seedSlugs = allRecipes.map((recipe) => recipe.slug);
+  if (seedSlugs.length === 0) {
+    await db.delete(schema.recipes);
+  } else {
+    await db.delete(schema.recipes).where(notInArray(schema.recipes.slug, seedSlugs));
+  }
+
   for (const recipe of allRecipes) {
     const imageMediaId = await ensureMedia(db, recipe.imageSrc, recipe.title);
     const heroMediaId = await ensureMedia(db, recipe.heroImage, recipe.title);
@@ -95,13 +103,13 @@ async function seed() {
         ovenTemp: recipe.quickStats.ovenTemp ?? null,
         infoCuisine: recipe.info.cuisine,
         infoCourse: recipe.info.course,
-        infoMethod: recipe.info.method,
-        infoDiet: recipe.info.diet,
+        infoMethod: recipe.info.method ?? "",
+        infoDiet: recipe.info.diet ?? "",
         keywords: recipe.info.keywords,
-        calories: recipe.nutrition.calories,
-        protein: recipe.nutrition.protein,
-        carbs: recipe.nutrition.carbs,
-        fat: recipe.nutrition.fat,
+        calories: recipe.nutrition.calories ?? 0,
+        protein: recipe.nutrition.protein ?? "",
+        carbs: recipe.nutrition.carbs ?? "",
+        fat: recipe.nutrition.fat ?? "",
         published: true,
         updatedAt: new Date(),
       })
@@ -124,13 +132,13 @@ async function seed() {
           ovenTemp: recipe.quickStats.ovenTemp ?? null,
           infoCuisine: recipe.info.cuisine,
           infoCourse: recipe.info.course,
-          infoMethod: recipe.info.method,
-          infoDiet: recipe.info.diet,
+          infoMethod: recipe.info.method ?? "",
+          infoDiet: recipe.info.diet ?? "",
           keywords: recipe.info.keywords,
-          calories: recipe.nutrition.calories,
-          protein: recipe.nutrition.protein,
-          carbs: recipe.nutrition.carbs,
-          fat: recipe.nutrition.fat,
+          calories: recipe.nutrition.calories ?? 0,
+          protein: recipe.nutrition.protein ?? "",
+          carbs: recipe.nutrition.carbs ?? "",
+          fat: recipe.nutrition.fat ?? "",
           updatedAt: new Date(),
         },
       });
@@ -159,8 +167,10 @@ async function seed() {
         await db.insert(schema.ingredients).values(
           group.items.map((item, itemIndex) => ({
             groupId: groupRow.id,
-            quantity: item.quantity,
-            quantityMetric: item.quantityMetric,
+            quantity: item.amount,
+            quantityMetric: "",
+            unit: item.unit,
+            note: item.note ?? "",
             name: item.name,
             sortOrder: itemIndex,
           }))

@@ -10,6 +10,7 @@ export const PHOTOGRAPHY_COURSES: CourseDefinition[] = [
     href: "https://coned.georgebrown.ca/courses-and-programs/digital-photography-1-fundamentals",
     blurb:
       "Manual exposure, RAW workflow, and critiquing your own frames — camera control before the edit.",
+    hours: 21,
     sessions: [
       { label: "Assignment 1", items: ["ISO & White Balance"] },
       { label: "Assignment 2", items: ["Shutter Speeds"] },

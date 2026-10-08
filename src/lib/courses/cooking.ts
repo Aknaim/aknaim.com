@@ -11,6 +11,7 @@ export const COOKING_COURSES: CourseDefinition[] = [
     href: "https://coned.georgebrown.ca/courses-and-programs/culinary-arts-1",
     blurb:
       "Knife skills, foundational sauces, and core methods — searing, poaching, roasting, and more.",
+    hours: 48,
     sessions: [
       {
         label: "In the kitchen",
@@ -31,6 +32,7 @@ export const COOKING_COURSES: CourseDefinition[] = [
     school: "George Brown · Continuing Education",
     href: "https://coned.georgebrown.ca/courses-and-programs/mediterranean-cooking",
     blurb: "France, Spain, Italy, Greece, and North Africa — bright, olive-oil cooking.",
+    hours: 24,
     sessions: [
       {
         label: "In the kitchen",
@@ -54,6 +56,7 @@ export const COOKING_COURSES: CourseDefinition[] = [
     school: "George Brown · Continuing Education",
     href: "https://coned.georgebrown.ca/courses-and-programs/vegetarian-indian-cooking",
     blurb: "Spices, dals, and vegetarian plates from the Indian kitchen.",
+    hours: 24,
     sessions: [
       {
         label: "In the kitchen",
@@ -67,8 +70,9 @@ export const COOKING_COURSES: CourseDefinition[] = [
     title: "Knife Skills",
     code: "HOSF 9124",
     school: "George Brown · Continuing Education",
-    href: "https://coned.georgebrown.ca/HOSF9124",
+    href: "https://coned.georgebrown.ca/courses-and-programs/knife-skills",
     blurb: "Cuts, care, and confidence — vegetables, fruit, chicken, and fish.",
+    hours: 12,
     sessions: [
       {
         label: "Techniques",
@@ -89,6 +93,7 @@ export const COOKING_COURSES: CourseDefinition[] = [
     school: "George Brown · Continuing Education",
     href: "https://coned.georgebrown.ca/courses-and-programs/baking-arts",
     blurb: "Pastry foundations — pies, cookies, cakes, tarts, éclairs, and chocolate.",
+    hours: 48,
     sessions: [
       {
         label: "In the kitchen",
@@ -104,6 +109,7 @@ export const COOKING_COURSES: CourseDefinition[] = [
     school: "George Brown · Continuing Education",
     href: "https://coned.georgebrown.ca/courses-and-programs/breads",
     blurb: "Pan and hearth breads — flour, fermentation, and the oven spring.",
+    hours: 40,
     sessions: [
       {
         label: "In the kitchen",

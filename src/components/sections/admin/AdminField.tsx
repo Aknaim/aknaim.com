@@ -44,14 +44,22 @@ export function AdminSelect({
   label,
   name,
   defaultValue,
+  value,
   required,
   options,
+  allowEmpty,
+  emptyLabel = "—",
+  onChange,
 }: {
   label: string;
   name: string;
   defaultValue?: string;
+  value?: string;
   required?: boolean;
   options: Array<{ id: string; label: string }>;
+  allowEmpty?: boolean;
+  emptyLabel?: string;
+  onChange?: ChangeEventHandler<HTMLSelectElement>;
 }) {
   return (
     <label className="block space-y-2">
@@ -60,10 +68,13 @@ export function AdminSelect({
       </span>
       <select
         name={name}
-        defaultValue={defaultValue}
         required={required}
+        defaultValue={value === undefined ? defaultValue : undefined}
+        value={value}
+        onChange={onChange}
         className="w-full bg-[#111111] border border-[#262626] px-3 py-2 text-sm text-white outline-none focus:border-accent"
       >
+        {allowEmpty ? <option value="">{emptyLabel}</option> : null}
         {options.map((option) => (
           <option key={option.id} value={option.id}>
             {option.label}

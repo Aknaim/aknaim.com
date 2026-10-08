@@ -53,11 +53,11 @@ function RatingCell({
     showPercentile && peak.percentile != null ? formatTopPercent(peak.percentile) : null;
 
   return (
-    <div className="flex flex-col gap-1">
-      <span className="text-white tabular-nums tracking-tight">{peak.rating}</span>
+    <div className="flex flex-col gap-1.5">
+      <span className="text-white text-lg tabular-nums tracking-tight">{peak.rating}</span>
       {top && peak.percentile != null ? (
         <span
-          className="font-mono text-[9px] text-accent/75 w-fit cursor-help underline decoration-accent/25 underline-offset-2"
+          className="font-mono text-xs text-accent/80 w-fit cursor-help underline decoration-accent/25 underline-offset-2"
           title={formatPercentileDetail(peak.percentile)}
         >
           {top}
@@ -68,7 +68,7 @@ function RatingCell({
           href={peak.gameUrl}
           target="_blank"
           rel="noopener noreferrer"
-          className="font-mono text-[9px] uppercase tracking-widest text-foreground-muted hover:text-accent transition-colors w-fit"
+          className="font-mono text-[11px] uppercase tracking-widest text-foreground-muted hover:text-accent transition-colors w-fit"
         >
           Best game ↗
         </a>
@@ -95,28 +95,28 @@ export default function ChessPage() {
           <div className="space-y-6 order-2 lg:order-1">
             <Link
               href="/"
-              className="inline-flex items-center gap-2 font-mono text-[10px] uppercase tracking-widest text-foreground-muted hover:text-white transition-colors group"
+              className="inline-flex items-center gap-2 font-mono text-xs uppercase tracking-widest text-foreground-muted hover:text-white transition-colors group"
             >
               <span className="transform group-hover:-translate-x-0.5 transition-transform">←</span>
               Workbench
             </Link>
 
             <div className="space-y-3">
-              <span className="font-mono text-[10px] uppercase tracking-[0.25em] text-accent/80 block">
+              <span className="font-mono text-xs uppercase tracking-[0.25em] text-accent/80 block">
                 Chess
               </span>
               <h1 className="font-display text-4xl sm:text-5xl font-medium tracking-tight leading-[1.15] text-white">
                 Moves I&apos;m still{" "}
                 <span className="font-serif italic text-accent font-normal">thinking about.</span>
               </h1>
-              <p className="text-foreground-muted text-sm leading-relaxed max-w-sm">
+              <p className="text-foreground-muted text-base leading-relaxed max-w-md">
                 “When you see a good move, look for a better one.” — Emanuel Lasker
               </p>
             </div>
 
             <nav
               aria-label="On this page"
-              className="flex flex-wrap gap-x-5 gap-y-2 pt-2 font-mono text-[10px] uppercase tracking-widest"
+              className="flex flex-wrap gap-x-5 gap-y-2 pt-2 font-mono text-xs uppercase tracking-widest"
             >
               <a href="#ratings" className="text-foreground-muted hover:text-white transition-colors">
                 Peak ratings
@@ -148,21 +148,21 @@ export default function ChessPage() {
         id="ratings"
         className="max-w-7xl mx-auto px-6 py-14 md:py-16 border-b border-[#141414] scroll-mt-8"
       >
-        <h2 className="font-mono text-[10px] uppercase tracking-widest text-foreground-muted mb-6">
+        <h2 className="font-mono text-xs uppercase tracking-widest text-foreground-muted mb-6">
           Peak ratings
         </h2>
 
         <div className="overflow-x-auto border border-[#141414]">
-          <table className="w-full min-w-[36rem] text-left text-sm">
+          <table className="w-full min-w-[36rem] text-left text-base">
             <thead>
-              <tr className="border-b border-[#141414] font-mono text-[9px] uppercase tracking-widest text-foreground-muted">
-                <th className="px-4 py-3 font-normal">Account</th>
+              <tr className="border-b border-[#141414] font-mono text-[11px] uppercase tracking-widest text-foreground-muted">
+                <th className="px-5 py-3.5 font-normal">Account</th>
                 {TIME_CONTROLS.map(({ key, label }) => (
-                  <th key={key} className="px-4 py-3 font-normal">
+                  <th key={key} className="px-5 py-3.5 font-normal">
                     {label}
                   </th>
                 ))}
-                <th className="px-4 py-3 font-normal text-right">Profile</th>
+                <th className="px-5 py-3.5 font-normal text-right">Profile</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-[#141414]">
@@ -170,28 +170,28 @@ export default function ChessPage() {
                 const peaks = accountPeaks[account.id];
                 return (
                   <tr key={account.id} className="hover:bg-[#111111]/40 transition-colors">
-                    <td className="px-4 py-4">
-                      <div className="flex flex-col gap-0.5">
-                        <span className="text-white">{displayName(account)}</span>
-                        <span className="font-mono text-[9px] uppercase tracking-widest text-foreground-subtle">
+                    <td className="px-5 py-5">
+                      <div className="flex flex-col gap-1">
+                        <span className="text-white text-base">{displayName(account)}</span>
+                        <span className="font-mono text-[11px] uppercase tracking-widest text-foreground-subtle">
                           {account.platform === "chesscom" ? "Chess.com" : "Lichess"}
                         </span>
                       </div>
                     </td>
                     {TIME_CONTROLS.map(({ key }) => (
-                      <td key={key} className="px-4 py-4 align-top">
+                      <td key={key} className="px-5 py-5 align-top">
                         <RatingCell
                           peak={peaks[key]}
                           showPercentile={account.platform === "chesscom"}
                         />
                       </td>
                     ))}
-                    <td className="px-4 py-4 text-right align-top">
+                    <td className="px-5 py-5 text-right align-top">
                       <a
                         href={account.profileUrl}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="font-mono text-[9px] uppercase tracking-widest text-foreground-muted hover:text-accent transition-colors"
+                        className="font-mono text-[11px] uppercase tracking-widest text-foreground-muted hover:text-accent transition-colors"
                       >
                         Open ↗
                       </a>
@@ -206,10 +206,10 @@ export default function ChessPage() {
 
       <section id="titled-wins" className="max-w-7xl mx-auto px-6 py-14 md:py-20 scroll-mt-8">
         <div className="flex flex-wrap items-end justify-between gap-3 mb-6">
-          <h2 className="font-mono text-[10px] uppercase tracking-widest text-foreground-muted">
+          <h2 className="font-mono text-xs uppercase tracking-widest text-foreground-muted">
             Titled wins
           </h2>
-          <p className="font-mono text-[9px] text-foreground-subtle">
+          <p className="font-mono text-[11px] text-foreground-subtle">
             Chess.com & Lichess · {TITLED_WINS.length} unique opponents
           </p>
         </div>

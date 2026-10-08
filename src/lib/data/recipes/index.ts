@@ -1,19 +1,11 @@
 import type { CookingCategory, RecipeCategoryId, RecipeDetail, RecipeSummary } from "@/lib/types/recipe";
-import { cardamomKarak } from "./cardamom-karak";
-import { lambShoulder } from "./lamb-shoulder";
-import { matchaTiramisu } from "./matcha-tiramisu";
-import { sageButterPasta } from "./sage-butter-pasta";
-import { sourdough } from "./sourdough";
-import { woodFiredMargheritaPizza } from "./wood-fired-margherita-pizza";
+import { sampleGarlicButterPasta } from "./sample-garlic-butter-pasta";
 
-export const allRecipes: RecipeDetail[] = [
-  woodFiredMargheritaPizza,
-  lambShoulder,
-  sageButterPasta,
-  cardamomKarak,
-  sourdough,
-  matchaTiramisu,
-];
+/**
+ * Static seed recipes for local/demo. Real recipes are managed via /admin/recipes.
+ * Keep this list short — seed upserts these and drops any other recipe slugs.
+ */
+export const allRecipes: RecipeDetail[] = [sampleGarlicButterPasta];
 
 export const recipesMap: Record<string, RecipeDetail> = Object.fromEntries(
   allRecipes.map((recipe) => [recipe.slug, recipe])

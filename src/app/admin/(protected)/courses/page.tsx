@@ -60,6 +60,7 @@ export default async function AdminCoursesPage({
                 {" · "}
                 {formatCourseDateRange(course.startedOn, course.completedOn) ??
                   "No dates yet"}
+                {course.hours != null ? ` · ${course.hours} hours` : ""}
               </div>
             </div>
             <Link

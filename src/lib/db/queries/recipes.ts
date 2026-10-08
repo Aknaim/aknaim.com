@@ -9,6 +9,8 @@ import {
   recipeSteps,
   recipes,
 } from "@/lib/db/schema";
+import { parseLegacyIngredient } from "@/lib/recipe/units";
+import type { IngredientUnitId } from "@/lib/recipe/units";
 import type {
   CookingCategory,
   RecipeCategoryId,
@@ -180,11 +182,27 @@ async function hydrateRecipe(slug: string): Promise<RecipeDetail | null> {
         .orderBy(asc(ingredients.sortOrder));
       return {
         label: group.label,
-        items: items.map((item) => ({
-          quantity: item.quantity,
-          quantityMetric: item.quantityMetric,
-          name: item.name,
-        })),
+        items: items.map((item) => {
+          if (item.unit) {
+            return {
+              amount: item.quantity,
+              unit: item.unit as IngredientUnitId,
+              name: item.name,
+              note: item.note || undefined,
+            };
+          }
+          const legacy = parseLegacyIngredient(
+            item.quantity,
+            item.quantityMetric,
+            item.name
+          );
+          return {
+            amount: legacy.amount,
+            unit: legacy.unit,
+            name: legacy.name,
+            note: item.note || legacy.note || undefined,
+          };
+        }),
       };
     })
   );
@@ -228,17 +246,17 @@ async function hydrateRecipe(slug: string): Promise<RecipeDetail | null> {
       ovenTemp: row.ovenTemp ?? undefined,
     },
     info: {
-      cuisine: row.infoCuisine,
-      course: row.infoCourse,
-      method: row.infoMethod,
-      diet: row.infoDiet,
+      cuisine: row.infoCuisine || row.categoryLabel,
+      course: row.infoCourse || row.categoryLabel,
+      method: row.infoMethod || undefined,
+      diet: row.infoDiet || undefined,
       keywords: row.keywords,
     },
     nutrition: {
-      calories: row.calories,
-      protein: row.protein,
-      carbs: row.carbs,
-      fat: row.fat,
+      calories: row.calories > 0 ? row.calories : undefined,
+      protein: row.protein || undefined,
+      carbs: row.carbs || undefined,
+      fat: row.fat || undefined,
     },
     notes: row.notes,
     ingredients: ingredientsByGroup,

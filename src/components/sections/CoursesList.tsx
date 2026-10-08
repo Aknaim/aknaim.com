@@ -127,6 +127,11 @@ export function CoursesList({
                         {dateRange}
                       </span>
                     ) : null}
+                    {course.hours != null ? (
+                      <span className="font-mono text-[9px] uppercase tracking-widest text-foreground-subtle">
+                        {course.hours} hours
+                      </span>
+                    ) : null}
                     {outcomes.length > 0 ? (
                       <span className="font-mono text-[9px] uppercase tracking-widest text-accent/70">
                         {outcomes.length} photo{outcomes.length === 1 ? "" : "s"}

@@ -19,7 +19,7 @@ function championsUrl(gameName: string, tagLine: string, seasonId: number): stri
 export const LOL_ACCOUNTS: LolAccount[] = [
   {
     id: "lol-aknaim",
-    gameName: "aknaim",
+    gameName: "Aknaim",
     tagLine: "NA1",
     region: "na",
     role: "main",
@@ -34,12 +34,12 @@ export const LOL_ACCOUNTS: LolAccount[] = [
       { name: "Kha'Zix", record: "7W 7L 50%" },
     ],
     championsSeasonLabel: "S7",
-    opGgUrl: opGgNaUrl("aknaim", "NA1"),
-    championsUrl: championsUrl("aknaim", "NA1", 7),
+    opGgUrl: opGgNaUrl("Aknaim", "NA1"),
+    championsUrl: championsUrl("Aknaim", "NA1", 7),
   },
   {
     id: "lol-kungfuscyther",
-    gameName: "kungfuscyther",
+    gameName: "Kungfuscyther",
     tagLine: "NA1",
     region: "na",
     role: "smurf",
@@ -54,7 +54,7 @@ export const LOL_ACCOUNTS: LolAccount[] = [
       { name: "Nautilus", record: "5W 2L 71%" },
     ],
     championsSeasonLabel: "S6",
-    opGgUrl: opGgNaUrl("kungfuscyther", "NA1"),
-    championsUrl: championsUrl("kungfuscyther", "NA1", 6),
+    opGgUrl: opGgNaUrl("Kungfuscyther", "NA1"),
+    championsUrl: championsUrl("Kungfuscyther", "NA1", 6),
   },
 ];

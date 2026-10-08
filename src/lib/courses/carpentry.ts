@@ -11,6 +11,7 @@ export const CARPENTRY_COURSES: CourseDefinition[] = [
     href: "https://coned.georgebrown.ca/courses-and-programs/home-maintenance-and-improvements-basics",
     blurb:
       "Hands-on home repairs — measuring, cutting, fastening, framing, drywall, doors, and trim.",
+    hours: 42,
     sessions: [
       {
         label: "In the shop",
@@ -90,6 +91,7 @@ export const CARPENTRY_COURSES: CourseDefinition[] = [
     href: "https://coned.georgebrown.ca/courses-and-programs/carpentry-1-basic-woodworking",
     blurb:
       "Hand and power tool fundamentals — mitre box, jewelry box, and wooden toolbox.",
+    hours: 42,
     sessions: [
       {
         label: "In the shop",

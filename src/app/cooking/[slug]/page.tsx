@@ -93,7 +93,10 @@ export default async function RecipePage({ params }: RecipePageProps) {
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 mb-16">
           <div className="lg:col-span-7">
-            <RecipeIngredients groups={recipe.ingredients} />
+            <RecipeIngredients
+              groups={recipe.ingredients}
+              baseServings={recipe.quickStats.servings}
+            />
           </div>
           <div className="lg:col-span-5">
             <RecipeSidebar recipe={recipe} />
