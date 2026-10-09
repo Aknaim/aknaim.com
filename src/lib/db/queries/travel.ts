@@ -237,10 +237,10 @@ export async function getTravelGalleryConfig(): Promise<GalleryConfig> {
     interest: "travel",
     title: "Travel Gallery",
     subtitle: "Moments captured across borders, seasons, and slow roads.",
-    defaultSort: "date-desc",
+    defaultSort: "date-asc",
     sortOptions: [
-      { id: "date-desc", label: "Date Taken" },
       { id: "date-asc", label: "Oldest First" },
+      { id: "date-desc", label: "Most Recent" },
       { id: "title-asc", label: "Title A–Z" },
     ],
     filterGroups: [

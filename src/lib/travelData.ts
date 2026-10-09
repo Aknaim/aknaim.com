@@ -27,7 +27,7 @@ export interface Destination {
       title: "Canada",
       photosCount: 48,
       notesCount: 12,
-      date: "May 2024",
+      date: "2016-06-01",
       imageSrc: "/images/travel/canada.jpg",
       // Toronto
       mapCoordinates: { x: 22.5, y: 31.0 },
@@ -38,7 +38,7 @@ export interface Destination {
       title: "United States",
       photosCount: 156,
       notesCount: 18,
-      date: "Sep 2023",
+      date: "2012-06-01",
       imageSrc: "/images/travel/usa.jpg",
       // New York
       mapCoordinates: { x: 24.5, y: 33.0 },
@@ -60,7 +60,7 @@ export interface Destination {
       title: "Germany",
       photosCount: 64,
       notesCount: 11,
-      date: "Jun 2023",
+      date: "2008-06-01",
       imageSrc: "/images/travel/germany.jpg",
       // Berlin
       mapCoordinates: { x: 51.5, y: 28.5 },
