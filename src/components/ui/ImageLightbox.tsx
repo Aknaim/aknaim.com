@@ -5,6 +5,7 @@ import { createPortal } from "react-dom";
 import Image from "next/image";
 import Link from "next/link";
 import { ChevronLeft, ChevronRight, X } from "lucide-react";
+import { shouldSkipImageOptimizer } from "@/lib/media/skip-image-optimizer";
 import type { LightboxImage } from "@/lib/types/lightbox";
 
 interface ImageLightboxProps {
@@ -138,7 +139,7 @@ export function ImageLightbox({
               className="object-contain"
               sizes="95vw"
               priority
-              unoptimized={current.src.startsWith("/media/")}
+              unoptimized={shouldSkipImageOptimizer(current.src)}
             />
           )}
         </div>

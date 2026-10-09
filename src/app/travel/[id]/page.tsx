@@ -4,6 +4,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { TripMomentsGrid } from "@/components/sections/travel/TripMomentsGrid";
 import { getTripById, getTripGalleryHref, getTripIds } from "@/lib/db/queries/travel";
+import { shouldSkipImageOptimizer } from "@/lib/media/skip-image-optimizer";
 
 interface TripDetailPageProps {
   params: Promise<{ id: string }>;
@@ -44,6 +45,7 @@ export default async function TripDetailPage({ params }: TripDetailPageProps) {
             className="object-cover object-center"
             priority
             sizes="100vw"
+            unoptimized={shouldSkipImageOptimizer(trip.heroImage)}
           />
           <div className="absolute inset-0 bg-gradient-to-t from-[#0b0a09] via-[#0b0a09]/35 to-black/45" />
           <div className="absolute inset-x-0 top-0 h-40 bg-gradient-to-b from-black/55 to-transparent" />
@@ -100,6 +102,7 @@ export default async function TripDetailPage({ params }: TripDetailPageProps) {
                     fill
                     className="object-cover object-center"
                     sizes="(max-width: 1024px) 100vw, 58vw"
+                    unoptimized={shouldSkipImageOptimizer(trip.route.mapImage)}
                   />
                 </div>
               ) : null}

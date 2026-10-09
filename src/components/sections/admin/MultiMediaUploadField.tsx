@@ -1,7 +1,10 @@
 "use client";
 
 import { useState } from "react";
-import { attachTravelGalleryBatch } from "@/lib/actions/admin/travel";
+import {
+  attachTravelGalleryBatch,
+  revalidateTravelGalleryAfterAttach,
+} from "@/lib/actions/admin/travel";
 import { resolveGalleryDateTaken } from "@/lib/media/date-taken-client";
 import { uploadAdminMediaFile } from "@/lib/media/upload-client";
 
@@ -54,6 +57,7 @@ export function MultiMediaUploadField({
     if (!tripId || uploads.length === 0) return uploads;
 
     const stillPending: UploadedMediaRef[] = [];
+    let attachedAny = false;
     for (let i = 0; i < uploads.length; i += 5) {
       const chunk = uploads.slice(i, i + 5);
       setStatus(`Attaching ${i + 1}–${Math.min(i + chunk.length, uploads.length)} of ${uploads.length}…`);
@@ -66,7 +70,12 @@ export function MultiMediaUploadField({
         setError(result.error);
         break;
       }
+      attachedAny = true;
       setAttachedCount((count) => count + result.attached + result.skipped);
+    }
+    // One cache bust after the dump — per-chunk revalidate was spiking the Worker.
+    if (attachedAny && stillPending.length === 0) {
+      await revalidateTravelGalleryAfterAttach(tripId);
     }
     return stillPending;
   }

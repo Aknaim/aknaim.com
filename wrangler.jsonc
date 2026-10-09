@@ -14,9 +14,8 @@
       "service": "aknaim-com"
     }
   ],
-  "images": {
-    "binding": "IMAGES"
-  },
+  // IMAGES binding removed — remote R2 WebPs were resized through the Worker
+  // and caused Error 1102 under gallery load. next.config sets images.unoptimized.
   "observability": {
     "enabled": true
   },

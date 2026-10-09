@@ -3,6 +3,7 @@
 import Image from "next/image";
 import { ImageLightbox } from "@/components/ui/ImageLightbox";
 import { useImageLightbox } from "@/hooks/useImageLightbox";
+import { shouldSkipImageOptimizer } from "@/lib/media/skip-image-optimizer";
 import type { GalleryMoment } from "@/lib/types/travel";
 import type { LightboxImage } from "@/lib/types/lightbox";
 
@@ -40,6 +41,7 @@ export function TripMomentsGrid({
               fill
               className="object-cover transition-transform duration-500 scale-100 group-hover:scale-[1.03]"
               sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
+              unoptimized={shouldSkipImageOptimizer(moment.imageSrc)}
             />
             <div className="absolute inset-0 p-4 flex items-end bg-gradient-to-t from-black/55 via-transparent to-transparent pointer-events-none">
               <span className="text-xs text-white font-medium tracking-wide drop-shadow-sm">

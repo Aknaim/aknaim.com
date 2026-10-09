@@ -22,6 +22,10 @@ const nextConfig: NextConfig = {
     },
   },
   images: {
+    // R2/WebP media is already compressed. CF Images (IMAGES binding) fetches
+    // and transforms remote URLs inside the Worker and regularly hits Error 1102
+    // on gallery dumps — serve sources as-is.
+    unoptimized: true,
     // Allow cache-bust query strings on local media (e.g. /media/...?v=123).
     localPatterns: [
       { pathname: "/media/**" },

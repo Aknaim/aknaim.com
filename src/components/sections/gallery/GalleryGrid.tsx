@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import { LayoutGrid, List, Play } from "lucide-react";
+import { shouldSkipImageOptimizer } from "@/lib/media/skip-image-optimizer";
 import type { GalleryItem, GalleryViewMode } from "@/lib/types/gallery";
 
 interface GalleryGridProps {
@@ -58,7 +59,7 @@ export function GalleryGrid({ items, viewMode, showDuration = false, onItemClick
                 fill
                 className="object-cover transition-transform group-hover:scale-105"
                 sizes="112px"
-                unoptimized={thumbSrc(item).startsWith("/media/")}
+                unoptimized={shouldSkipImageOptimizer(thumbSrc(item))}
               />
               {isVideo(item) && (
                 <span className="absolute inset-0 flex items-center justify-center">
@@ -104,7 +105,7 @@ export function GalleryGrid({ items, viewMode, showDuration = false, onItemClick
             fill
             className="object-cover group-hover:scale-[1.03] transition-transform duration-500"
             sizes="(max-width: 768px) 100vw, 33vw"
-            unoptimized={thumbSrc(item).startsWith("/media/")}
+            unoptimized={shouldSkipImageOptimizer(thumbSrc(item))}
           />
           <figcaption className="absolute inset-0 flex flex-col justify-end p-3 bg-gradient-to-t from-[#070707]/90 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
             <span className="text-xs text-white font-medium">{item.title ?? item.alt}</span>

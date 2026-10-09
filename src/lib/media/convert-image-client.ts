@@ -21,14 +21,24 @@ export async function convertImageFileToWebp(
 
   const bitmap = await createImageBitmap(file);
   try {
+    // Cap long edge so phone dumps don't create multi‑MB WebPs that later
+    // stress gallery views / Workers when many thumbs load at once.
+    const maxEdge = 2560;
+    const scale =
+      Math.max(bitmap.width, bitmap.height) > maxEdge
+        ? maxEdge / Math.max(bitmap.width, bitmap.height)
+        : 1;
+    const width = Math.max(1, Math.round(bitmap.width * scale));
+    const height = Math.max(1, Math.round(bitmap.height * scale));
+
     const canvas = document.createElement("canvas");
-    canvas.width = bitmap.width;
-    canvas.height = bitmap.height;
+    canvas.width = width;
+    canvas.height = height;
     const ctx = canvas.getContext("2d");
     if (!ctx) {
       throw new Error("Could not create canvas for WebP conversion");
     }
-    ctx.drawImage(bitmap, 0, 0);
+    ctx.drawImage(bitmap, 0, 0, width, height);
 
     const blob = await new Promise<Blob>((resolve, reject) => {
       canvas.toBlob(

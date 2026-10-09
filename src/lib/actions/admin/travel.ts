@@ -1,6 +1,6 @@
 "use server";
 
-import { eq, inArray } from "drizzle-orm";
+import { eq, inArray, sql } from "drizzle-orm";
 import { isRedirectError } from "next/dist/client/components/redirect-error";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
@@ -206,10 +206,13 @@ async function attachTripGalleryUploads(
 ): Promise<{ attached: number; skipped: number }> {
   if (uploads.length === 0) return { attached: 0, skipped: 0 };
 
+  // Scope to this trip — loading every travel gallery row OOMs/timeouts Workers on dumps.
   const existing = await db
     .select({ id: galleryItems.id, sortOrder: galleryItems.sortOrder })
     .from(galleryItems)
-    .where(eq(galleryItems.interest, "travel"));
+    .where(
+      sql`${galleryItems.interest} = 'travel' AND ${galleryItems.filters}->>'trip' = ${tripId}`
+    );
   const existingIds = new Set(existing.map((row) => row.id));
   const existingSort = new Map(existing.map((row) => [row.id, row.sortOrder]));
   let sortOrder = existing.reduce((max, row) => Math.max(max, row.sortOrder), 0) + 1;
@@ -383,14 +386,30 @@ export async function attachTravelGalleryBatch(input: {
       return { ok: true, attached: 0, skipped: 0 };
     }
     // Cap each call so Workers stay under CPU/DB limits.
+    // Do not revalidate here — MultiMediaUploadField revalidates once after all chunks.
     const batch = input.uploads.slice(0, GALLERY_CHUNK);
     const result = await attachTripGalleryUploads(tripId, batch);
-    revalidatePath(`/travel/${tripId}`);
-    revalidatePath("/gallery/travel");
-    revalidatePath(`/admin/travel/${tripId}`);
     return { ok: true, ...result };
   } catch (error) {
     const message = error instanceof Error ? error.message : "Gallery attach failed.";
+    return { ok: false, error: message };
+  }
+}
+
+/** One cache bust after a multi-file gallery dump (not per chunk). */
+export async function revalidateTravelGalleryAfterAttach(
+  tripId: string
+): Promise<{ ok: true } | { ok: false; error: string }> {
+  try {
+    await requireAdminAction();
+    const id = slugify(tripId);
+    if (!id) return { ok: false, error: "Missing trip id." };
+    revalidatePath(`/travel/${id}`);
+    revalidatePath("/gallery/travel");
+    revalidatePath(`/admin/travel/${id}`);
+    return { ok: true };
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "Revalidate failed.";
     return { ok: false, error: message };
   }
 }

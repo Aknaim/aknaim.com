@@ -1,7 +1,6 @@
 "use server";
 
 import { eq } from "drizzle-orm";
-import { revalidatePath } from "next/cache";
 import { db } from "@/lib/db";
 import { mediaAssets } from "@/lib/db/schema";
 import { requireAdminAction } from "./require-admin";
@@ -52,9 +51,9 @@ async function upsertMediaAsset(input: {
         durationLabel: input.durationLabel ?? undefined,
       })
       .where(eq(mediaAssets.id, existing[0].id));
-    revalidatePath("/admin/media");
-    revalidatePath("/gallery/climbing");
-    revalidatePath("/climbing");
+    // No revalidatePath here — every travel/cooking finalize was purging
+    // /climbing and triggering Worker SSR storms (Error 1102). Callers
+    // revalidate the relevant routes after a batch/save.
     return {
       ok: true,
       id: existing[0].id,
@@ -74,8 +73,6 @@ async function upsertMediaAsset(input: {
     })
     .returning();
 
-  revalidatePath("/admin/media");
-  revalidatePath("/climbing");
   return { ok: true, id: row.id, url: row.url, driver: input.driver };
 }
 
