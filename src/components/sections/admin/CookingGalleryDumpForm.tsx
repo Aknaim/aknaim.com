@@ -7,6 +7,7 @@ import {
   getGalleryFilterFields,
   titleFromFileName,
 } from "@/lib/admin/gallery-form";
+import { resolveGalleryDateTaken } from "@/lib/media/date-taken-client";
 import { uploadAdminMediaFile } from "@/lib/media/upload-client";
 import { AdminDateField, AdminField, AdminSelect } from "./AdminField";
 
@@ -18,12 +19,6 @@ type StagedFile = {
   previewUrl: string;
 };
 
-function isoFromFile(file: File): string {
-  const d = new Date(file.lastModified);
-  if (Number.isNaN(d.getTime())) return new Date().toISOString().slice(0, 10);
-  return d.toISOString().slice(0, 10);
-}
-
 export function CookingGalleryDumpForm() {
   const router = useRouter();
   const filterFields = useMemo(() => getGalleryFilterFields("cooking"), []);
@@ -34,15 +29,22 @@ export function CookingGalleryDumpForm() {
   const [status, setStatus] = useState<string | null>(null);
   const [pending, startTransition] = useTransition();
 
-  function onFilesPicked(fileList: FileList | null) {
+  async function onFilesPicked(fileList: FileList | null) {
     if (!fileList?.length) return;
-    const next = Array.from(fileList).map((file, index) => ({
-      key: `${file.name}-${file.size}-${file.lastModified}-${index}`,
-      file,
-      title: titleFromFileName(file.name),
-      dateTaken: defaultDate || isoFromFile(file),
-      previewUrl: URL.createObjectURL(file),
-    }));
+    const files = Array.from(fileList);
+    const next: StagedFile[] = [];
+    for (let index = 0; index < files.length; index++) {
+      const file = files[index];
+      // EXIF before any later WebP convert — canvas strips DateTimeOriginal.
+      const dateTaken = defaultDate || (await resolveGalleryDateTaken(file));
+      next.push({
+        key: `${file.name}-${file.size}-${file.lastModified}-${index}`,
+        file,
+        title: titleFromFileName(file.name),
+        dateTaken,
+        previewUrl: URL.createObjectURL(file),
+      });
+    }
     setStaged((current) => [...current, ...next]);
   }
 
@@ -226,7 +228,7 @@ export function CookingGalleryDumpForm() {
           multiple
           disabled={pending}
           onChange={(e) => {
-            onFilesPicked(e.target.files);
+            void onFilesPicked(e.target.files);
             e.target.value = "";
           }}
           className="block w-full text-xs text-foreground-muted file:mr-3 file:border file:border-[#262626] file:bg-[#141414] file:px-3 file:py-1.5 file:text-[10px] file:uppercase file:tracking-widest file:text-white hover:file:border-accent disabled:opacity-40"

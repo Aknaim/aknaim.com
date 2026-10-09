@@ -161,3 +161,43 @@ export function formatCourseDateRange(
   if (end) return `Completed ${formatLongDate(end)}`;
   return null;
 }
+
+/** Compact spine label for course chronology, e.g. `Jan–Apr 2023`. */
+export function formatCourseSpineRange(
+  startedOn: string | null | undefined,
+  completedOn: string | null | undefined
+): string | null {
+  const start = toIsoDate(startedOn);
+  const end = toIsoDate(completedOn);
+
+  if (start && end) {
+    if (start.slice(0, 7) === end.slice(0, 7)) {
+      return formatMonthYear(start);
+    }
+    const [startYear, startMonth] = start.split("-").map(Number);
+    const [endYear, endMonth] = end.split("-").map(Number);
+    if (startYear && endYear && startYear === endYear && startMonth && endMonth) {
+      const startLabel = new Date(Date.UTC(startYear, startMonth - 1, 1)).toLocaleDateString(
+        "en-US",
+        { month: "short", timeZone: "UTC" }
+      );
+      const endLabel = new Date(Date.UTC(endYear, endMonth - 1, 1)).toLocaleDateString(
+        "en-US",
+        { month: "short", timeZone: "UTC" }
+      );
+      return `${startLabel}–${endLabel} ${startYear}`;
+    }
+    return `${formatMonthYear(start)} – ${formatMonthYear(end)}`;
+  }
+  if (start) return formatMonthYear(start);
+  if (end) return formatMonthYear(end);
+  return null;
+}
+
+/** Sort key for chronology: startedOn, then completedOn; undated last. */
+export function courseChronologyKey(course: {
+  startedOn: string | null | undefined;
+  completedOn: string | null | undefined;
+}): string {
+  return toIsoDate(course.startedOn) ?? toIsoDate(course.completedOn) ?? "9999-99-99";
+}

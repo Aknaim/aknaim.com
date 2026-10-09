@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { TripMomentsGrid } from "@/components/sections/travel/TripMomentsGrid";
 import { getTripById, getTripGalleryHref, getTripIds } from "@/lib/db/queries/travel";
 
 interface TripDetailPageProps {
@@ -36,7 +37,14 @@ export default async function TripDetailPage({ params }: TripDetailPageProps) {
     <main className="min-h-screen bg-[#0b0a09] text-[#eaeaea] font-body pb-24 selection:bg-accent/30 selection:text-white">
       <section className="relative w-full h-[70vh] min-h-[550px] flex flex-col justify-between p-6 md:p-16 overflow-hidden">
         <div className="absolute inset-0 z-0">
-          <Image src={trip.heroImage} alt={trip.country} fill className="object-cover object-center" priority />
+          <Image
+            src={trip.heroImage}
+            alt={trip.country}
+            fill
+            className="object-cover object-center"
+            priority
+            sizes="100vw"
+          />
           <div className="absolute inset-0 bg-gradient-to-t from-[#0b0a09] via-[#0b0a09]/35 to-black/45" />
           <div className="absolute inset-x-0 top-0 h-40 bg-gradient-to-b from-black/55 to-transparent" />
         </div>
@@ -129,26 +137,7 @@ export default async function TripDetailPage({ params }: TripDetailPageProps) {
               View all photos →
             </Link>
           </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            {trip.moments.map((moment) => (
-              <div
-                key={moment.title}
-                className="relative aspect-[4/3] rounded border border-[#2a2620] bg-[#141210] overflow-hidden group"
-              >
-                <Image
-                  src={moment.imageSrc}
-                  alt={moment.title}
-                  fill
-                  className="object-cover transition-transform duration-500 scale-100 group-hover:scale-[1.03]"
-                />
-                <div className="absolute inset-0 p-4 flex items-end bg-gradient-to-t from-black/55 via-transparent to-transparent">
-                  <span className="text-xs text-white font-medium tracking-wide drop-shadow-sm">
-                    {moment.title}
-                  </span>
-                </div>
-              </div>
-            ))}
-          </div>
+          <TripMomentsGrid moments={trip.moments} country={trip.country} />
           <div className="mt-10 flex justify-center">
             <Link
               href={getTripGalleryHref(trip.id)}

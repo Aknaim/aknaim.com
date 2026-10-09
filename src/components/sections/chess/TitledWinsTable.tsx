@@ -19,15 +19,15 @@ const TITLE_ORDER = [
 /** Short FIDE/OTB context for hover — not online rating. */
 const TITLE_BLURBS: Record<(typeof TITLE_ORDER)[number], string> = {
   GM: "Grandmaster — ~2500+ FIDE; elite over-the-board title.",
-  WGM: "Woman Grandmaster — top women’s FIDE title.",
+  WGM: "Woman Grandmaster — FIDE women’s title, roughly ~2300+ FIDE.",
   IM: "International Master — ~2400 FIDE; roughly top 0.2% of rated players.",
-  WIM: "Woman International Master — strong women’s FIDE title.",
+  WIM: "Woman International Master — FIDE women’s title, roughly ~2200 FIDE.",
   FM: "FIDE Master — ~2300 FIDE; strong international level.",
-  WFM: "Woman FIDE Master — solid women’s FIDE title.",
+  WFM: "Woman FIDE Master — FIDE women’s title, roughly ~2100 FIDE.",
   NM: "National Master — usually ~2200 national rating.",
   WNM: "Woman National Master — national women’s master title.",
   CM: "Candidate Master — ~2200 FIDE entry-level master title.",
-  WCM: "Woman Candidate Master — women’s FIDE candidate title.",
+  WCM: "Woman Candidate Master — FIDE women’s candidate title, roughly ~2000 FIDE.",
 };
 
 type AccountOption = {
@@ -126,9 +126,13 @@ export function TitledWinsTable({
               active={titleFilter === title}
               onClick={() => setTitleFilter(title)}
               label={title}
+              hint={TITLE_BLURBS[title]}
             />
           ))}
         </FilterRow>
+        <p className="font-mono text-[10px] text-foreground-subtle sm:pl-20">
+          Hover a title for what it means (FIDE / national ranks — not online ratings).
+        </p>
 
         <FilterRow label="Sort">
           <FilterChip
@@ -234,19 +238,27 @@ function FilterChip({
   active,
   onClick,
   label,
+  hint,
 }: {
   active: boolean;
   onClick: () => void;
   label: string;
+  hint?: string;
 }) {
   return (
     <button
       type="button"
       onClick={onClick}
+      title={hint}
+      aria-label={hint ? `${label}: ${hint}` : undefined}
       className={`font-mono text-[11px] uppercase tracking-widest px-3 py-1.5 border transition-colors ${
         active
           ? "border-accent/50 text-accent bg-accent/10"
           : "border-[#262626] text-foreground-muted hover:border-[#3a3a3a] hover:text-white"
+      } ${
+        hint
+          ? "cursor-help underline decoration-accent/25 underline-offset-2"
+          : ""
       }`}
     >
       {label}

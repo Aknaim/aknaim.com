@@ -31,7 +31,7 @@ function formatTopPercent(betterThan: number | null): string | null {
 function formatPercentileDetail(betterThan: number): string {
   const rounded = Math.round(betterThan * 10) / 10;
   const display = Number.isInteger(rounded) ? String(rounded) : rounded.toFixed(1);
-  return `${display}% percentile`;
+  return `${display} percentile on Chess.com`;
 }
 
 function displayName(account: (typeof CHESS_ACCOUNTS)[number]): string {

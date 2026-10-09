@@ -1,6 +1,6 @@
 "use server";
 
-import { eq } from "drizzle-orm";
+import { eq, inArray } from "drizzle-orm";
 import { isRedirectError } from "next/dist/client/components/redirect-error";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
@@ -21,6 +21,10 @@ import { revalidateTravelPublicPages } from "@/lib/cache/revalidate-public";
 import { requireAdminAction } from "./require-admin";
 
 export type TravelPlaceSaveState = { error: string } | null;
+
+export type TravelGalleryAttachResult =
+  | { ok: true; attached: number; skipped: number }
+  | { ok: false; error: string };
 
 async function mediaStorage() {
   return import("@/lib/media/storage");
@@ -53,27 +57,59 @@ function parseRoutePlaces(formData: FormData) {
   return places.map((place, index) => ({ name: place.name, sortOrder: index }));
 }
 
-type GalleryUploadRef = { url: string; mediaId: string; name: string };
+type GalleryUploadRef = {
+  url: string;
+  mediaId: string;
+  name: string;
+  /** ISO date from EXIF / filename when available */
+  dateTaken?: string;
+};
 
 function parseGalleryUploads(raw: string): GalleryUploadRef[] {
   if (!raw.trim()) return [];
   try {
     const parsed = JSON.parse(raw) as unknown;
     if (!Array.isArray(parsed)) return [];
-    return parsed
-      .map((item) => {
-        if (!item || typeof item !== "object") return null;
-        const row = item as Record<string, unknown>;
-        const url = typeof row.url === "string" ? row.url.trim() : "";
-        const mediaId = typeof row.mediaId === "string" ? row.mediaId.trim() : "";
-        const name = typeof row.name === "string" ? row.name.trim() : "photo";
-        if (!url && !mediaId) return null;
-        return { url, mediaId, name };
-      })
-      .filter((item): item is GalleryUploadRef => item != null);
+    const out: GalleryUploadRef[] = [];
+    for (const item of parsed) {
+      if (!item || typeof item !== "object") continue;
+      const row = item as Record<string, unknown>;
+      const url = typeof row.url === "string" ? row.url.trim() : "";
+      const mediaId = typeof row.mediaId === "string" ? row.mediaId.trim() : "";
+      const name = typeof row.name === "string" ? row.name.trim() : "photo";
+      if (!url && !mediaId) continue;
+      const ref: GalleryUploadRef = { url, mediaId, name };
+      if (
+        typeof row.dateTaken === "string" &&
+        /^\d{4}-\d{2}-\d{2}$/.test(row.dateTaken.trim())
+      ) {
+        ref.dateTaken = row.dateTaken.trim();
+      }
+      out.push(ref);
+    }
+    return out;
   } catch {
     return [];
   }
+}
+
+async function mediaIdForUrl(finalUrl: string): Promise<string | null> {
+  const [owner] = await db
+    .select({ id: mediaAssets.id })
+    .from(mediaAssets)
+    .where(eq(mediaAssets.url, finalUrl))
+    .limit(1);
+  return owner?.id ?? null;
+}
+
+async function mediaIdExists(id: string): Promise<boolean> {
+  if (!id) return false;
+  const [row] = await db
+    .select({ id: mediaAssets.id })
+    .from(mediaAssets)
+    .where(eq(mediaAssets.id, id))
+    .limit(1);
+  return Boolean(row);
 }
 
 /** Move upload into travel/{id}/canonical name (local or R2), same pattern as climbs. */
@@ -90,13 +126,15 @@ async function settleTravelAsset(
     fileName.replace(/[^a-zA-Z0-9._-]/g, "-").replace(/^-+|-+$/g, "") || "file";
   const alreadyCanonical = cleanUrl.includes(`/${destFolder}/${destName}`);
 
-  // Fast path: upload already wrote the canonical key + we have its media id.
-  if (alreadyCanonical && existingId) {
-    await db
-      .update(mediaAssets)
-      .set({ createdAt: new Date(), alt })
-      .where(eq(mediaAssets.id, existingId));
-    return { id: existingId, url: cleanUrl };
+  // Upload already wrote the canonical key; finalizeMediaUpload registered the row.
+  if (alreadyCanonical) {
+    const byUrl = await mediaIdForUrl(cleanUrl);
+    if (byUrl) return { id: byUrl, url: cleanUrl };
+    if (existingId && (await mediaIdExists(existingId))) {
+      return { id: existingId, url: cleanUrl };
+    }
+    const id = await ensureMediaAssetId(cleanUrl, alt);
+    return { id, url: cleanUrl };
   }
 
   let finalUrl = cleanUrl;
@@ -105,9 +143,8 @@ async function settleTravelAsset(
     const { relocateLocalMediaUrl } = await mediaStorage();
     finalUrl = await relocateLocalMediaUrl(cleanUrl, folder, fileName);
   } else if (cleanUrl.startsWith("/images/")) {
-    // Legacy public path — keep as-is unless a new /media or R2 upload replaced it.
     finalUrl = cleanUrl;
-  } else if (!alreadyCanonical) {
+  } else {
     try {
       const { getR2PublicBaseUrl, relocateR2PublicUrl } = await import("@/lib/media/r2");
       if (cleanUrl.startsWith(`${getR2PublicBaseUrl()}/`)) {
@@ -118,33 +155,25 @@ async function settleTravelAsset(
     }
   }
 
-  if (existingId) {
-    if (finalUrl !== cleanUrl) {
-      await db
-        .update(mediaAssets)
-        .set({ url: finalUrl, createdAt: new Date(), alt })
-        .where(eq(mediaAssets.id, existingId));
-    } else {
-      await db
-        .update(mediaAssets)
-        .set({ createdAt: new Date(), alt })
-        .where(eq(mediaAssets.id, existingId));
-    }
-    return { id: existingId, url: finalUrl };
+  const ownerId = await mediaIdForUrl(finalUrl);
+  if (ownerId) {
+    return { id: ownerId, url: finalUrl };
   }
 
-  const [owner] = await db
-    .select({ id: mediaAssets.id })
-    .from(mediaAssets)
-    .where(eq(mediaAssets.url, finalUrl))
-    .limit(1);
-
-  if (owner) {
-    await db
-      .update(mediaAssets)
-      .set({ createdAt: new Date(), alt })
-      .where(eq(mediaAssets.id, owner.id));
-    return { id: owner.id, url: finalUrl };
+  if (existingId && (await mediaIdExists(existingId))) {
+    if (finalUrl !== cleanUrl) {
+      try {
+        await db
+          .update(mediaAssets)
+          .set({ url: finalUrl, alt })
+          .where(eq(mediaAssets.id, existingId));
+      } catch {
+        const reused = await mediaIdForUrl(finalUrl);
+        if (reused) return { id: reused, url: finalUrl };
+        throw new Error(`Could not claim media URL ${finalUrl}`);
+      }
+    }
+    return { id: existingId, url: finalUrl };
   }
 
   const id = await ensureMediaAssetId(finalUrl, alt);
@@ -161,56 +190,208 @@ function dateTakenFromFilename(name: string): string {
   return new Date().toISOString().slice(0, 10);
 }
 
-async function attachTripGalleryUploads(tripId: string, uploads: GalleryUploadRef[]) {
-  if (uploads.length === 0) return;
+async function sleep(ms: number) {
+  await new Promise((resolve) => setTimeout(resolve, ms));
+}
 
-  const paths = tripMediaPaths(tripId);
+const GALLERY_CHUNK = 5;
+
+/**
+ * Attach already-uploaded gallery files. Prefers the mediaId from finalize —
+ * no per-photo settle/SELECT storm (that was killing Neon/Workers on big dumps).
+ */
+async function attachTripGalleryUploads(
+  tripId: string,
+  uploads: GalleryUploadRef[]
+): Promise<{ attached: number; skipped: number }> {
+  if (uploads.length === 0) return { attached: 0, skipped: 0 };
+
   const existing = await db
-    .select({ sortOrder: galleryItems.sortOrder })
+    .select({ id: galleryItems.id, sortOrder: galleryItems.sortOrder })
     .from(galleryItems)
     .where(eq(galleryItems.interest, "travel"));
+  const existingIds = new Set(existing.map((row) => row.id));
+  const existingSort = new Map(existing.map((row) => [row.id, row.sortOrder]));
   let sortOrder = existing.reduce((max, row) => Math.max(max, row.sortOrder), 0) + 1;
+
+  type PendingRow = {
+    uploadName: string;
+    id: string;
+    mediaAssetId: string;
+    title: string;
+    dateTaken: string;
+    sortOrder: number;
+  };
+
+  const pending: PendingRow[] = [];
+  let skipped = 0;
 
   for (const upload of uploads) {
     const stem = upload.name.replace(/\.[^.]+$/, "");
     const base = slugify(stem) || "photo";
     const id = `travel-${tripId}-${base}`;
-    try {
+    const fromExif =
+      upload.dateTaken && /^\d{4}-\d{2}-\d{2}$/.test(upload.dateTaken)
+        ? upload.dateTaken
+        : null;
+
+    // Already attached: only re-process when we have a fresh EXIF date to write back.
+    if (existingIds.has(id) && !fromExif) {
+      skipped += 1;
+      continue;
+    }
+
+    let mediaAssetId = upload.mediaId.trim();
+    if (!mediaAssetId) {
+      // Rare: older upload payload without id — settle once.
+      const paths = tripMediaPaths(tripId);
       const settled = await settleTravelAsset(
         upload.url,
         paths.galleryFolder,
         `${base}.webp`,
-        upload.mediaId,
+        "",
         upload.name
       );
-
-      await db
-        .insert(galleryItems)
-        .values({
-          id,
-          interest: "travel",
-          mediaAssetId: settled.id,
-          title: stem,
-          dateTaken: dateTakenFromFilename(upload.name),
-          filters: { trip: tripId },
-          sortOrder,
-          published: true,
-        })
-        .onConflictDoUpdate({
-          target: galleryItems.id,
-          set: {
-            mediaAssetId: settled.id,
-            title: stem,
-            dateTaken: dateTakenFromFilename(upload.name),
-            filters: { trip: tripId },
-            published: true,
-          },
-        });
-      sortOrder += 1;
-    } catch (error) {
-      const detail = error instanceof Error ? error.message : "unknown error";
-      throw new Error(`Gallery attach failed for ${upload.name}: ${detail}`);
+      mediaAssetId = settled.id;
     }
+
+    const isExisting = existingIds.has(id);
+    pending.push({
+      uploadName: upload.name,
+      id,
+      mediaAssetId,
+      title: stem,
+      dateTaken: fromExif ?? dateTakenFromFilename(upload.name),
+      sortOrder: isExisting ? (existingSort.get(id) ?? sortOrder) : sortOrder,
+    });
+    if (!isExisting) {
+      existingIds.add(id);
+      sortOrder += 1;
+    }
+  }
+
+  if (pending.length === 0) return { attached: 0, skipped };
+
+  // One lookup for the whole dump — drop rows whose media id vanished.
+  const mediaIds = [...new Set(pending.map((row) => row.mediaAssetId))];
+  const present = new Set<string>();
+  for (let i = 0; i < mediaIds.length; i += 40) {
+    const slice = mediaIds.slice(i, i + 40);
+    const rows = await db
+      .select({ id: mediaAssets.id })
+      .from(mediaAssets)
+      .where(inArray(mediaAssets.id, slice));
+    for (const row of rows) present.add(row.id);
+  }
+
+  const valid = pending.filter((row) => present.has(row.mediaAssetId));
+  const missingMedia = pending.filter((row) => !present.has(row.mediaAssetId));
+  const failures: string[] = missingMedia.map(
+    (row) => `${row.uploadName}: media row missing (re-upload)`
+  );
+
+  let attached = 0;
+  for (let i = 0; i < valid.length; i += GALLERY_CHUNK) {
+    const chunk = valid.slice(i, i + GALLERY_CHUNK);
+
+    for (const row of chunk) {
+      try {
+        await db
+          .insert(galleryItems)
+          .values({
+            id: row.id,
+            interest: "travel",
+            mediaAssetId: row.mediaAssetId,
+            title: row.title,
+            dateTaken: row.dateTaken,
+            filters: { trip: tripId },
+            sortOrder: row.sortOrder,
+            published: true,
+          })
+          .onConflictDoUpdate({
+            target: galleryItems.id,
+            set: {
+              mediaAssetId: row.mediaAssetId,
+              title: row.title,
+              dateTaken: row.dateTaken,
+              filters: { trip: tripId },
+              published: true,
+            },
+          });
+        attached += 1;
+      } catch {
+        await sleep(500);
+        try {
+          await db
+            .insert(galleryItems)
+            .values({
+              id: row.id,
+              interest: "travel",
+              mediaAssetId: row.mediaAssetId,
+              title: row.title,
+              dateTaken: row.dateTaken,
+              filters: { trip: tripId },
+              sortOrder: row.sortOrder,
+              published: true,
+            })
+            .onConflictDoUpdate({
+              target: galleryItems.id,
+              set: {
+                mediaAssetId: row.mediaAssetId,
+                title: row.title,
+                dateTaken: row.dateTaken,
+                filters: { trip: tripId },
+                published: true,
+              },
+            });
+          attached += 1;
+        } catch (retryError) {
+          const detail =
+            retryError instanceof Error ? retryError.message : "unknown error";
+          failures.push(`${row.uploadName}: ${detail}`);
+        }
+      }
+    }
+
+    if (i + GALLERY_CHUNK < valid.length) {
+      await sleep(200);
+    }
+  }
+
+  if (failures.length > 0) {
+    throw new Error(
+      `Gallery attach failed for ${failures.length} photo(s). Place details were saved — keep this page open and use “Attach pending gallery” or save again.\n${failures.slice(0, 5).join("\n")}`
+    );
+  }
+
+  return { attached, skipped };
+}
+
+/**
+ * Attach a small batch of already-uploaded gallery photos (client-driven).
+ * Prefer this over dumping 50+ attaches inside Save place.
+ */
+export async function attachTravelGalleryBatch(input: {
+  tripId: string;
+  uploads: GalleryUploadRef[];
+}): Promise<TravelGalleryAttachResult> {
+  try {
+    await requireAdminAction();
+    const tripId = slugify(input.tripId);
+    if (!tripId) return { ok: false, error: "Missing trip id." };
+    if (!Array.isArray(input.uploads) || input.uploads.length === 0) {
+      return { ok: true, attached: 0, skipped: 0 };
+    }
+    // Cap each call so Workers stay under CPU/DB limits.
+    const batch = input.uploads.slice(0, GALLERY_CHUNK);
+    const result = await attachTripGalleryUploads(tripId, batch);
+    revalidatePath(`/travel/${tripId}`);
+    revalidatePath("/gallery/travel");
+    revalidatePath(`/admin/travel/${tripId}`);
+    return { ok: true, ...result };
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "Gallery attach failed.";
+    return { ok: false, error: message };
   }
 }
 
@@ -450,7 +631,19 @@ export async function createOrUpdateTravelPlace(
     }
 
     const galleryUploads = parseGalleryUploads(String(formData.get("galleryUploads") ?? ""));
-    await attachTripGalleryUploads(id, galleryUploads);
+    // Leftovers only — preferred path attaches during multi-upload in small batches.
+    if (galleryUploads.length > 0) {
+      try {
+        await attachTripGalleryUploads(id, galleryUploads);
+      } catch (galleryError) {
+        revalidateTravel(id);
+        const detail =
+          galleryError instanceof Error ? galleryError.message : "Gallery attach failed.";
+        return {
+          error: `${detail}\nPlace details were saved. Open this place again and use Retry attach on the remaining photos.`,
+        };
+      }
+    }
 
     revalidateTravel(id);
     redirect(`/admin/travel/${id}?saved=1`);

@@ -1,7 +1,8 @@
 import { createHmac, timingSafeEqual } from "crypto";
 
 const COOKIE_NAME = "admin_session";
-const MAX_AGE_SECONDS = 60 * 60 * 24 * 7;
+/** Solo admin panel: same-day session; re-login beats a long-lived cookie. */
+const MAX_AGE_SECONDS = 60 * 60 * 8;
 
 function getSecret() {
   return process.env.SESSION_SECRET ?? process.env.ADMIN_PASSWORD ?? "dev-secret";

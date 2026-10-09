@@ -283,6 +283,7 @@ export function TravelPlaceAdminForm({
           label="Gallery photos (multi-upload)"
           folder={paths.galleryFolder}
           accept="image/*"
+          tripId={destination?.id || (trip ? placeId : undefined)}
           onPendingChange={trackUploadPending}
         />
       </section>
