@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { ImageLightbox } from "@/components/ui/ImageLightbox";
@@ -28,10 +28,7 @@ function toLightboxImages(items: GalleryItem[]): LightboxImage[] {
   }));
 }
 
-function countSummary(
-  items: GalleryItem[],
-  distinctKey?: string
-): number {
+function countSummary(items: GalleryItem[], distinctKey?: string): number {
   if (!distinctKey) return items.length;
   const keys = new Set<string>();
   for (const item of items) {
@@ -41,6 +38,12 @@ function countSummary(
   return keys.size;
 }
 
+export type GalleryPaginationProps = {
+  pageSize: number;
+  total: number;
+  hasMore: boolean;
+};
+
 interface GalleryViewProps {
   config: GalleryConfig;
   items: GalleryItem[];
@@ -48,15 +51,27 @@ interface GalleryViewProps {
   backHref?: string;
   backLabel?: string;
   showDuration?: boolean;
+  /** When set, items are a first page — load more on scroll via /api/gallery/[interest]. */
+  pagination?: GalleryPaginationProps;
 }
+
+type GalleryPageResponse = {
+  items: GalleryItem[];
+  total: number;
+  offset: number;
+  limit: number;
+  hasMore: boolean;
+  error?: string;
+};
 
 export function GalleryView({
   config,
-  items,
+  items: initialItems,
   initialFilters,
   backHref = "/",
   backLabel = "← Back",
   showDuration = false,
+  pagination,
 }: GalleryViewProps) {
   const router = useRouter();
   const [viewMode, setViewMode] = useState<GalleryViewMode>("grid");
@@ -67,7 +82,17 @@ export function GalleryView({
     sort: initialFilters.sort ?? config.defaultSort,
   }));
 
+  const [items, setItems] = useState<GalleryItem[]>(initialItems);
+  const [total, setTotal] = useState(pagination?.total ?? initialItems.length);
+  const [hasMore, setHasMore] = useState(pagination?.hasMore ?? false);
+  const [loadingMore, setLoadingMore] = useState(false);
+  const [loadingReset, setLoadingReset] = useState(false);
+  const [loadError, setLoadError] = useState<string | null>(null);
+
+  const requestIdRef = useRef(0);
+  const sentinelRef = useRef<HTMLDivElement | null>(null);
   const paramKeys = config.filterGroups.map((g) => g.paramKey);
+  const paged = Boolean(pagination);
 
   const syncUrl = useCallback(
     (nextFilters: GalleryFilters) => {
@@ -77,16 +102,75 @@ export function GalleryView({
     [config.interest, router]
   );
 
+  const buildApiQuery = useCallback(
+    (nextFilters: GalleryFilters, offset: number) => {
+      const params = new URLSearchParams();
+      params.set("offset", String(offset));
+      params.set("limit", String(pagination?.pageSize ?? 48));
+      const sort = nextFilters.sort ?? config.defaultSort;
+      if (sort) params.set("sort", sort);
+      for (const key of paramKeys) {
+        const value = nextFilters[key];
+        if (value && value !== "all") params.set(key, value);
+      }
+      return params.toString();
+    },
+    [pagination?.pageSize, config.defaultSort, paramKeys]
+  );
+
+  const fetchPage = useCallback(
+    async (nextFilters: GalleryFilters, offset: number, mode: "replace" | "append") => {
+      if (!paged) return;
+      const requestId = ++requestIdRef.current;
+      if (mode === "replace") setLoadingReset(true);
+      else setLoadingMore(true);
+      setLoadError(null);
+
+      try {
+        const qs = buildApiQuery(nextFilters, offset);
+        const res = await fetch(`/api/gallery/${config.interest}?${qs}`);
+        const data = (await res.json()) as GalleryPageResponse;
+        if (requestId !== requestIdRef.current) return;
+        if (!res.ok) {
+          setLoadError(data.error ?? "Could not load photos.");
+          return;
+        }
+        setTotal(data.total);
+        setHasMore(data.hasMore);
+        setItems((prev) => {
+          if (mode === "replace") return data.items;
+          const seen = new Set(prev.map((item) => item.id));
+          const merged = [...prev];
+          for (const item of data.items) {
+            if (!seen.has(item.id)) merged.push(item);
+          }
+          return merged;
+        });
+      } catch {
+        if (requestId === requestIdRef.current) {
+          setLoadError("Could not load photos.");
+        }
+      } finally {
+        if (requestId === requestIdRef.current) {
+          setLoadingMore(false);
+          setLoadingReset(false);
+        }
+      }
+    },
+    [paged, buildApiQuery, config.interest]
+  );
+
   const handleFilterChange = useCallback(
     (paramKey: string, value: string) => {
       setFilters((prev) => {
         const next = { ...prev, [paramKey]: value === "all" ? "" : value };
         if (value === "all") delete next[paramKey];
         syncUrl(next);
+        if (paged) void fetchPage(next, 0, "replace");
         return next;
       });
     },
-    [syncUrl]
+    [syncUrl, paged, fetchPage]
   );
 
   const handleSortChange = useCallback(
@@ -94,31 +178,51 @@ export function GalleryView({
       setFilters((prev) => {
         const next = { ...prev, sort: sortId };
         syncUrl(next);
+        if (paged) void fetchPage(next, 0, "replace");
         return next;
       });
     },
-    [syncUrl]
+    [syncUrl, paged, fetchPage]
   );
 
   const handleReset = useCallback(() => {
     const next: GalleryFilters = { sort: config.defaultSort };
     setFilters(next);
     syncUrl(next);
-  }, [config.defaultSort, syncUrl]);
+    if (paged) void fetchPage(next, 0, "replace");
+  }, [config.defaultSort, syncUrl, paged, fetchPage]);
 
-  const filteredItems = useMemo(() => {
+  useEffect(() => {
+    if (!paged || !hasMore || loadingMore || loadingReset) return;
+    const node = sentinelRef.current;
+    if (!node) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (!entries[0]?.isIntersecting) return;
+        void fetchPage(filters, items.length, "append");
+      },
+      { rootMargin: "600px 0px" }
+    );
+    observer.observe(node);
+    return () => observer.disconnect();
+  }, [paged, hasMore, loadingMore, loadingReset, fetchPage, filters, items.length]);
+
+  const displayItems = useMemo(() => {
+    if (paged) return items;
     const filterOnly: GalleryFilters = {};
     for (const key of paramKeys) {
       if (filters[key]) filterOnly[key] = filters[key];
     }
     const filtered = filterGalleryItems(items, filterOnly);
     return sortGalleryItems(filtered, filters.sort ?? config.defaultSort);
-  }, [items, filters, paramKeys, config.defaultSort]);
+  }, [paged, items, filters, paramKeys, config.defaultSort]);
 
-  const summaryCount = useMemo(
-    () => countSummary(filteredItems, config.countDistinctKey),
-    [filteredItems, config.countDistinctKey]
-  );
+  const summaryCount = useMemo(() => {
+    if (paged && !config.countDistinctKey) return total;
+    return countSummary(displayItems, config.countDistinctKey);
+  }, [paged, total, displayItems, config.countDistinctKey]);
+
   const summaryNoun = config.summaryNoun ?? {
     singular: "Photo",
     plural: "Photos",
@@ -133,15 +237,15 @@ export function GalleryView({
     : undefined;
 
   const lightboxImages = useMemo(
-    () => toLightboxImages(filteredItems),
-    [filteredItems]
+    () => toLightboxImages(displayItems),
+    [displayItems]
   );
 
   useEffect(() => {
-    if (activeIndex !== null && activeIndex >= filteredItems.length) {
+    if (activeIndex !== null && activeIndex >= displayItems.length) {
       close();
     }
-  }, [activeIndex, filteredItems.length, close]);
+  }, [activeIndex, displayItems.length, close]);
 
   return (
     <main className="min-h-screen bg-[#070707] text-[#eaeaea] font-body pb-24 selection:bg-accent/30 selection:text-white">
@@ -163,11 +267,12 @@ export function GalleryView({
             />
             <GallerySidebar
               filterGroups={config.filterGroups}
-              items={items}
+              items={paged ? [] : items}
               filters={filters}
               onFilterChange={handleFilterChange}
               onReset={handleReset}
               countDistinctKey={config.countDistinctKey}
+              hideCounts={paged}
             />
           </div>
 
@@ -186,18 +291,43 @@ export function GalleryView({
                     : config.subtitle}
                 </p>
                 <span className="font-mono text-[10px] uppercase tracking-widest text-foreground-subtle">
-                  {summaryCount} {summaryLabel}
+                  {loadingReset ? "Loading…" : `${summaryCount} ${summaryLabel}`}
+                  {paged && displayItems.length < total
+                    ? ` · showing ${displayItems.length}`
+                    : ""}
                 </span>
               </div>
               <GalleryViewToggle viewMode={viewMode} onChange={setViewMode} />
             </header>
 
             <GalleryGrid
-              items={filteredItems}
+              items={displayItems}
               viewMode={viewMode}
               showDuration={showDuration}
               onItemClick={open}
             />
+
+            {paged ? (
+              <div ref={sentinelRef} className="h-8 flex items-center justify-center mt-8">
+                {loadError ? (
+                  <p className="font-mono text-[10px] uppercase tracking-widest text-red-400">
+                    {loadError}
+                  </p>
+                ) : loadingMore ? (
+                  <p className="font-mono text-[10px] uppercase tracking-widest text-foreground-subtle">
+                    Loading more…
+                  </p>
+                ) : hasMore ? (
+                  <p className="font-mono text-[10px] uppercase tracking-widest text-foreground-subtle">
+                    Scroll for more
+                  </p>
+                ) : displayItems.length > 0 ? (
+                  <p className="font-mono text-[10px] uppercase tracking-widest text-foreground-subtle">
+                    End of gallery
+                  </p>
+                ) : null}
+              </div>
+            ) : null}
           </div>
         </div>
       </div>

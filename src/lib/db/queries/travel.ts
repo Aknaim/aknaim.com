@@ -12,8 +12,9 @@ import {
   trips,
 } from "@/lib/db/schema";
 import type { Destination } from "@/lib/travelData";
-import type { GalleryConfig, GalleryItem } from "@/lib/types/gallery";
+import type { GalleryConfig } from "@/lib/types/gallery";
 import type { TripDetail } from "@/lib/types/travel";
+import { getGalleryYears } from "@/lib/db/queries/gallery";
 
 export type { Destination };
 
@@ -224,12 +225,11 @@ export async function getTripIds(): Promise<string[]> {
   return rows.map((row) => row.id);
 }
 
-export async function getTravelGalleryConfig(
-  items: Pick<GalleryItem, "year">[] = []
-): Promise<GalleryConfig> {
-  const destList = await getDestinations();
-
-  const years = [...new Set(items.map((item) => item.year))].sort((a, b) => b - a);
+export async function getTravelGalleryConfig(): Promise<GalleryConfig> {
+  const [destList, years] = await Promise.all([
+    getDestinations(),
+    getGalleryYears("travel"),
+  ]);
 
   return {
     interest: "travel",

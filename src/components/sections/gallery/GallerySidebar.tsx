@@ -12,6 +12,8 @@ interface GallerySidebarProps {
   onReset: () => void;
   /** Count unique climbs/trips/etc. instead of photos when set */
   countDistinctKey?: string;
+  /** Paginated galleries don't have a full item set for accurate option counts. */
+  hideCounts?: boolean;
 }
 
 export function GallerySidebar({
@@ -21,6 +23,7 @@ export function GallerySidebar({
   onFilterChange,
   onReset,
   countDistinctKey,
+  hideCounts = false,
 }: GallerySidebarProps) {
   const [expanded, setExpanded] = useState<Record<string, boolean>>(() => {
     const initial: Record<string, boolean> = {};
@@ -90,27 +93,39 @@ export function GallerySidebar({
                     <li>
                       <FilterButton
                         label="All"
-                        count={countAllForFilterGroup(
-                          items,
-                          group.paramKey,
-                          filters,
-                          countDistinctKey
-                        )}
+                        count={
+                          hideCounts
+                            ? undefined
+                            : countAllForFilterGroup(
+                                items,
+                                group.paramKey,
+                                filters,
+                                countDistinctKey
+                              )
+                        }
                         active={!filters[group.paramKey] || filters[group.paramKey] === "all"}
                         onClick={() => onFilterChange(group.paramKey, "all")}
                       />
                     </li>
                   )}
                   {group.options.map((option) => {
-                    const count = countItemsForFilter(
-                      items,
-                      group.paramKey,
-                      option.id,
-                      filters,
-                      countDistinctKey
-                    );
+                    const count = hideCounts
+                      ? undefined
+                      : countItemsForFilter(
+                          items,
+                          group.paramKey,
+                          option.id,
+                          filters,
+                          countDistinctKey
+                        );
                     // Hide empty grade options so the long -/flat/+ list stays usable.
-                    if (group.paramKey === "grade" && count === 0) return null;
+                    if (
+                      !hideCounts &&
+                      group.paramKey === "grade" &&
+                      count === 0
+                    ) {
+                      return null;
+                    }
                     return (
                       <li key={option.id}>
                         <FilterButton
@@ -131,16 +146,18 @@ export function GallerySidebar({
                 >
                   {group.allowAll && <option value="all">All</option>}
                   {group.options.map((option) => {
-                    const count = countItemsForFilter(
-                      items,
-                      group.paramKey,
-                      option.id,
-                      filters,
-                      countDistinctKey
-                    );
+                    const count = hideCounts
+                      ? undefined
+                      : countItemsForFilter(
+                          items,
+                          group.paramKey,
+                          option.id,
+                          filters,
+                          countDistinctKey
+                        );
                     return (
                       <option key={option.id} value={option.id}>
-                        {countDistinctKey
+                        {!hideCounts && countDistinctKey
                           ? `${option.label} (${count})`
                           : option.label}
                       </option>
@@ -168,7 +185,7 @@ export function GallerySidebar({
 
 interface FilterButtonProps {
   label: string;
-  count: number;
+  count?: number;
   active: boolean;
   onClick: () => void;
 }
@@ -185,7 +202,9 @@ function FilterButton({ label, count, active, onClick }: FilterButtonProps) {
       }`}
     >
       <span>{label}</span>
-      <span className="font-mono text-[9px] text-foreground-subtle">{count}</span>
+      {count !== undefined ? (
+        <span className="font-mono text-[9px] text-foreground-subtle">{count}</span>
+      ) : null}
     </button>
   );
 }
