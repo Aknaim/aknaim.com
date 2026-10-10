@@ -5,6 +5,7 @@
 This document describes how the **running application** is structured today: routes, data sources, media, admin, and dev infrastructure.
 
 - **Local run + Cloudflare/Neon deploy (with diagrams):** [`development-and-deployment.md`](./development-and-deployment.md)
+- **Security audit (secrets, Neon, R2, headers):** [`security-audit.md`](./security-audit.md)
 - **UI/design blueprint:** [`ARCHITECTURE.md`](../ARCHITECTURE.md) at the repo root
 
 Production hosts the same Next.js app on a **Cloudflare Worker** (OpenNext) with **Neon Postgres**. Locally you typically use Docker Postgres (or Neon) via `.env`.
