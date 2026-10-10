@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { useState, type ReactNode } from "react";
+import { useRef, useState, type ReactNode } from "react";
 import { ImageLightbox } from "@/components/ui/ImageLightbox";
 import { useImageLightbox } from "@/hooks/useImageLightbox";
 import {
@@ -112,7 +112,25 @@ export function CoursesList({
 
   const [expandedId, setExpandedId] = useState<string | null>(latestDatedId);
   const [lightboxCourseId, setLightboxCourseId] = useState<string | null>(null);
+  const courseItemRefs = useRef(new Map<string, HTMLLIElement>());
   const { activeIndex, isOpen, open, close, setActiveIndex } = useImageLightbox();
+
+  function toggleCourse(courseId: string) {
+    setExpandedId((current) => {
+      const next = current === courseId ? null : courseId;
+      if (next) {
+        // After expand layout, pin the course title near the top of the viewport.
+        requestAnimationFrame(() => {
+          requestAnimationFrame(() => {
+            courseItemRefs.current
+              .get(courseId)
+              ?.scrollIntoView({ behavior: "smooth", block: "start" });
+          });
+        });
+      }
+      return next;
+    });
+  }
 
   const lightboxImages = lightboxCourseId
     ? toLightboxImages(
@@ -169,7 +187,14 @@ export function CoursesList({
           }`;
 
           return (
-            <li key={course.id} className="relative pb-8 last:pb-0">
+            <li
+              key={course.id}
+              ref={(node) => {
+                if (node) courseItemRefs.current.set(course.id, node);
+                else courseItemRefs.current.delete(course.id);
+              }}
+              className="relative pb-8 last:pb-0 scroll-mt-8"
+            >
               {/* Mobile: date above the node */}
               <p className={`mb-2 sm:hidden ${dateClassName}`}>
                 {spineDate ?? "Undated"}
@@ -247,11 +272,7 @@ export function CoursesList({
                     {canExpand ? (
                       <button
                         type="button"
-                        onClick={() =>
-                          setExpandedId((current) =>
-                            current === course.id ? null : course.id
-                          )
-                        }
+                        onClick={() => toggleCourse(course.id)}
                         aria-expanded={isOpenCourse}
                         className="shrink-0 font-mono text-[9px] uppercase tracking-widest text-foreground-muted hover:text-white transition-colors self-start"
                       >

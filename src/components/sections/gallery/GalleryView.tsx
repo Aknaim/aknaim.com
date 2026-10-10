@@ -328,6 +328,18 @@ export function GalleryView({
                 ) : null}
               </div>
             ) : null}
+
+            <div className="mt-12 flex justify-center border-t border-[#141414] pt-8">
+              <button
+                type="button"
+                onClick={() =>
+                  window.scrollTo({ top: 0, behavior: "smooth" })
+                }
+                className="font-mono text-[10px] uppercase tracking-widest text-foreground-muted hover:text-white transition-colors"
+              >
+                ↑ Back to top
+              </button>
+            </div>
           </div>
         </div>
       </div>

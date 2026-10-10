@@ -4,6 +4,7 @@ import Link from "next/link";
 import { CoursesList } from "@/components/sections/CoursesList";
 import { InterestGearList } from "@/components/sections/InterestGearList";
 import { getCoursesForInterest } from "@/lib/db/queries/courses";
+import { cookingBestWork } from "@/lib/cooking-links";
 import {
   getCookingGalleryHref,
   getCookingGearItems,
@@ -86,6 +87,16 @@ export default async function CookingPage() {
                 Gallery
               </a>
             </nav>
+
+            <a
+              href={cookingBestWork.href}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 border border-[#262626] px-4 py-2.5 font-mono text-[10px] uppercase tracking-widest text-foreground-muted hover:border-accent hover:text-white transition-colors"
+            >
+              {cookingBestWork.label}
+              <span aria-hidden>↗</span>
+            </a>
           </div>
 
           <div className="relative aspect-[4/3] lg:aspect-square order-1 lg:order-2 rounded-card border border-[#141414] overflow-hidden bg-[#0c0c0c]">
