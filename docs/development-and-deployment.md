@@ -9,6 +9,7 @@ Related docs:
 - [Application architecture](./application-architecture.md) — routes, data layer, admin
 - [Database schema](./database-schema.md) — tables and relationships
 - [Security audit](./security-audit.md) — secrets, Neon, R2, edge headers
+- [Maintainer snapshot](./maintainer-snapshot.md) — system map, env map, gotchas (ASCII)
 - [DEPLOY.md](../DEPLOY.md) — short production checklist
 
 ---
