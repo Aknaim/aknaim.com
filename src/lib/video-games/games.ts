@@ -2,7 +2,8 @@ import type { VideoGame } from "./types";
 
 /**
  * League (stats) first, then shelf/catalog titles.
- * Catalog rows with `href` are clickable covers.
+ * Catalog rows with `href` are clickable — Steam franchise hubs for series,
+ * specific app pages for single titles; RS3 keeps hiscores.
  */
 export const VIDEO_GAMES: VideoGame[] = [
   {
@@ -22,7 +23,7 @@ export const VIDEO_GAMES: VideoGame[] = [
     kind: "catalog",
     blurb: "MMORPG · endless skills",
     about:
-      "A long-running fantasy MMO — skills, quests, and the slow satisfaction of watching a hiscore tick up.",
+      "A childhood fantasy MMO — skills, quests, and the slow satisfaction of watching a hiscore tick up.",
     href: "https://secure.runescape.com/m=hiscore/a=13/compare?user1=aknaim",
     spineColor: "#3d6b2f",
   },
@@ -33,6 +34,7 @@ export const VIDEO_GAMES: VideoGame[] = [
     kind: "catalog",
     blurb: "Sci-fi shooters",
     about: "Microsoft’s flagship FPS saga — campaigns, arena multiplayer, and that blue-team energy.",
+    href: "https://store.steampowered.com/franchise/Halo",
     spineColor: "#c4a35a",
   },
   {
@@ -42,6 +44,7 @@ export const VIDEO_GAMES: VideoGame[] = [
     kind: "catalog",
     blurb: "Co-op zombie shooter",
     about: "Four survivors, one AI director, and a lot of friendly fire — co-op chaos at its best.",
+    href: "https://store.steampowered.com/app/500/Left_4_Dead/",
     spineColor: "#8b1e1e",
   },
   {
@@ -51,6 +54,7 @@ export const VIDEO_GAMES: VideoGame[] = [
     kind: "catalog",
     blurb: "Stealth · parkour · history",
     about: "Historical open-world stealth — rooftops, conspiracies, and leaping into haystacks.",
+    href: "https://store.steampowered.com/franchise/AC",
     spineColor: "#5c4033",
   },
   {
@@ -60,6 +64,7 @@ export const VIDEO_GAMES: VideoGame[] = [
     kind: "catalog",
     blurb: "Platforming · time tricks",
     about: "Acrobatic platforming and puzzles — running walls, reversing time, saving the princess.",
+    href: "https://store.steampowered.com/franchise/PrinceofPersia",
     spineColor: "#b8860b",
   },
   {
@@ -70,6 +75,7 @@ export const VIDEO_GAMES: VideoGame[] = [
     blurb: "Action · mythology",
     about:
       "Mythic combat and spectacle — blades, axes, and picking fights with gods (and winning).",
+    href: "https://store.steampowered.com/app/1593500/God_of_War/",
     spineColor: "#8b2e1a",
   },
   {
@@ -79,6 +85,7 @@ export const VIDEO_GAMES: VideoGame[] = [
     kind: "catalog",
     blurb: "Real-time strategy",
     about: "Classic RTS — gather, build, tech up, and boom your way through history.",
+    href: "https://store.steampowered.com/franchise/AgeofEmpires",
     spineColor: "#2f4f4f",
   },
   {
@@ -88,6 +95,7 @@ export const VIDEO_GAMES: VideoGame[] = [
     kind: "catalog",
     blurb: "RTS · gods & myths",
     about: "Age of Empires with pantheons — myth units, god powers, and legendary campaigns.",
+    href: "https://store.steampowered.com/app/1934680/Age_of_Mythology_Retold/",
     spineColor: "#6b3fa0",
   },
 ];

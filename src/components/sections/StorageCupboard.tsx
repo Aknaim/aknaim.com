@@ -170,15 +170,17 @@ export function StorageCupboard({
           mobile ? { opacity: 0.9 + openProgress * 0.1 } : undefined
         }
       >
-        <div className="mb-5 flex items-end justify-between gap-4">
+        <div className="mb-5 flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between sm:gap-4">
           <div>
             <p className="text-tab text-foreground-subtle">Archive</p>
             <h2 className="mt-1 font-display text-2xl font-medium tracking-tight text-foreground-muted">
               The Storage Cupboard
             </h2>
           </div>
-          <p className="hidden max-w-xs text-right text-meta text-foreground-subtle sm:block">
-            Hover to open. Dusty gear waiting for the next season.
+          <p className="max-w-xs text-meta text-foreground-subtle sm:text-right">
+            <span className="sm:hidden">Scroll to open. </span>
+            <span className="hidden sm:inline">Hover to open. </span>
+            Dusty gear waiting for the next season.
           </p>
         </div>
 

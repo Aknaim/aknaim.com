@@ -20,7 +20,7 @@ export interface VideoGame {
   blurb?: string;
   /** Slightly fuller note for hover */
   about?: string;
-  /** Optional outbound link (e.g. RS3 hiscores) */
+  /** Optional outbound link (RS3 hiscores, Steam franchise/app, etc.) */
   href?: string;
   /** Accent color for spine/cover styling */
   spineColor?: string;

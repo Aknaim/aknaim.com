@@ -1,7 +1,16 @@
 "use client";
 
 import { useMemo, useState, type ReactNode } from "react";
-import type { ChessAccountId, TitledWin } from "@/lib/chess";
+import type { ChessAccountId, ChessTimeControl, TitledWin } from "@/lib/chess";
+
+const FORMAT_ORDER: ChessTimeControl[] = ["bullet", "blitz", "rapid"];
+
+/** Short time-control context (hover + caption when a format filter is selected). */
+const FORMAT_BLURBS: Record<ChessTimeControl, string> = {
+  bullet: "Bullet — under 3 minutes per player; very fast online chess.",
+  blitz: "Blitz — 3–10 minutes per player; the usual online speed.",
+  rapid: "Rapid — 10+ minutes per player; slower, more deliberate games.",
+};
 
 const TITLE_ORDER = [
   "GM",
@@ -32,6 +41,16 @@ const TITLE_BLURBS: Record<(typeof TITLE_ORDER)[number], string> = {
 
 function titleBlurb(title: string): string | undefined {
   return TITLE_BLURBS[title as (typeof TITLE_ORDER)[number]];
+}
+
+function formatBlurb(timeControl?: string): string | undefined {
+  if (!timeControl) return undefined;
+  return FORMAT_BLURBS[timeControl as ChessTimeControl];
+}
+
+function formatLabel(timeControl?: string): string {
+  if (!timeControl) return "—";
+  return timeControl.charAt(0).toUpperCase() + timeControl.slice(1);
 }
 
 type AccountOption = {
@@ -76,6 +95,7 @@ export function TitledWinsTable({
 }) {
   const [titleFilter, setTitleFilter] = useState<string>("all");
   const [accountFilter, setAccountFilter] = useState<ChessAccountId | "all">("all");
+  const [formatFilter, setFormatFilter] = useState<ChessTimeControl | "all">("all");
   const [sortMode, setSortMode] = useState<SortMode>("title");
 
   const availableTitles = useMemo(() => {
@@ -83,14 +103,25 @@ export function TitledWinsTable({
     return TITLE_ORDER.filter((title) => present.has(title));
   }, [wins]);
 
+  const availableFormats = useMemo(() => {
+    const present = new Set(
+      wins.map((win) => win.timeControl).filter((value): value is string => Boolean(value))
+    );
+    return FORMAT_ORDER.filter((format) => present.has(format));
+  }, [wins]);
+
   const filtered = useMemo(() => {
     const next = wins.filter((win) => {
       if (titleFilter !== "all" && win.title !== titleFilter) return false;
       if (accountFilter !== "all" && win.accountId !== accountFilter) return false;
+      if (formatFilter !== "all" && win.timeControl !== formatFilter) return false;
       return true;
     });
     return sortWins(next, sortMode);
-  }, [wins, titleFilter, accountFilter, sortMode]);
+  }, [wins, titleFilter, accountFilter, formatFilter, sortMode]);
+
+  const titleCaption = titleFilter !== "all" ? titleBlurb(titleFilter) : undefined;
+  const formatCaption = formatFilter !== "all" ? formatBlurb(formatFilter) : undefined;
 
   const accountMeta = (accountId: ChessAccountId) =>
     accounts.find((account) => account.id === accountId);
@@ -134,9 +165,9 @@ export function TitledWinsTable({
             />
           ))}
         </FilterRow>
-        {titleFilter !== "all" && titleBlurb(titleFilter) ? (
+        {titleCaption ? (
           <p className="font-mono text-[10px] leading-relaxed text-foreground-subtle sm:pl-20">
-            {titleBlurb(titleFilter)}
+            {titleCaption}
           </p>
         ) : null}
 
@@ -157,6 +188,32 @@ export function TitledWinsTable({
             label="Oldest"
           />
         </FilterRow>
+
+        {availableFormats.length > 0 ? (
+          <>
+            <FilterRow label="Format">
+              <FilterChip
+                active={formatFilter === "all"}
+                onClick={() => setFormatFilter("all")}
+                label="All"
+              />
+              {availableFormats.map((format) => (
+                <FilterChip
+                  key={format}
+                  active={formatFilter === format}
+                  onClick={() => setFormatFilter(format)}
+                  label={formatLabel(format)}
+                  hint={FORMAT_BLURBS[format]}
+                />
+              ))}
+            </FilterRow>
+            {formatCaption ? (
+              <p className="font-mono text-[10px] leading-relaxed text-foreground-subtle sm:pl-20">
+                {formatCaption}
+              </p>
+            ) : null}
+          </>
+        ) : null}
       </div>
 
       <p className="font-mono text-[11px] text-foreground-subtle">
@@ -164,11 +221,12 @@ export function TitledWinsTable({
       </p>
 
       <div className="overflow-x-auto border border-[#141414]">
-        <table className="w-full min-w-[40rem] text-left text-base">
+        <table className="w-full min-w-[44rem] text-left text-base">
           <thead>
             <tr className="border-b border-[#141414] font-mono text-[11px] uppercase tracking-widest text-foreground-muted">
               <th className="px-5 py-3.5 font-normal">Title</th>
               <th className="px-5 py-3.5 font-normal">Opponent</th>
+              <th className="px-5 py-3.5 font-normal">Format</th>
               <th className="px-5 py-3.5 font-normal">Account</th>
               <th className="px-5 py-3.5 font-normal">Site</th>
               <th className="px-5 py-3.5 font-normal">Date</th>
@@ -181,21 +239,22 @@ export function TitledWinsTable({
               return (
                 <tr key={win.id} className="hover:bg-[#111111]/40 transition-colors">
                   <td className="px-5 py-3.5">
-                    <button
-                      type="button"
-                      onClick={() => setTitleFilter(win.title)}
+                    <span
                       title={titleBlurb(win.title)}
-                      className="font-mono text-xs text-accent/90 underline decoration-accent/25 underline-offset-2 transition-colors hover:text-accent"
-                      aria-label={
-                        titleBlurb(win.title)
-                          ? `${win.title}: ${titleBlurb(win.title)}`
-                          : win.title
-                      }
+                      className="font-mono text-xs text-accent/90 cursor-help underline decoration-accent/25 underline-offset-2"
                     >
                       {win.title}
-                    </button>
+                    </span>
                   </td>
                   <td className="px-5 py-3.5 text-white">{win.opponent}</td>
+                  <td className="px-5 py-3.5">
+                    <span
+                      title={formatBlurb(win.timeControl)}
+                      className="font-mono text-[11px] uppercase tracking-widest text-foreground-subtle cursor-help underline decoration-foreground-subtle/30 underline-offset-2"
+                    >
+                      {formatLabel(win.timeControl)}
+                    </span>
+                  </td>
                   <td className="px-5 py-3.5 text-foreground-subtle">
                     {account?.label ?? win.accountId}
                   </td>
