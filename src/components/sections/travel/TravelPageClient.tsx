@@ -487,7 +487,7 @@ export function TravelPageClient({
                 <div className="absolute inset-0 z-10 p-5 flex flex-col justify-between pointer-events-none">
                   <div className="flex items-start justify-end gap-3">
                     {!dest.hasDetail ? (
-                      <span className="font-mono text-[9px] uppercase tracking-widest text-foreground-subtle">
+                      <span className="font-mono text-[9px] uppercase tracking-widest text-white/95 bg-black/55 px-2 py-1 [text-shadow:0_1px_2px_rgba(0,0,0,0.6)]">
                         Coming soon
                       </span>
                     ) : null}
