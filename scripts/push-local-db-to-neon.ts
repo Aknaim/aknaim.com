@@ -135,7 +135,7 @@ async function main() {
         "--rm",
         "-v",
         `${dir}:/dump`,
-        "postgres:16-alpine",
+        "postgres:18-alpine",
         "pg_restore",
         `--dbname=${neonWithSsl}`,
         "--clean",

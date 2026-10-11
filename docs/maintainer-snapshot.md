@@ -186,12 +186,14 @@ There is **little** deep custom hook architecture. Complexity is in **media + ca
 | `ADMIN_PASSWORD` | Yes | Admin login |
 | `SESSION_SECRET` | Yes | Cookie HMAC (use a long random string) |
 | `POSTGRES_*` | Docker compose | Only if you use compose’s env |
-| `LOCAL_MEDIA_ROOT` | Optional | Large media library outside `public/` |
+| `LOCAL_MEDIA_ROOT` | Optional | Large media library outside `public/` (local uploads / backup; not required for rendering when DB URLs point at R2) |
 | `MEDIA_DRIVER` | Optional | Force `local` or `r2` |
 | `R2_*` | Only for sync/upload tests | Same names as prod; remove write keys when done |
 | `WEB_PORT` | Optional | Compose web port |
 
 Copy from `.env.example` → `.env`. Never point local `DATABASE_URL` at Neon unless you **intend** to mutate production.
+
+**TODO — separate R2 bucket for local/dev:** Today local often **reads** the prod bucket via `https://media.aknaim.com` after a Neon→local DB pull. Planned follow-up: create `aknaim-media-dev` (or similar) with its own `R2_PUBLIC_BASE_URL`, point local `.env` `R2_*` at that bucket, keep Worker secrets on prod only. Until then, prefer `MEDIA_DRIVER=local` for admin uploads so local writes don’t touch prod media.
 
 ### Production (Worker secrets)
 
@@ -225,8 +227,11 @@ Copy from `.env.example` → `.env`. Never point local `DATABASE_URL` at Neon un
 
 ```bash
 npm run docker:up      # local Postgres
+npm run db:pull-neon   # Neon prod → local Docker (destructive to local)
 npm run db:push        # apply Drizzle schema to DATABASE_URL
 npm run db:seed        # seed content
+npm run media:unused   # dry-run unused media_assets rows
+npm run media:r2-orphans  # dry-run R2 keys not in media_assets
 npm run dev
 npm run deploy         # OpenNext build + deploy + refresh:public
 ```

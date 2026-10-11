@@ -1,7 +1,7 @@
 # Local development: Postgres only. Run Next.js on the host with `npm run dev`.
 services:
   db:
-    image: postgres:16-alpine
+    image: postgres:18-alpine
     restart: unless-stopped
     environment:
       POSTGRES_USER: ${POSTGRES_USER:-aknaim}
@@ -10,7 +10,8 @@ services:
     ports:
       - "${POSTGRES_PORT:-5432}:5432"
     volumes:
-      - pgdata:/var/lib/postgresql/data
+      # Postgres 18+ images expect the mount at /var/lib/postgresql (not .../data).
+      - pgdata:/var/lib/postgresql
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-aknaim} -d ${POSTGRES_DB:-aknaim}"]
       interval: 5s
