@@ -11,19 +11,23 @@ export const revalidate = 60;
 export default async function TravelPage({
   searchParams,
 }: {
-  searchParams: Promise<{ pinGrid?: string }>;
+  searchParams: Promise<{ pinGrid?: string; pinPick?: string; returnTo?: string }>;
 }) {
-  const { pinGrid } = await searchParams;
+  const { pinGrid, pinPick, returnTo } = await searchParams;
   const [destinations, travelStats] = await Promise.all([
     getDestinations(),
     getTravelStats(),
   ]);
 
+  const pickMode = pinPick === "1" || pinPick === "true";
+
   return (
     <TravelPageClient
       destinations={destinations}
       travelStats={travelStats}
-      showPinGrid={pinGrid === "1" || pinGrid === "true"}
+      showPinGrid={pickMode || pinGrid === "1" || pinGrid === "true"}
+      pinPickMode={pickMode}
+      pinPickReturnTo={returnTo}
     />
   );
 }

@@ -16,7 +16,7 @@ const TITLE_ORDER = [
   "WCM",
 ] as const;
 
-/** Short FIDE/OTB context for hover — not online rating. */
+/** Short FIDE / national-title context (shown when a title filter is selected). */
 const TITLE_BLURBS: Record<(typeof TITLE_ORDER)[number], string> = {
   GM: "Grandmaster — ~2500+ FIDE; elite over-the-board title.",
   WGM: "Woman Grandmaster — FIDE women’s title, roughly ~2300+ FIDE.",
@@ -29,6 +29,10 @@ const TITLE_BLURBS: Record<(typeof TITLE_ORDER)[number], string> = {
   CM: "Candidate Master — ~2200 FIDE entry-level master title.",
   WCM: "Woman Candidate Master — FIDE women’s candidate title, roughly ~2000 FIDE.",
 };
+
+function titleBlurb(title: string): string | undefined {
+  return TITLE_BLURBS[title as (typeof TITLE_ORDER)[number]];
+}
 
 type AccountOption = {
   id: ChessAccountId;
@@ -130,9 +134,11 @@ export function TitledWinsTable({
             />
           ))}
         </FilterRow>
-        <p className="font-mono text-[10px] text-foreground-subtle sm:pl-20">
-          Hover a title for what it means (FIDE / national ranks — not online ratings).
-        </p>
+        {titleFilter !== "all" && titleBlurb(titleFilter) ? (
+          <p className="font-mono text-[10px] leading-relaxed text-foreground-subtle sm:pl-20">
+            {titleBlurb(titleFilter)}
+          </p>
+        ) : null}
 
         <FilterRow label="Sort">
           <FilterChip
@@ -175,15 +181,19 @@ export function TitledWinsTable({
               return (
                 <tr key={win.id} className="hover:bg-[#111111]/40 transition-colors">
                   <td className="px-5 py-3.5">
-                    <span
-                      className="font-mono text-xs text-accent/90 cursor-help underline decoration-accent/25 underline-offset-2"
-                      title={
-                        TITLE_BLURBS[win.title as (typeof TITLE_ORDER)[number]] ??
-                        win.title
+                    <button
+                      type="button"
+                      onClick={() => setTitleFilter(win.title)}
+                      title={titleBlurb(win.title)}
+                      className="font-mono text-xs text-accent/90 underline decoration-accent/25 underline-offset-2 transition-colors hover:text-accent"
+                      aria-label={
+                        titleBlurb(win.title)
+                          ? `${win.title}: ${titleBlurb(win.title)}`
+                          : win.title
                       }
                     >
                       {win.title}
-                    </span>
+                    </button>
                   </td>
                   <td className="px-5 py-3.5 text-white">{win.opponent}</td>
                   <td className="px-5 py-3.5 text-foreground-subtle">
@@ -250,15 +260,10 @@ function FilterChip({
       type="button"
       onClick={onClick}
       title={hint}
-      aria-label={hint ? `${label}: ${hint}` : undefined}
       className={`font-mono text-[11px] uppercase tracking-widest px-3 py-1.5 border transition-colors ${
         active
           ? "border-accent/50 text-accent bg-accent/10"
           : "border-[#262626] text-foreground-muted hover:border-[#3a3a3a] hover:text-white"
-      } ${
-        hint
-          ? "cursor-help underline decoration-accent/25 underline-offset-2"
-          : ""
       }`}
     >
       {label}

@@ -238,13 +238,6 @@ export function StorageCupboard({
             </ul>
           </div>
         </div>
-
-        {mobile ? (
-          <div
-            className="pointer-events-none h-[28vh]"
-            aria-hidden
-          />
-        ) : null}
       </div>
     </section>
   );

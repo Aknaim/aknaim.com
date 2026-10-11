@@ -37,14 +37,7 @@ export const siteData: SiteData = {
     ],
   },
 
-  navigation: [
-    {
-      id: "about",
-      label: "About",
-      href: "/about",
-      external: false,
-    },
-  ],
+  navigation: [],
 
   interests: [
     {

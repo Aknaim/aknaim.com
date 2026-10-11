@@ -9,9 +9,16 @@ export const GALLERY_PAGE_SIZE = 48;
 export type GalleryPageResult = {
   items: GalleryItem[];
   total: number;
+  /** Distinct values for countDistinctKey (e.g. unique climbs) when requested. */
+  totalDistinct?: number;
   offset: number;
   limit: number;
   hasMore: boolean;
+};
+
+/** Lightweight rows for sidebar filter counts (no media URLs). */
+export type GalleryFilterIndexItem = {
+  filters: Record<string, string>;
 };
 
 type GalleryRow = {
@@ -70,7 +77,57 @@ const JSON_FILTER_KEYS = new Set([
   "color",
   "type",
   "cuisine",
+  "result",
 ]);
+
+/**
+ * Normalize climbing_sends.grade the same way as gradeFilterKey()
+ * (5.12+ → 5-12+, V5 → v5).
+ */
+const sendGradeKeySql = sql`
+  CASE
+    WHEN ${climbingSends.grade} IS NULL THEN NULL
+    WHEN lower(replace(replace(btrim(${climbingSends.grade}), '.', '-'), ' ', '')) ~ '^v[0-9]+'
+      THEN 'v' || (regexp_match(
+        lower(replace(replace(btrim(${climbingSends.grade}), '.', '-'), ' ', '')),
+        '^v([0-9]+)'
+      ))[1]
+    WHEN lower(replace(replace(btrim(${climbingSends.grade}), '.', '-'), ' ', '')) ~ '^5-[0-9]+([+-])?'
+      THEN '5-' || (regexp_match(
+        lower(replace(replace(btrim(${climbingSends.grade}), '.', '-'), ' ', '')),
+        '^5-([0-9]+)([+-])?'
+      ))[1] || COALESCE(
+        (regexp_match(
+          lower(replace(replace(btrim(${climbingSends.grade}), '.', '-'), ' ', '')),
+          '^5-([0-9]+)([+-])?'
+        ))[2],
+        ''
+      )
+    ELSE lower(replace(replace(btrim(${climbingSends.grade}), '.', '-'), ' ', ''))
+  END
+`;
+
+/** Prefer send grade (precise) over stored gallery filters.grade. */
+const effectiveClimbingGradeSql = sql`
+  COALESCE(${sendGradeKeySql}, ${galleryItems.filters}->>'grade')
+`;
+
+function gradeRankSql(gradeExpr: SQL) {
+  return sql`
+    CASE
+      WHEN ${gradeExpr} ~ '^v[0-9]+$' THEN
+        (regexp_match(${gradeExpr}, '^v([0-9]+)$'))[1]::int
+      WHEN ${gradeExpr} ~ '^5-[0-9]+([+-])?$' THEN
+        (regexp_match(${gradeExpr}, '^5-([0-9]+)'))[1]::int * 3
+        + CASE
+            WHEN ${gradeExpr} LIKE '%+' THEN 2
+            WHEN ${gradeExpr} LIKE '%-' THEN 0
+            ELSE 1
+          END
+      ELSE -1
+    END
+  `;
+}
 
 function galleryFilterClauses(
   interest: GalleryInterest,
@@ -88,6 +145,11 @@ function galleryFilterClauses(
       clauses.push(sql`${galleryItems.dateTaken}::text like ${`${value}-%`}`);
       continue;
     }
+    if (key === "grade" && interest === "climbing") {
+      // Match send grade when present — same as client display override.
+      clauses.push(sql`${effectiveClimbingGradeSql} = ${value}`);
+      continue;
+    }
     if (!JSON_FILTER_KEYS.has(key)) continue;
     // Key is whitelisted — embed as a literal for jsonb ->> .
     clauses.push(
@@ -98,12 +160,24 @@ function galleryFilterClauses(
   return clauses;
 }
 
-function galleryOrderBy(sortId: string) {
+function galleryOrderBy(sortId: string, interest: GalleryInterest) {
   switch (sortId) {
     case "date-asc":
       return [asc(galleryItems.dateTaken), asc(galleryItems.sortOrder)];
     case "title-asc":
       return [asc(galleryItems.title), asc(galleryItems.sortOrder)];
+    case "grade-desc": {
+      const gradeExpr =
+        interest === "climbing"
+          ? effectiveClimbingGradeSql
+          : sql`${galleryItems.filters}->>'grade'`;
+      return [
+        sql`CASE WHEN ${gradeExpr} ~ '^v' THEN 0 ELSE 1 END`,
+        sql`${gradeRankSql(gradeExpr)} DESC`,
+        desc(galleryItems.dateTaken),
+        asc(galleryItems.sortOrder),
+      ];
+    }
     case "date-desc":
     default:
       return [desc(galleryItems.dateTaken), asc(galleryItems.sortOrder)];
@@ -132,18 +206,28 @@ async function climbingGradeMap(): Promise<Map<string, string>> {
   return new Map(rows.map((row) => [row.slug, gradeFilterKey(row.grade)] as const));
 }
 
-/** Full interest dump — prefer getGalleryPage for travel (Worker-safe). */
+const climbSlugJoin = sql`${climbingSends.slug} = ${galleryItems.filters}->>'climb'`;
+
+/** Full interest dump — prefer getGalleryPage for public galleries (Worker-safe). */
 export async function getGalleryItems(
   interest: GalleryInterest,
   filters: Record<string, string> = {}
 ): Promise<GalleryItem[]> {
   const where = and(...galleryFilterClauses(interest, filters));
-  const rows = await db
+  const base = db
     .select(gallerySelect)
     .from(galleryItems)
-    .innerJoin(mediaAssets, eq(galleryItems.mediaAssetId, mediaAssets.id))
-    .where(where)
-    .orderBy(...galleryOrderBy(filters.sort ?? "date-desc"));
+    .innerJoin(mediaAssets, eq(galleryItems.mediaAssetId, mediaAssets.id));
+
+  const rows =
+    interest === "climbing"
+      ? await base
+          .leftJoin(climbingSends, climbSlugJoin)
+          .where(where)
+          .orderBy(...galleryOrderBy(filters.sort ?? "date-desc", interest))
+      : await base
+          .where(where)
+          .orderBy(...galleryOrderBy(filters.sort ?? "date-desc", interest));
 
   const gradeByClimbSlug = interest === "climbing" ? await climbingGradeMap() : null;
   return mapGalleryRows(rows, gradeByClimbSlug);
@@ -156,39 +240,105 @@ export async function getGalleryPage(input: {
   sort?: string;
   limit?: number;
   offset?: number;
+  /** When set, also return count(distinct filters->>key). */
+  countDistinctKey?: string;
 }): Promise<GalleryPageResult> {
   const filters = input.filters ?? {};
   const sort = input.sort ?? filters.sort ?? "date-desc";
   const limit = Math.min(Math.max(input.limit ?? GALLERY_PAGE_SIZE, 1), 100);
   const offset = Math.max(input.offset ?? 0, 0);
   const where = and(...galleryFilterClauses(input.interest, filters));
+  const distinctKey = input.countDistinctKey;
+  const distinctAllowed =
+    distinctKey === "climb" ||
+    distinctKey === "trip" ||
+    distinctKey === "category";
+  const climbing = input.interest === "climbing";
 
-  const [countRow] = await db
-    .select({ count: sql<number>`count(*)::int` })
-    .from(galleryItems)
-    .where(where);
+  const countBase = db
+    .select({
+      count: sql<number>`count(*)::int`,
+      totalDistinct: distinctAllowed
+        ? sql<number>`count(distinct ${galleryItems.filters}->>${sql.raw(`'${distinctKey}'`)})::int`
+        : sql<number>`null::int`,
+    })
+    .from(galleryItems);
 
-  const rows = await db
+  const [countRow] = climbing
+    ? await countBase.leftJoin(climbingSends, climbSlugJoin).where(where)
+    : await countBase.where(where);
+
+  const pageBase = db
     .select(gallerySelect)
     .from(galleryItems)
-    .innerJoin(mediaAssets, eq(galleryItems.mediaAssetId, mediaAssets.id))
-    .where(where)
-    .orderBy(...galleryOrderBy(sort))
-    .limit(limit)
-    .offset(offset);
+    .innerJoin(mediaAssets, eq(galleryItems.mediaAssetId, mediaAssets.id));
 
-  const gradeByClimbSlug =
-    input.interest === "climbing" ? await climbingGradeMap() : null;
+  const rows = climbing
+    ? await pageBase
+        .leftJoin(climbingSends, climbSlugJoin)
+        .where(where)
+        .orderBy(...galleryOrderBy(sort, input.interest))
+        .limit(limit)
+        .offset(offset)
+    : await pageBase
+        .where(where)
+        .orderBy(...galleryOrderBy(sort, input.interest))
+        .limit(limit)
+        .offset(offset);
+
+  const gradeByClimbSlug = climbing ? await climbingGradeMap() : null;
   const items = mapGalleryRows(rows, gradeByClimbSlug);
   const total = countRow?.count ?? 0;
 
   return {
     items,
     total,
+    totalDistinct:
+      distinctAllowed && countRow?.totalDistinct != null
+        ? countRow.totalDistinct
+        : undefined,
     offset,
     limit,
     hasMore: offset + items.length < total,
   };
+}
+
+/**
+ * Filter metadata for all published items (no media) — restores sidebar counts
+ * under pagination without pulling image/video URLs.
+ */
+export async function getGalleryFilterIndex(
+  interest: GalleryInterest
+): Promise<GalleryFilterIndexItem[]> {
+  if (interest === "climbing") {
+    const rows = await db
+      .select({
+        filters: galleryItems.filters,
+        sendGrade: climbingSends.grade,
+      })
+      .from(galleryItems)
+      .leftJoin(climbingSends, climbSlugJoin)
+      .where(
+        and(eq(galleryItems.interest, interest), eq(galleryItems.published, true))
+      );
+
+    return rows.map((row) => {
+      const filters = { ...row.filters };
+      if (row.sendGrade) {
+        filters.grade = gradeFilterKey(row.sendGrade);
+      }
+      return { filters };
+    });
+  }
+
+  const rows = await db
+    .select({ filters: galleryItems.filters })
+    .from(galleryItems)
+    .where(
+      and(eq(galleryItems.interest, interest), eq(galleryItems.published, true))
+    );
+
+  return rows.map((row) => ({ filters: row.filters }));
 }
 
 export async function countGalleryItems(interest: GalleryInterest): Promise<number> {

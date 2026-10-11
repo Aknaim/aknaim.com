@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { GalleryView } from "@/components/sections/gallery/GalleryView";
 import {
   GALLERY_PAGE_SIZE,
+  getGalleryFilterIndex,
   getGalleryPage,
 } from "@/lib/db/queries/gallery";
 import { getTravelGalleryConfig } from "@/lib/db/queries/travel";
@@ -27,13 +28,16 @@ export default async function TravelGalleryPage({
   const initialFilters = parseGallerySearchParams(params, paramKeys);
   const sort = initialFilters.sort ?? travelGalleryConfig.defaultSort;
 
-  const page = await getGalleryPage({
-    interest: "travel",
-    filters: initialFilters,
-    sort,
-    limit: GALLERY_PAGE_SIZE,
-    offset: 0,
-  });
+  const [page, filterIndex] = await Promise.all([
+    getGalleryPage({
+      interest: "travel",
+      filters: initialFilters,
+      sort,
+      limit: GALLERY_PAGE_SIZE,
+      offset: 0,
+    }),
+    getGalleryFilterIndex("travel"),
+  ]);
 
   const backHref = initialFilters.trip ? `/travel/${initialFilters.trip}` : "/travel";
   const backLabel = initialFilters.trip ? "← Back to Trip" : "← Back to Travel";
@@ -47,6 +51,7 @@ export default async function TravelGalleryPage({
       initialFilters={initialFilters}
       backHref={backHref}
       backLabel={backLabel}
+      filterIndex={filterIndex}
       pagination={{
         pageSize: GALLERY_PAGE_SIZE,
         total: page.total,

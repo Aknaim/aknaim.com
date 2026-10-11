@@ -38,6 +38,7 @@ export async function GET(
     "color",
     "type",
     "cuisine",
+    "result",
   ]) {
     const value = url.searchParams.get(key);
     if (value) filters[key] = value;
@@ -50,6 +51,7 @@ export async function GET(
       sort,
       offset: Number.isFinite(offset) ? offset : 0,
       limit: Number.isFinite(limit) ? limit : GALLERY_PAGE_SIZE,
+      countDistinctKey: interest === "climbing" ? "climb" : undefined,
     });
     return NextResponse.json(page, {
       headers: {

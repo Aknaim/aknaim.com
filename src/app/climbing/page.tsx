@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
+import { ClimbingProgression } from "@/components/sections/climbing/ClimbingProgression";
 import { InterestGearList } from "@/components/sections/InterestGearList";
 import {
   getClimbingGalleryHref,
@@ -93,33 +94,11 @@ export default async function ClimbingPage() {
       </section>
 
       <section className="max-w-7xl mx-auto px-6 py-16 md:py-20 space-y-16">
-        <div className="space-y-8">
+        <div className="space-y-6">
           <h2 className="font-mono text-[10px] uppercase tracking-widest text-foreground-muted">
             Progression
           </h2>
-          {progressionTimeline.length === 0 ? (
-            <p className="text-sm text-foreground-muted">
-              Milestones appear as you log climbs at 5.11+ and V5+.
-            </p>
-          ) : (
-            <div className="relative flex flex-wrap justify-between gap-6 px-2">
-              <div className="absolute top-[5px] left-0 right-0 h-[1px] bg-gradient-to-r from-accent/40 via-[#141414] to-transparent hidden sm:block" />
-              {progressionTimeline.map((item) => (
-                <div
-                  key={`${item.date}-${item.label}`}
-                  className="flex flex-col items-start relative min-w-[100px]"
-                >
-                  <span className="absolute -top-[3px] left-0 h-1.5 w-1.5 rounded-full bg-[#1a1a1a] border border-[#262626] hidden sm:block" />
-                  <span className="font-mono text-[9px] text-accent/70 uppercase">
-                    {item.dateLabel}
-                  </span>
-                  <span className="text-[11px] text-foreground-muted font-medium mt-0.5">
-                    {item.label}
-                  </span>
-                </div>
-              ))}
-            </div>
-          )}
+          <ClimbingProgression timeline={progressionTimeline} />
         </div>
 
         <InterestGearList items={climbingGearItems} />

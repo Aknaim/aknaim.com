@@ -10,6 +10,10 @@ import {
 import Image from "next/image";
 import Link from "next/link";
 import type { Destination } from "@/lib/travelData";
+import {
+  isSafeTravelAdminReturn,
+  writeTravelPinPick,
+} from "@/lib/travel-pin-pick";
 
 interface TravelPageClientProps {
   destinations: Destination[];
@@ -21,6 +25,9 @@ interface TravelPageClientProps {
   };
   /** Temporary placement aid: open /travel?pinGrid=1 — remove query to hide. */
   showPinGrid?: boolean;
+  /** Admin pin picker: click returns coords to the travel admin form. */
+  pinPickMode?: boolean;
+  pinPickReturnTo?: string;
 }
 
 /** Must match public/images/travel/world-map-dark.jpg (object-cover pin math). */
@@ -185,6 +192,8 @@ export function TravelPageClient({
   destinations,
   travelStats,
   showPinGrid = false,
+  pinPickMode = false,
+  pinPickReturnTo,
 }: TravelPageClientProps) {
   const mapRef = useRef<HTMLDivElement>(null);
   const [dimensions, setDimensions] = useState({ width: 0, height: 0 });
@@ -226,12 +235,31 @@ export function TravelPageClient({
       );
       setSample(next);
       setCopied(false);
+
+      if (pinPickMode) {
+        writeTravelPinPick(next);
+        const returnTo = pinPickReturnTo?.trim() ?? "";
+        if (returnTo && isSafeTravelAdminReturn(returnTo)) {
+          const url = new URL(returnTo, window.location.origin);
+          url.searchParams.set("mapX", String(next.x));
+          url.searchParams.set("mapY", String(next.y));
+          window.location.assign(`${url.pathname}${url.search}`);
+          return;
+        }
+      }
+
       void navigator.clipboard.writeText(`${next.x}, ${next.y}`).then(() => {
         setCopied(true);
         window.setTimeout(() => setCopied(false), 1500);
       });
     },
-    [showPinGrid, dimensions.width, dimensions.height]
+    [
+      showPinGrid,
+      pinPickMode,
+      pinPickReturnTo,
+      dimensions.width,
+      dimensions.height,
+    ]
   );
 
   return (
@@ -269,16 +297,41 @@ export function TravelPageClient({
               />
             </div>
             <div className="absolute top-6 right-6 z-40 max-w-xs rounded border border-[#e6ca65]/30 bg-[#0b0a09]/90 px-3 py-2 font-mono text-[10px] text-[#e6ca65] shadow-lg">
-              <p className="uppercase tracking-widest text-[#baa482]">Pin grid</p>
+              <p className="uppercase tracking-widest text-[#baa482]">
+                {pinPickMode ? "Pick pin for admin" : "Pin grid"}
+              </p>
               <p className="mt-1 text-[#eaeaea]/90 normal-case tracking-normal leading-relaxed">
-                Click a city → copies <span className="text-[#e6ca65]">X, Y</span> image %.
-                Hide: remove <span className="text-[#e6ca65]">?pinGrid=1</span> from the URL.
+                {pinPickMode ? (
+                  pinPickReturnTo ? (
+                    <>
+                      Click the map to set the place pin. You&apos;ll return to
+                      the admin form with X/Y filled in.
+                    </>
+                  ) : (
+                    <>
+                      Click the map to set the place pin, then switch back to the
+                      admin tab — X/Y fills in automatically.
+                    </>
+                  )
+                ) : (
+                  <>
+                    Click a city → copies{" "}
+                    <span className="text-[#e6ca65]">X, Y</span> image %. Hide:
+                    remove <span className="text-[#e6ca65]">?pinGrid=1</span>{" "}
+                    from the URL.
+                  </>
+                )}
               </p>
               {sample ? (
                 <p className="mt-2 text-sm text-white">
                   {sample.x}, {sample.y}
                   {copied ? (
                     <span className="ml-2 text-[#e6ca65]/80">copied</span>
+                  ) : null}
+                  {pinPickMode ? (
+                    <span className="ml-2 text-[#e6ca65]/80">
+                      {pinPickReturnTo ? "returning…" : "saved — switch tabs"}
+                    </span>
                   ) : null}
                 </p>
               ) : null}

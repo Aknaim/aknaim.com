@@ -19,7 +19,9 @@ export default function AboutPage() {
           href="/"
           className="inline-flex items-center gap-2 font-mono text-[10px] uppercase tracking-widest text-foreground-muted hover:text-white transition-colors group mb-10 md:mb-14"
         >
-          <span className="transform group-hover:-translate-x-0.5 transition-transform">←</span>
+          <span className="transform group-hover:-translate-x-0.5 transition-transform">
+            ←
+          </span>
           Workbench
         </Link>
 

@@ -4,6 +4,7 @@ export function AdminField({
   label,
   name,
   defaultValue,
+  value,
   required,
   placeholder,
   type = "text",
@@ -13,6 +14,8 @@ export function AdminField({
   label: string;
   name: string;
   defaultValue?: string;
+  /** Controlled value — when set, omit relying on defaultValue alone. */
+  value?: string;
   required?: boolean;
   placeholder?: string;
   type?: string;
@@ -27,7 +30,8 @@ export function AdminField({
       <input
         type={type}
         name={name}
-        defaultValue={defaultValue}
+        defaultValue={value === undefined ? defaultValue : undefined}
+        value={value}
         required={required}
         placeholder={placeholder}
         onChange={onChange}

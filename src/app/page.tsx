@@ -1,5 +1,6 @@
 import { ActiveWorkbench } from "@/components/sections/ActiveWorkbench";
 import { Hero } from "@/components/sections/Hero";
+import { HomeContactFooter } from "@/components/sections/HomeContactFooter";
 import { StorageCupboard } from "@/components/sections/StorageCupboard";
 import { buildHomeAssetFallbackMap } from "@/lib/asset-utils";
 import { getWorkbenchInterestLists } from "@/lib/interests/public";
@@ -24,6 +25,7 @@ export default async function Home() {
         items={dormantInterests}
         fallbackBySrc={fallbackBySrc}
       />
+      <HomeContactFooter />
     </main>
   );
 }

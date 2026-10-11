@@ -12,6 +12,7 @@ import {
   filterGalleryItems,
   sortGalleryItems,
 } from "@/lib/gallery-utils";
+import { GalleryFiltersSheet } from "./GalleryFiltersSheet";
 import { GalleryGrid, GalleryViewToggle } from "./GalleryGrid";
 import { GallerySidebar, GallerySortSelect } from "./GallerySidebar";
 
@@ -41,6 +42,8 @@ function countSummary(items: GalleryItem[], distinctKey?: string): number {
 export type GalleryPaginationProps = {
   pageSize: number;
   total: number;
+  /** Server distinct count when config.countDistinctKey is set (e.g. climbs). */
+  totalDistinct?: number;
   hasMore: boolean;
 };
 
@@ -53,11 +56,17 @@ interface GalleryViewProps {
   showDuration?: boolean;
   /** When set, items are a first page — load more on scroll via /api/gallery/[interest]. */
   pagination?: GalleryPaginationProps;
+  /**
+   * Lightweight filter rows for sidebar counts under pagination
+   * (send-grade-aware for climbing). No media URLs.
+   */
+  filterIndex?: Array<{ filters: Record<string, string> }>;
 }
 
 type GalleryPageResponse = {
   items: GalleryItem[];
   total: number;
+  totalDistinct?: number;
   offset: number;
   limit: number;
   hasMore: boolean;
@@ -72,9 +81,11 @@ export function GalleryView({
   backLabel = "← Back",
   showDuration = false,
   pagination,
+  filterIndex,
 }: GalleryViewProps) {
   const router = useRouter();
   const [viewMode, setViewMode] = useState<GalleryViewMode>("grid");
+  const [filtersOpen, setFiltersOpen] = useState(false);
   const { activeIndex, isOpen, open, close, setActiveIndex } = useImageLightbox();
 
   const [filters, setFilters] = useState<GalleryFilters>(() => ({
@@ -84,6 +95,7 @@ export function GalleryView({
 
   const [items, setItems] = useState<GalleryItem[]>(initialItems);
   const [total, setTotal] = useState(pagination?.total ?? initialItems.length);
+  const [totalDistinct, setTotalDistinct] = useState(pagination?.totalDistinct);
   const [hasMore, setHasMore] = useState(pagination?.hasMore ?? false);
   const [loadingMore, setLoadingMore] = useState(false);
   const [loadingReset, setLoadingReset] = useState(false);
@@ -93,6 +105,23 @@ export function GalleryView({
   const sentinelRef = useRef<HTMLDivElement | null>(null);
   const paramKeys = config.filterGroups.map((g) => g.paramKey);
   const paged = Boolean(pagination);
+
+  /** Items used only for sidebar/sheet option counts. */
+  const countItems = useMemo((): GalleryItem[] => {
+    if (filterIndex) {
+      return filterIndex.map((row, index) => ({
+        id: `filter-index-${index}`,
+        src: "",
+        alt: "",
+        dateTaken: "",
+        year: 0,
+        filters: row.filters,
+      }));
+    }
+    return paged ? [] : items;
+  }, [filterIndex, paged, items]);
+
+  const hideCounts = paged && !filterIndex;
 
   const syncUrl = useCallback(
     (nextFilters: GalleryFilters) => {
@@ -136,6 +165,7 @@ export function GalleryView({
           return;
         }
         setTotal(data.total);
+        setTotalDistinct(data.totalDistinct);
         setHasMore(data.hasMore);
         setItems((prev) => {
           if (mode === "replace") return data.items;
@@ -218,17 +248,53 @@ export function GalleryView({
     return sortGalleryItems(filtered, filters.sort ?? config.defaultSort);
   }, [paged, items, filters, paramKeys, config.defaultSort]);
 
-  const summaryCount = useMemo(() => {
-    if (paged && !config.countDistinctKey) return total;
-    return countSummary(displayItems, config.countDistinctKey);
-  }, [paged, total, displayItems, config.countDistinctKey]);
-
   const summaryNoun = config.summaryNoun ?? {
     singular: "Photo",
     plural: "Photos",
   };
-  const summaryLabel =
-    summaryCount === 1 ? summaryNoun.singular : summaryNoun.plural;
+
+  const summaryLine = useMemo(() => {
+    if (loadingReset) return "Loading…";
+
+    if (paged) {
+      const photoLabel = total === 1 ? "photo" : "photos";
+      if (config.countDistinctKey && totalDistinct != null) {
+        const entityLabel =
+          totalDistinct === 1
+            ? summaryNoun.singular.toLowerCase()
+            : summaryNoun.plural.toLowerCase();
+        const base = `${totalDistinct} ${entityLabel} · ${total} ${photoLabel}`;
+        return displayItems.length < total
+          ? `${base} · showing ${displayItems.length}`
+          : base;
+      }
+      return displayItems.length < total
+        ? `${total} ${photoLabel} · showing ${displayItems.length}`
+        : `${total} ${photoLabel}`;
+    }
+
+    const summaryCount = countSummary(displayItems, config.countDistinctKey);
+    const summaryLabel =
+      summaryCount === 1 ? summaryNoun.singular : summaryNoun.plural;
+    return `${summaryCount} ${summaryLabel}`;
+  }, [
+    loadingReset,
+    paged,
+    total,
+    totalDistinct,
+    displayItems,
+    config.countDistinctKey,
+    summaryNoun.singular,
+    summaryNoun.plural,
+  ]);
+
+  const activeFilterCount = useMemo(
+    () =>
+      Object.entries(filters).filter(
+        ([key, value]) => key !== "sort" && value && value !== "all"
+      ).length,
+    [filters]
+  );
 
   const activeTripLabel = filters.trip
     ? config.filterGroups
@@ -259,7 +325,7 @@ export function GalleryView({
         </Link>
 
         <div className="flex flex-col lg:flex-row gap-10 lg:gap-16">
-          <div className="lg:sticky lg:top-8 lg:self-start lg:max-h-[calc(100vh-4rem)] lg:overflow-y-auto lg:overscroll-y-contain [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden space-y-8">
+          <div className="hidden lg:sticky lg:top-8 lg:block lg:self-start lg:max-h-[calc(100vh-4rem)] lg:overflow-y-auto lg:overscroll-y-contain [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden space-y-8">
             <GallerySortSelect
               sortOptions={config.sortOptions}
               value={filters.sort ?? config.defaultSort}
@@ -267,12 +333,12 @@ export function GalleryView({
             />
             <GallerySidebar
               filterGroups={config.filterGroups}
-              items={paged ? [] : items}
+              items={countItems}
               filters={filters}
               onFilterChange={handleFilterChange}
               onReset={handleReset}
               countDistinctKey={config.countDistinctKey}
-              hideCounts={paged}
+              hideCounts={hideCounts}
             />
           </div>
 
@@ -291,13 +357,24 @@ export function GalleryView({
                     : config.subtitle}
                 </p>
                 <span className="font-mono text-[10px] uppercase tracking-widest text-foreground-subtle">
-                  {loadingReset ? "Loading…" : `${summaryCount} ${summaryLabel}`}
-                  {paged && displayItems.length < total
-                    ? ` · showing ${displayItems.length}`
-                    : ""}
+                  {summaryLine}
                 </span>
               </div>
-              <GalleryViewToggle viewMode={viewMode} onChange={setViewMode} />
+              <div className="flex items-center gap-3 self-start sm:self-end">
+                <button
+                  type="button"
+                  onClick={() => setFiltersOpen(true)}
+                  className="lg:hidden inline-flex items-center gap-2 rounded-md border border-[#1a1a1a] bg-[#0c0c0c] px-3 py-2 font-mono text-[10px] uppercase tracking-widest text-foreground-muted transition-colors hover:border-[#2a2a2a] hover:text-white"
+                >
+                  Filters
+                  {activeFilterCount > 0 ? (
+                    <span className="rounded-sm bg-accent/15 px-1.5 py-0.5 text-accent">
+                      {activeFilterCount}
+                    </span>
+                  ) : null}
+                </button>
+                <GalleryViewToggle viewMode={viewMode} onChange={setViewMode} />
+              </div>
             </header>
 
             <GalleryGrid
@@ -343,6 +420,21 @@ export function GalleryView({
           </div>
         </div>
       </div>
+
+      <GalleryFiltersSheet
+        open={filtersOpen}
+        onClose={() => setFiltersOpen(false)}
+        filterGroups={config.filterGroups}
+        sortOptions={config.sortOptions}
+        items={countItems}
+        filters={filters}
+        sortValue={filters.sort ?? config.defaultSort}
+        onFilterChange={handleFilterChange}
+        onSortChange={handleSortChange}
+        onReset={handleReset}
+        countDistinctKey={config.countDistinctKey}
+        hideCounts={hideCounts}
+      />
 
       <ImageLightbox
         images={lightboxImages}

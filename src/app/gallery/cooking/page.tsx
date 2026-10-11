@@ -1,8 +1,15 @@
 import type { Metadata } from "next";
 import { GalleryView } from "@/components/sections/gallery/GalleryView";
 import { cookingGalleryConfig } from "@/lib/data/galleries/cookingGalleryData";
-import { getGalleryItems } from "@/lib/db/queries/gallery";
-import { parseGallerySearchParams } from "@/lib/gallery-utils";
+import {
+  GALLERY_PAGE_SIZE,
+  getGalleryFilterIndex,
+  getGalleryPage,
+} from "@/lib/db/queries/gallery";
+import {
+  buildGalleryQueryString,
+  parseGallerySearchParams,
+} from "@/lib/gallery-utils";
 
 export const metadata: Metadata = {
   title: "Cooking Gallery",
@@ -18,16 +25,33 @@ export default async function CookingGalleryPage({
   const params = await searchParams;
   const paramKeys = cookingGalleryConfig.filterGroups.map((g) => g.paramKey);
   const initialFilters = parseGallerySearchParams(params, paramKeys);
-  // Load the full set; GalleryView filters client-side so URL sync can't empty the grid.
-  const cookingGalleryItems = await getGalleryItems("cooking");
+  const sort = initialFilters.sort ?? cookingGalleryConfig.defaultSort;
+
+  const [page, filterIndex] = await Promise.all([
+    getGalleryPage({
+      interest: "cooking",
+      filters: initialFilters,
+      sort,
+      limit: GALLERY_PAGE_SIZE,
+      offset: 0,
+    }),
+    getGalleryFilterIndex("cooking"),
+  ]);
 
   return (
     <GalleryView
+      key={buildGalleryQueryString(initialFilters) || "all"}
       config={cookingGalleryConfig}
-      items={cookingGalleryItems}
+      items={page.items}
       initialFilters={initialFilters}
       backHref="/cooking"
       backLabel="← Back to Cooking"
+      filterIndex={filterIndex}
+      pagination={{
+        pageSize: GALLERY_PAGE_SIZE,
+        total: page.total,
+        hasMore: page.hasMore,
+      }}
     />
   );
 }

@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState, useMemo, useState } from "react";
+import { useActionState, useEffect, useMemo, useState } from "react";
 import {
   createOrUpdateTravelPlace,
   type TravelPlaceSaveState,
@@ -9,6 +9,10 @@ import { tripMediaPaths } from "@/lib/media/trip-paths";
 import type { Destination } from "@/lib/travelData";
 import type { TripDetail } from "@/lib/types/travel";
 import { toInputDate } from "@/lib/dates";
+import {
+  clearTravelPinPick,
+  readTravelPinPick,
+} from "@/lib/travel-pin-pick";
 import { AdminDateField, AdminField, AdminTextarea } from "./AdminField";
 import { MediaUploadField } from "./MediaUploadField";
 import { MultiMediaUploadField } from "./MultiMediaUploadField";
@@ -44,11 +48,39 @@ export function TravelPlaceAdminForm({
   });
   const [uploadsPending, setUploadsPending] = useState(0);
   const [formError, setFormError] = useState<string | null>(null);
+  const [mapX, setMapX] = useState(
+    String(destination?.mapCoordinates.x ?? 50)
+  );
+  const [mapY, setMapY] = useState(
+    String(destination?.mapCoordinates.y ?? 50)
+  );
+  const [pinApplied, setPinApplied] = useState(false);
   const [saveState, formAction, saving] = useActionState<TravelPlaceSaveState, FormData>(
     createOrUpdateTravelPlace,
     null
   );
   const filledStops = routePlaces.filter((place) => place.trim()).length;
+
+  useEffect(() => {
+    function applyStoredPin() {
+      const stored = readTravelPinPick();
+      if (!stored) return;
+      setMapX(String(stored.x));
+      setMapY(String(stored.y));
+      setPinApplied(true);
+      clearTravelPinPick();
+    }
+
+    applyStoredPin();
+    window.addEventListener("focus", applyStoredPin);
+    document.addEventListener("visibilitychange", applyStoredPin);
+    window.addEventListener("storage", applyStoredPin);
+    return () => {
+      window.removeEventListener("focus", applyStoredPin);
+      document.removeEventListener("visibilitychange", applyStoredPin);
+      window.removeEventListener("storage", applyStoredPin);
+    };
+  }, []);
 
   function trackUploadPending(pending: boolean) {
     setUploadsPending((count) => Math.max(0, count + (pending ? 1 : -1)));
@@ -111,13 +143,32 @@ export function TravelPlaceAdminForm({
           <AdminField
             label="World-map pin X %"
             name="mapX"
-            defaultValue={String(destination?.mapCoordinates.x ?? 50)}
+            value={mapX}
+            onChange={(event) => setMapX(event.target.value)}
           />
           <AdminField
             label="World-map pin Y %"
             name="mapY"
-            defaultValue={String(destination?.mapCoordinates.y ?? 50)}
+            value={mapY}
+            onChange={(event) => setMapY(event.target.value)}
           />
+        </div>
+
+        <div className="flex flex-wrap items-center gap-3">
+          <a
+            href="/travel?pinPick=1"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center rounded-md border border-accent/35 bg-accent/10 px-3 py-2 font-mono text-[10px] uppercase tracking-widest text-accent transition-colors hover:bg-accent/20"
+          >
+            Pick on map
+          </a>
+          <p className="font-mono text-[9px] text-foreground-subtle">
+            Opens the map in a new tab — click a spot, then return here.
+            {pinApplied ? (
+              <span className="ml-2 text-accent">Pin updated from map.</span>
+            ) : null}
+          </p>
         </div>
 
         <MediaUploadField
