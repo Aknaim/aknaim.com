@@ -18,7 +18,7 @@ export default async function Home() {
       <ActiveWorkbench
         items={activeInterests}
         fallbackBySrc={fallbackBySrc}
-        bagPeekHint="Hover over a bag to peek inside."
+        bagPeekHint="Hover a bag to peek inside."
       />
       <StorageCupboard
         items={dormantInterests}

@@ -616,13 +616,13 @@
     z-index: 1;
   }
 
-  /* ── Storage cupboard — receded, hover-to-open ──────────────────────────── */
+  /* ── Storage cupboard — desktop snap/hover; mobile scroll-scrub ─────────── */
   .cupboard-backdrop {
     opacity: 0.9;
     transition: opacity 350ms var(--ease-standard);
   }
 
-  .cupboard-backdrop:has(.cupboard-cabinet--open) {
+  .cupboard-backdrop--open {
     opacity: 1;
   }
 
@@ -637,6 +637,10 @@
     box-shadow:
       inset 0 1px 0 rgba(255, 255, 255, 0.04),
       0 16px 40px rgba(0, 0, 0, 0.4);
+    --cupboard-open: 0;
+    --cupboard-door-angle: 0deg;
+    --cupboard-door-opacity: 1;
+    --cupboard-interior-opacity: 0;
   }
 
   @media (min-width: 1024px) {
@@ -672,7 +676,6 @@
       ),
       url("/images/hero/cupboard-bg.jpg");
     background-repeat: no-repeat;
-    /* One shared image across both doors — not cover-scaled per half */
     background-size: auto, 200% 100%;
     transition: transform 420ms var(--ease-standard);
   }
@@ -695,6 +698,26 @@
 
   .cupboard-cabinet--open .cupboard-door--right {
     transform: perspective(900px) rotateY(72deg);
+  }
+
+  /* Mobile: door angle follows scroll progress (no CSS swing transition). */
+  .cupboard-cabinet--scrub .cupboard-doors {
+    opacity: var(--cupboard-door-opacity);
+    pointer-events: none;
+    transition: none;
+  }
+
+  .cupboard-cabinet--scrub .cupboard-door {
+    transition: none;
+    will-change: transform;
+  }
+
+  .cupboard-cabinet--scrub .cupboard-door--left {
+    transform: perspective(900px) rotateY(calc(-1 * var(--cupboard-door-angle)));
+  }
+
+  .cupboard-cabinet--scrub .cupboard-door--right {
+    transform: perspective(900px) rotateY(var(--cupboard-door-angle));
   }
 
   .cupboard-door-handle {
@@ -729,6 +752,7 @@
     text-shadow: 0 2px 12px rgba(0, 0, 0, 0.6);
     transition: opacity 220ms var(--ease-standard);
     white-space: nowrap;
+    pointer-events: none;
   }
 
   .cupboard-cabinet--open .cupboard-closed-label {
@@ -766,6 +790,17 @@
       opacity 300ms var(--ease-standard) 80ms,
       transform 300ms var(--ease-standard) 80ms,
       visibility 0ms linear 0ms;
+  }
+
+  .cupboard-cabinet--scrub .cupboard-interior {
+    opacity: var(--cupboard-interior-opacity);
+    visibility: visible;
+    transform: translateY(calc(8px * (1 - var(--cupboard-open))));
+    transition: none;
+  }
+
+  .cupboard-cabinet--scrub.cupboard-cabinet--open .cupboard-interior {
+    pointer-events: auto;
   }
 
   .cupboard-dusty-bag {
@@ -823,6 +858,10 @@
     .cupboard-cabinet--open .cupboard-door--right {
       transform: none;
       opacity: 0;
+    }
+
+    .cupboard-cabinet--scrub .cupboard-door {
+      will-change: auto;
     }
   }
 }

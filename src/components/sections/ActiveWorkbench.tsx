@@ -1,11 +1,12 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import type { InterestCategory } from "@/types";
 import { AssetImage } from "@/components/ui/AssetImage";
 import { getIcon } from "@/lib/icon-map";
 import { formatLastActive } from "@/lib/interests/format";
+import { pickScrollPeekId } from "@/lib/scroll-peek";
 import { getInterestHref } from "@/lib/utils";
 
 interface ActiveWorkbenchProps {
@@ -14,17 +15,115 @@ interface ActiveWorkbenchProps {
   bagPeekHint?: string;
 }
 
+/** Match cupboard: scroll-peek stacked bags on narrow / no-hover. */
+function useMobileWorkbenchLayout() {
+  const [enabled, setEnabled] = useState(false);
+
+  useEffect(() => {
+    const query = window.matchMedia("(max-width: 767px), (hover: none)");
+    const sync = () => setEnabled(query.matches);
+    sync();
+    query.addEventListener("change", sync);
+    return () => query.removeEventListener("change", sync);
+  }, []);
+
+  return enabled;
+}
+
 export function ActiveWorkbench({
   items,
   fallbackBySrc,
-  bagPeekHint = "Hover over a bag to peek inside.",
+  bagPeekHint = "Hover a bag to peek inside.",
 }: ActiveWorkbenchProps) {
-  const [hoveredId, setHoveredId] = useState<string | null>(
-    items[0]?.id ?? null,
+  const mobileLayout = useMobileWorkbenchLayout();
+  const bagRefs = useRef(new Map<string, HTMLElement>());
+  const peekedIdRef = useRef<string | null>(null);
+  const [focusedId, setFocusedId] = useState<string | null>(
+    items[0]?.id ?? null
   );
+  const [peekedId, setPeekedId] = useState<string | null>(null);
+
+  peekedIdRef.current = peekedId;
 
   const focused =
-    items.find((item) => item.id === hoveredId) ?? items[0] ?? null;
+    items.find((item) => item.id === focusedId) ?? items[0] ?? null;
+
+  useEffect(() => {
+    if (!mobileLayout) {
+      setPeekedId(null);
+      return;
+    }
+
+    let frame = 0;
+    const measure = () => {
+      frame = 0;
+      const entries = items.map((item) => ({
+        id: item.id,
+        element: bagRefs.current.get(item.id) ?? null,
+      }));
+      const next = pickScrollPeekId(entries, peekedIdRef.current, {
+        bandY: 0.42,
+        hysteresisPx: 56,
+      });
+      setPeekedId((prev) => (prev === next ? prev : next));
+    };
+
+    const onScrollOrResize = () => {
+      if (frame) return;
+      frame = window.requestAnimationFrame(measure);
+    };
+
+    measure();
+    window.addEventListener("scroll", onScrollOrResize, { passive: true });
+    window.addEventListener("resize", onScrollOrResize);
+    return () => {
+      if (frame) window.cancelAnimationFrame(frame);
+      window.removeEventListener("scroll", onScrollOrResize);
+      window.removeEventListener("resize", onScrollOrResize);
+    };
+  }, [mobileLayout, items]);
+
+  if (items.length === 0) {
+    return null;
+  }
+
+  if (mobileLayout) {
+    return (
+      <section
+        className="page-container relative z-20 py-8"
+        aria-label="Active workbench"
+      >
+        <div className="mb-5">
+          <p className="text-tab text-accent">Active Workbench</p>
+          <h2 className="mt-1 font-display text-2xl font-medium tracking-tight text-foreground">
+            On the table
+          </h2>
+          <p className="mt-2 text-meta text-foreground-muted">
+            Scroll to peek. Tap to open.
+          </p>
+        </div>
+
+        <div className="workbench-table workbench-table--foreground rounded-card border border-[#2a2824] p-4">
+          <ul className="relative z-10 flex flex-col gap-3">
+            {items.map((item, index) => (
+              <MobileWorkbenchBag
+                key={item.id}
+                item={item}
+                shelfIndex={index + 1}
+                bagFallback={fallbackBySrc[item.bagImage] ?? false}
+                peekFallback={fallbackBySrc[item.peekImage] ?? false}
+                isPeeked={peekedId === item.id}
+                bagRef={(element) => {
+                  if (element) bagRefs.current.set(item.id, element);
+                  else bagRefs.current.delete(item.id);
+                }}
+              />
+            ))}
+          </ul>
+        </div>
+      </section>
+    );
+  }
 
   return (
     <section
@@ -57,8 +156,7 @@ export function ActiveWorkbench({
                   item={item}
                   isActive={item.id === focused?.id}
                   bagFallback={fallbackBySrc[item.bagImage] ?? false}
-                  onEnter={() => setHoveredId(item.id)}
-                  onFocus={() => setHoveredId(item.id)}
+                  onSelect={() => setFocusedId(item.id)}
                 />
               ))}
             </ul>
@@ -83,11 +181,95 @@ export function ActiveWorkbench({
           </div>
         </div>
       </div>
-
-      <p className="mt-3 text-center text-meta text-foreground-muted sm:hidden">
-        {bagPeekHint} Tap to open.
-      </p>
     </section>
+  );
+}
+
+function MobileWorkbenchBag({
+  item,
+  shelfIndex,
+  bagFallback,
+  peekFallback,
+  isPeeked,
+  bagRef,
+}: {
+  item: InterestCategory;
+  shelfIndex: number;
+  bagFallback: boolean;
+  peekFallback: boolean;
+  isPeeked: boolean;
+  bagRef: (element: HTMLLIElement | null) => void;
+}) {
+  const Icon = getIcon(item.icon);
+  const lastActiveLabel = formatLastActive(item.lastActive);
+
+  return (
+    <li ref={bagRef}>
+      <Link
+        href={getInterestHref(item.id)}
+        className={`cupboard-dusty-bag group flex gap-3 rounded-card border border-[#2a2a2a] bg-[#121212]/70 p-3 transition-colors duration-300 ${
+          isPeeked ? "cupboard-dusty-bag--peek" : ""
+        }`}
+      >
+        <div className="cupboard-bag-thumb relative h-20 w-20 shrink-0 overflow-hidden rounded-image border border-[#1a1a1a]">
+          <AssetImage
+            src={item.bagImage}
+            alt={`${item.label} on the workbench, shelf ${shelfIndex}`}
+            icon={item.icon}
+            forceFallback={bagFallback}
+            fill
+            sizes="80px"
+            fallbackVariant="bag"
+            fallbackMuted
+            imageClassName="cupboard-bag-closed object-cover grayscale brightness-75 contrast-90 transition-opacity duration-300"
+          />
+          <AssetImage
+            src={item.peekImage}
+            alt={`Inside ${item.label}`}
+            icon={item.icon}
+            forceFallback={peekFallback}
+            fill
+            sizes="80px"
+            fallbackVariant="peek"
+            fallbackMuted
+            className="cupboard-bag-open opacity-0 transition-opacity duration-300"
+            imageClassName="object-cover brightness-110 contrast-100"
+          />
+          <div
+            className="cupboard-bag-dust pointer-events-none absolute inset-0 bg-[#0a0a0a]/40 mix-blend-multiply transition-opacity duration-300"
+            aria-hidden
+          />
+        </div>
+
+        <div className="min-w-0 flex-1 self-center">
+          <div className="flex items-center gap-2">
+            <Icon
+              className="cupboard-bag-icon h-3.5 w-3.5 text-foreground-subtle transition-colors duration-300"
+              strokeWidth={1.5}
+              aria-hidden
+            />
+            <span className="cupboard-bag-label text-tab text-foreground-subtle transition-colors duration-300">
+              {item.label}
+            </span>
+          </div>
+          {item.workbenchNote ? (
+            <p className="cupboard-bag-note mt-1.5 line-clamp-2 text-meta leading-snug text-foreground-subtle/80 transition-colors duration-300">
+              {item.workbenchNote}
+            </p>
+          ) : null}
+          {isPeeked && item.peekCaption ? (
+            <p className="mt-1.5 line-clamp-2 text-meta leading-snug text-foreground-muted">
+              {item.peekCaption}
+            </p>
+          ) : null}
+          {lastActiveLabel ? (
+            <p className="mt-1 font-mono text-[9px] uppercase tracking-widest text-foreground-subtle/60">
+              {lastActiveLabel}
+            </p>
+          ) : null}
+        </div>
+      </Link>
+    </li>
   );
 }
 
@@ -95,16 +277,14 @@ interface WorkbenchItemProps {
   item: InterestCategory;
   isActive: boolean;
   bagFallback: boolean;
-  onEnter: () => void;
-  onFocus: () => void;
+  onSelect: () => void;
 }
 
 function WorkbenchItem({
   item,
   isActive,
   bagFallback,
-  onEnter,
-  onFocus,
+  onSelect,
 }: WorkbenchItemProps) {
   const Icon = getIcon(item.icon);
   const lastActiveLabel = formatLastActive(item.lastActive);
@@ -120,8 +300,9 @@ function WorkbenchItem({
         className={`group relative z-10 flex w-full flex-col items-center text-left outline-none transition-transform duration-300 focus-visible:ring-2 focus-visible:ring-accent ${
           isActive ? "scale-[1.02]" : "scale-100"
         }`}
-        onMouseEnter={onEnter}
-        onFocus={onFocus}
+        onMouseEnter={onSelect}
+        onFocus={onSelect}
+        aria-current={isActive ? "true" : undefined}
         aria-label={`Open ${item.label}`}
       >
         <div

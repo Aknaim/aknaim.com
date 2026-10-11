@@ -1,11 +1,12 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, type CSSProperties } from "react";
 import type { InterestCategory } from "@/types";
 import { AssetImage } from "@/components/ui/AssetImage";
 import { getIcon } from "@/lib/icon-map";
 import { formatLastActive } from "@/lib/interests/format";
+import { pickScrollPeekId } from "@/lib/scroll-peek";
 import { getInterestHref } from "@/lib/utils";
 
 interface StorageCupboardProps {
@@ -13,8 +14,8 @@ interface StorageCupboardProps {
   fallbackBySrc: Record<string, boolean>;
 }
 
-/** Touch / narrow viewports — bag peek is scroll-driven instead of hover. */
-function useScrollBagPeekEnabled() {
+/** Narrow / touch: scroll-scrub doors + bag peeks. Desktop: hover / snap open. */
+function useMobileCupboard() {
   const [enabled, setEnabled] = useState(false);
 
   useEffect(() => {
@@ -28,47 +29,147 @@ function useScrollBagPeekEnabled() {
   return enabled;
 }
 
+function openProgressFromRect(rect: DOMRect, viewportHeight: number): number {
+  const visibleTop = Math.max(rect.top, 0);
+  const visibleBottom = Math.min(rect.bottom, viewportHeight);
+  const visible = Math.max(0, visibleBottom - visibleTop);
+  const span = Math.min(rect.height, viewportHeight * 0.9);
+  if (span <= 0) return 0;
+  const ratio = visible / span;
+  const start = 0.48;
+  const end = 0.9;
+  return Math.min(1, Math.max(0, (ratio - start) / (end - start)));
+}
+
 export function StorageCupboard({
   items,
   fallbackBySrc,
 }: StorageCupboardProps) {
+  const mobile = useMobileCupboard();
   const cabinetRef = useRef<HTMLDivElement>(null);
-  const [openedByScroll, setOpenedByScroll] = useState(false);
+  const bagRefs = useRef(new Map<string, HTMLElement>());
+  const peekedIdRef = useRef<string | null>(null);
+
   const [openedByHover, setOpenedByHover] = useState(false);
+  const [openProgress, setOpenProgress] = useState(0);
   const [peekedId, setPeekedId] = useState<string | null>(null);
-  const scrollBagPeek = useScrollBagPeekEnabled();
 
-  const isOpen = openedByScroll || openedByHover;
+  peekedIdRef.current = peekedId;
 
+  // Desktop: hover/focus only (original). Mobile: scroll-scrub.
+  const isInteractive = mobile ? openProgress >= 0.72 : openedByHover;
+
+  // Mobile: scrub door angle from how much of the cabinet is visible.
   useEffect(() => {
+    if (!mobile) {
+      setOpenProgress(0);
+      return;
+    }
+
     const node = cabinetRef.current;
     if (!node) return;
 
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        // Open once a solid chunk of the cabinet is on screen; close when
-        // it mostly leaves so scrolling back up resets the doors.
-        setOpenedByScroll(
-          entry.isIntersecting && entry.intersectionRatio >= 0.28
-        );
-      },
-      { threshold: [0, 0.28, 0.45, 0.7, 1], rootMargin: "0px 0px -8% 0px" }
+    const reduceMotion = window.matchMedia(
+      "(prefers-reduced-motion: reduce)"
     );
+    let frame = 0;
 
-    observer.observe(node);
-    return () => observer.disconnect();
-  }, []);
+    const measure = () => {
+      frame = 0;
+      const rect = node.getBoundingClientRect();
+      const vh = window.innerHeight || 1;
+      let next = openProgressFromRect(rect, vh);
+      if (reduceMotion.matches) {
+        next = next >= 0.4 ? 1 : 0;
+      }
+      setOpenProgress((prev) => (Math.abs(prev - next) < 0.004 ? prev : next));
+    };
+
+    const onScrollOrResize = () => {
+      if (frame) return;
+      frame = window.requestAnimationFrame(measure);
+    };
+
+    measure();
+    window.addEventListener("scroll", onScrollOrResize, { passive: true });
+    window.addEventListener("resize", onScrollOrResize);
+    reduceMotion.addEventListener("change", measure);
+
+    return () => {
+      if (frame) window.cancelAnimationFrame(frame);
+      window.removeEventListener("scroll", onScrollOrResize);
+      window.removeEventListener("resize", onScrollOrResize);
+      reduceMotion.removeEventListener("change", measure);
+    };
+  }, [mobile]);
+
+  // Mobile: one bag peeked — closest to mid-viewport, with hysteresis.
+  useEffect(() => {
+    if (!mobile || !isInteractive) {
+      setPeekedId(null);
+      return;
+    }
+
+    let frame = 0;
+    const measure = () => {
+      frame = 0;
+      const entries = items.map((item) => ({
+        id: item.id,
+        element: bagRefs.current.get(item.id) ?? null,
+      }));
+      const next = pickScrollPeekId(entries, peekedIdRef.current, {
+        bandY: 0.45,
+        hysteresisPx: 56,
+      });
+      setPeekedId((prev) => (prev === next ? prev : next));
+    };
+
+    const onScrollOrResize = () => {
+      if (frame) return;
+      frame = window.requestAnimationFrame(measure);
+    };
+
+    measure();
+    window.addEventListener("scroll", onScrollOrResize, { passive: true });
+    window.addEventListener("resize", onScrollOrResize);
+    return () => {
+      if (frame) window.cancelAnimationFrame(frame);
+      window.removeEventListener("scroll", onScrollOrResize);
+      window.removeEventListener("resize", onScrollOrResize);
+    };
+  }, [mobile, isInteractive, items]);
 
   if (items.length === 0) {
     return null;
   }
+
+  const doorAngle = openProgress * 72;
+  const doorOpacity = Math.max(0, 1 - Math.max(0, openProgress - 0.82) / 0.18);
+  const interiorOpacity = Math.min(
+    1,
+    Math.max(0, (openProgress - 0.28) / 0.5)
+  );
+
+  const scrubStyle = mobile
+    ? ({
+        "--cupboard-open": openProgress,
+        "--cupboard-door-angle": `${doorAngle}deg`,
+        "--cupboard-door-opacity": doorOpacity,
+        "--cupboard-interior-opacity": interiorOpacity,
+      } as CSSProperties)
+    : undefined;
 
   return (
     <section
       className="page-container relative z-10 py-8 lg:py-12"
       aria-label="Stowed gear"
     >
-      <div className="cupboard-backdrop">
+      <div
+        className={`cupboard-backdrop ${openedByHover && !mobile ? "cupboard-backdrop--open" : ""}`}
+        style={
+          mobile ? { opacity: 0.9 + openProgress * 0.1 } : undefined
+        }
+      >
         <div className="mb-5 flex items-end justify-between gap-4">
           <div>
             <p className="text-tab text-foreground-subtle">Archive</p>
@@ -77,17 +178,27 @@ export function StorageCupboard({
             </h2>
           </div>
           <p className="hidden max-w-xs text-right text-meta text-foreground-subtle sm:block">
-            Opens as you scroll. Dusty gear waiting for the next season.
+            Hover to open. Dusty gear waiting for the next season.
           </p>
         </div>
 
         <div
           ref={cabinetRef}
-          className={`cupboard-cabinet rounded-card ${isOpen ? "cupboard-cabinet--open" : ""}`}
-          onMouseEnter={() => setOpenedByHover(true)}
-          onMouseLeave={() => setOpenedByHover(false)}
-          onFocusCapture={() => setOpenedByHover(true)}
+          className={`cupboard-cabinet rounded-card ${
+            mobile ? "cupboard-cabinet--scrub" : ""
+          } ${isInteractive ? "cupboard-cabinet--open" : ""}`}
+          style={scrubStyle}
+          onMouseEnter={() => {
+            if (!mobile) setOpenedByHover(true);
+          }}
+          onMouseLeave={() => {
+            if (!mobile) setOpenedByHover(false);
+          }}
+          onFocusCapture={() => {
+            if (!mobile) setOpenedByHover(true);
+          }}
           onBlurCapture={(event) => {
+            if (mobile) return;
             if (
               !event.currentTarget.contains(event.relatedTarget as Node | null)
             ) {
@@ -95,7 +206,7 @@ export function StorageCupboard({
             }
           }}
         >
-          <div className="cupboard-doors" aria-hidden={isOpen}>
+          <div className="cupboard-doors" aria-hidden={isInteractive}>
             <div className="cupboard-door cupboard-door--left">
               <span className="cupboard-door-handle" />
             </div>
@@ -106,8 +217,8 @@ export function StorageCupboard({
 
           <div
             className="cupboard-interior"
-            aria-hidden={!isOpen}
-            {...(!isOpen ? { inert: true } : {})}
+            aria-hidden={!isInteractive}
+            {...(!isInteractive ? { inert: true } : {})}
           >
             <ul className="grid h-full gap-4 p-5 sm:grid-cols-2 sm:gap-5 sm:p-6 lg:p-8">
               {items.map((item, index) => (
@@ -117,19 +228,23 @@ export function StorageCupboard({
                   shelfIndex={index + 1}
                   bagFallback={fallbackBySrc[item.bagImage] ?? false}
                   peekFallback={fallbackBySrc[item.peekImage] ?? false}
-                  isPeeked={scrollBagPeek && peekedId === item.id}
-                  observeScrollPeek={scrollBagPeek && isOpen}
-                  onBecomePeeked={() => setPeekedId(item.id)}
-                  onLeavePeek={() =>
-                    setPeekedId((current) =>
-                      current === item.id ? null : current
-                    )
-                  }
+                  isPeeked={mobile && peekedId === item.id}
+                  bagRef={(element) => {
+                    if (element) bagRefs.current.set(item.id, element);
+                    else bagRefs.current.delete(item.id);
+                  }}
                 />
               ))}
             </ul>
           </div>
         </div>
+
+        {mobile ? (
+          <div
+            className="pointer-events-none h-[28vh]"
+            aria-hidden
+          />
+        ) : null}
       </div>
     </section>
   );
@@ -141,52 +256,17 @@ function CupboardBag({
   bagFallback,
   peekFallback,
   isPeeked,
-  observeScrollPeek,
-  onBecomePeeked,
-  onLeavePeek,
+  bagRef,
 }: {
   item: InterestCategory;
   shelfIndex: number;
   bagFallback: boolean;
   peekFallback: boolean;
   isPeeked: boolean;
-  observeScrollPeek: boolean;
-  onBecomePeeked: () => void;
-  onLeavePeek: () => void;
+  bagRef: (element: HTMLLIElement | null) => void;
 }) {
-  const bagRef = useRef<HTMLLIElement>(null);
-  const becomeRef = useRef(onBecomePeeked);
-  const leaveRef = useRef(onLeavePeek);
-  becomeRef.current = onBecomePeeked;
-  leaveRef.current = onLeavePeek;
-
   const Icon = getIcon(item.icon);
   const lastActiveLabel = formatLastActive(item.lastActive);
-
-  useEffect(() => {
-    const node = bagRef.current;
-    if (!node || !observeScrollPeek) return;
-
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        const peeking =
-          entry.isIntersecting && entry.intersectionRatio >= 0.72;
-        if (peeking) becomeRef.current();
-        else leaveRef.current();
-      },
-      {
-        threshold: [0, 0.5, 0.72, 1],
-        // Bias toward the middle band of the viewport on phones.
-        rootMargin: "-28% 0px -28% 0px",
-      }
-    );
-
-    observer.observe(node);
-    return () => {
-      observer.disconnect();
-      leaveRef.current();
-    };
-  }, [observeScrollPeek]);
 
   return (
     <li ref={bagRef}>
