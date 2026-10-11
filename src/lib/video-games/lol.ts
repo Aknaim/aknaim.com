@@ -39,7 +39,7 @@ export const LOL_ACCOUNTS: LolAccount[] = [
   },
   {
     id: "lol-kungfuscyther",
-    gameName: "Kungfuscyther",
+    gameName: "KungFuScyther",
     tagLine: "NA1",
     region: "na",
     role: "smurf",
@@ -54,7 +54,7 @@ export const LOL_ACCOUNTS: LolAccount[] = [
       { name: "Nautilus", record: "5W 2L 71%" },
     ],
     championsSeasonLabel: "S6",
-    opGgUrl: opGgNaUrl("Kungfuscyther", "NA1"),
-    championsUrl: championsUrl("Kungfuscyther", "NA1", 6),
+    opGgUrl: opGgNaUrl("KungFuScyther", "NA1"),
+    championsUrl: championsUrl("KungFuScyther", "NA1", 6),
   },
 ];
