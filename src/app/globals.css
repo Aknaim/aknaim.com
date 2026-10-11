@@ -772,6 +772,40 @@
     backdrop-filter: blur(2px);
   }
 
+  /* Scroll-driven peek on touch / narrow viewports (mirrors group-hover). */
+  .cupboard-dusty-bag--peek {
+    border-color: color-mix(in srgb, var(--color-accent, #c5a059) 35%, #2a2a2a);
+    background-color: rgba(26, 26, 26, 0.95);
+  }
+
+  .cupboard-dusty-bag--peek .cupboard-bag-thumb {
+    border-color: #2e2e2e;
+  }
+
+  .cupboard-dusty-bag--peek .cupboard-bag-closed {
+    opacity: 0;
+  }
+
+  .cupboard-dusty-bag--peek .cupboard-bag-open {
+    opacity: 1;
+  }
+
+  .cupboard-dusty-bag--peek .cupboard-bag-dust {
+    opacity: 0;
+  }
+
+  .cupboard-dusty-bag--peek .cupboard-bag-icon {
+    color: var(--color-accent, #c5a059);
+  }
+
+  .cupboard-dusty-bag--peek .cupboard-bag-label {
+    color: #fff;
+  }
+
+  .cupboard-dusty-bag--peek .cupboard-bag-note {
+    color: var(--color-foreground-muted, #a3a3a3);
+  }
+
   .cupboard-header {
     opacity: 0.9;
   }
