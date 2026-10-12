@@ -229,7 +229,7 @@ Copy from `.env.example` → `.env`. Never point local `DATABASE_URL` at Neon un
 npm run docker:up      # local Postgres
 npm run db:pull-neon   # Neon prod → local Docker (destructive to local)
 npm run db:push        # apply Drizzle schema to DATABASE_URL
-npm run db:seed        # seed content
+npm run db:seed        # local-only bootstrap (refuses Neon; never wipes climbs)
 npm run media:unused   # dry-run unused media_assets rows
 npm run media:r2-orphans  # dry-run R2 keys not in media_assets
 npm run dev

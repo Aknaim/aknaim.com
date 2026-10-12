@@ -102,7 +102,9 @@ export interface InterestCategory {
   peekCaption: string;     // Contextual description of the gear inside
   
   // Shelf copy (workbench + cupboard)
-  workbenchNote?: string; // Status note under the bag on either shelf
+  workbenchNote?: string; // Longer status note — desktop shelf rows
+  /** Short 2–4 word line under the title on mobile bag rows */
+  bagTag?: string;
   lastActive?: string; // Optional season/date, e.g. "Fall 2024"
   panelAnchor: string;
 

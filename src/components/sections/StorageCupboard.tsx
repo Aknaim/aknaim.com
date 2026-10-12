@@ -312,8 +312,13 @@ function CupboardBag({
               {item.label}
             </span>
           </div>
+          {item.bagTag ? (
+            <p className="cupboard-bag-note mt-1.5 text-meta leading-snug text-foreground-subtle/80 transition-colors duration-300 group-hover:text-foreground-muted sm:hidden">
+              {item.bagTag}
+            </p>
+          ) : null}
           {item.workbenchNote ? (
-            <p className="cupboard-bag-note mt-1.5 line-clamp-2 text-meta leading-snug text-foreground-subtle/80 transition-colors duration-300 group-hover:text-foreground-muted">
+            <p className="cupboard-bag-note mt-1.5 hidden line-clamp-2 text-meta leading-snug text-foreground-subtle/80 transition-colors duration-300 group-hover:text-foreground-muted sm:block">
               {item.workbenchNote}
             </p>
           ) : null}

@@ -1,5 +1,13 @@
+/**
+ * Local bootstrap seed only.
+ *
+ * - Refuses Neon / production DATABASE_URL (no override).
+ * - Never deletes climbing sends, sessions, projects, or climbing gallery.
+ * - Never overwrites destination dates / counts / images once a row exists.
+ * - Recipes & interest settings: insert-only (skip if already present).
+ */
 import "dotenv/config";
-import { eq, inArray, notInArray } from "drizzle-orm";
+import { eq, inArray } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/postgres-js";
 import postgres from "postgres";
 import {
@@ -18,11 +26,31 @@ import {
   legacyTravelGallerySeedIds,
   omanTripMomentSeeds,
   omanTripRouteMapSrc,
+  tripRouteMapSrcById,
   travelGallerySeedItems,
   travelStats as travelStatsData,
 } from "../travelData";
 import { siteData } from "../data";
 import * as schema from "./schema";
+
+function cleanDbUrl(raw: string | undefined): string {
+  return (raw ?? "").trim().replace(/^['"]|['"]$/g, "");
+}
+
+function assertLocalOnlyDatabaseUrl(url: string) {
+  if (/neon\.tech|neon\.database/i.test(url)) {
+    throw new Error(
+      "db:seed refuses Neon/production. Keep DATABASE_URL on local Docker only. " +
+        "Use admin UI or a surgical SQL update for prod — never seed Neon."
+    );
+  }
+  const neon = cleanDbUrl(process.env.DATABASE_URL_NEON_PRODUCTION);
+  if (neon && url === neon) {
+    throw new Error(
+      "db:seed refuses DATABASE_URL_NEON_PRODUCTION. Point DATABASE_URL at local Docker."
+    );
+  }
+}
 
 async function ensureMedia(
   db: ReturnType<typeof drizzle<typeof schema>>,
@@ -65,95 +93,54 @@ async function ensureMedia(
 }
 
 async function seed() {
-  const url = process.env.DATABASE_URL;
+  const url = cleanDbUrl(process.env.DATABASE_URL);
   if (!url) throw new Error("DATABASE_URL is not set");
+  assertLocalOnlyDatabaseUrl(url);
 
   const client = postgres(url, { max: 1 });
   const db = drizzle(client, { schema });
 
-  console.log("Seeding media + recipes…");
-
-  // Keep DB in sync with the static seed list (empty = wipe legacy placeholders).
-  const seedSlugs = allRecipes.map((recipe) => recipe.slug);
-  if (seedSlugs.length === 0) {
-    await db.delete(schema.recipes);
-  } else {
-    await db.delete(schema.recipes).where(notInArray(schema.recipes.slug, seedSlugs));
-  }
+  console.log("Seeding media + recipes (insert-only)…");
 
   for (const recipe of allRecipes) {
+    const existingRecipe = await db
+      .select({ slug: schema.recipes.slug })
+      .from(schema.recipes)
+      .where(eq(schema.recipes.slug, recipe.slug))
+      .limit(1);
+    if (existingRecipe[0]) continue;
+
     const imageMediaId = await ensureMedia(db, recipe.imageSrc, recipe.title);
     const heroMediaId = await ensureMedia(db, recipe.heroImage, recipe.title);
 
-    await db
-      .insert(schema.recipes)
-      .values({
-        slug: recipe.slug,
-        title: recipe.title,
-        dateLabel: recipe.date,
-        dateTaken: recipe.dateTaken,
-        imageMediaId,
-        heroMediaId,
-        categoryId: recipe.categoryId,
-        categoryLabel: recipe.category,
-        cuisine: recipe.cuisine,
-        description: recipe.description,
-        notes: recipe.notes,
-        servings: recipe.quickStats.servings,
-        totalTime: recipe.quickStats.totalTime,
-        difficulty: recipe.quickStats.difficulty,
-        ovenTemp: recipe.quickStats.ovenTemp ?? null,
-        infoCuisine: recipe.info.cuisine,
-        infoCourse: recipe.info.course,
-        infoMethod: recipe.info.method ?? "",
-        infoDiet: recipe.info.diet ?? "",
-        keywords: recipe.info.keywords,
-        calories: recipe.nutrition.calories ?? 0,
-        protein: recipe.nutrition.protein ?? "",
-        carbs: recipe.nutrition.carbs ?? "",
-        fat: recipe.nutrition.fat ?? "",
-        published: true,
-        updatedAt: new Date(),
-      })
-      .onConflictDoUpdate({
-        target: schema.recipes.slug,
-        set: {
-          title: recipe.title,
-          dateLabel: recipe.date,
-          dateTaken: recipe.dateTaken,
-          imageMediaId,
-          heroMediaId,
-          categoryId: recipe.categoryId,
-          categoryLabel: recipe.category,
-          cuisine: recipe.cuisine,
-          description: recipe.description,
-          notes: recipe.notes,
-          servings: recipe.quickStats.servings,
-          totalTime: recipe.quickStats.totalTime,
-          difficulty: recipe.quickStats.difficulty,
-          ovenTemp: recipe.quickStats.ovenTemp ?? null,
-          infoCuisine: recipe.info.cuisine,
-          infoCourse: recipe.info.course,
-          infoMethod: recipe.info.method ?? "",
-          infoDiet: recipe.info.diet ?? "",
-          keywords: recipe.info.keywords,
-          calories: recipe.nutrition.calories ?? 0,
-          protein: recipe.nutrition.protein ?? "",
-          carbs: recipe.nutrition.carbs ?? "",
-          fat: recipe.nutrition.fat ?? "",
-          updatedAt: new Date(),
-        },
-      });
-
-    await db
-      .delete(schema.ingredientGroups)
-      .where(eq(schema.ingredientGroups.recipeSlug, recipe.slug));
-    await db
-      .delete(schema.recipeSteps)
-      .where(eq(schema.recipeSteps.recipeSlug, recipe.slug));
-    await db
-      .delete(schema.recipeFinalImages)
-      .where(eq(schema.recipeFinalImages.recipeSlug, recipe.slug));
+    await db.insert(schema.recipes).values({
+      slug: recipe.slug,
+      title: recipe.title,
+      dateLabel: recipe.date,
+      dateTaken: recipe.dateTaken,
+      imageMediaId,
+      heroMediaId,
+      categoryId: recipe.categoryId,
+      categoryLabel: recipe.category,
+      cuisine: recipe.cuisine,
+      description: recipe.description,
+      notes: recipe.notes,
+      servings: recipe.quickStats.servings,
+      totalTime: recipe.quickStats.totalTime,
+      difficulty: recipe.quickStats.difficulty,
+      ovenTemp: recipe.quickStats.ovenTemp ?? null,
+      infoCuisine: recipe.info.cuisine,
+      infoCourse: recipe.info.course,
+      infoMethod: recipe.info.method ?? "",
+      infoDiet: recipe.info.diet ?? "",
+      keywords: recipe.info.keywords,
+      calories: recipe.nutrition.calories ?? 0,
+      protein: recipe.nutrition.protein ?? "",
+      carbs: recipe.nutrition.carbs ?? "",
+      fat: recipe.nutrition.fat ?? "",
+      published: true,
+      updatedAt: new Date(),
+    });
 
     for (const [groupIndex, group] of recipe.ingredients.entries()) {
       const [groupRow] = await db
@@ -216,37 +203,32 @@ async function seed() {
         sortOrder: 0,
         published: true,
       })
-      .onConflictDoUpdate({
-        target: schema.galleryItems.id,
-        set: {
-          mediaAssetId: heroMediaId,
-          title: recipe.title,
-          dateTaken: recipe.dateTaken,
-          filters: { category: recipe.categoryId, cuisine: recipe.cuisine },
-          recipeSlug: recipe.slug,
-          published: true,
-        },
-      });
+      .onConflictDoNothing({ target: schema.galleryItems.id });
   }
 
   console.log("Seeding gear…");
-  await db.delete(schema.gearItems);
-  await db.insert(schema.gearItems).values([
-    ...cookingGearItems.map((item, index) => ({
-      interest: "cooking" as const,
-      title: item.title,
-      description: item.description,
-      sortOrder: index,
-    })),
-    ...climbingGearItems.map((item, index) => ({
-      interest: "climbing" as const,
-      title: item.title,
-      description: item.description,
-      sortOrder: index,
-    })),
-  ]);
+  const existingGear = await db
+    .select({ id: schema.gearItems.id })
+    .from(schema.gearItems)
+    .limit(1);
+  if (!existingGear[0]) {
+    await db.insert(schema.gearItems).values([
+      ...cookingGearItems.map((item, index) => ({
+        interest: "cooking" as const,
+        title: item.title,
+        description: item.description,
+        sortOrder: index,
+      })),
+      ...climbingGearItems.map((item, index) => ({
+        interest: "climbing" as const,
+        title: item.title,
+        description: item.description,
+        sortOrder: index,
+      })),
+    ]);
+  }
 
-  console.log("Seeding climbing…");
+  console.log("Seeding climbing (never deletes existing climbs)…");
   const locations: Array<{
     id: string;
     name: string;
@@ -261,39 +243,24 @@ async function seed() {
     await db
       .insert(schema.climbingLocations)
       .values(location)
-      .onConflictDoUpdate({
-        target: schema.climbingLocations.id,
-        set: { name: location.name, kind: location.kind },
-      });
+      .onConflictDoNothing({ target: schema.climbingLocations.id });
   }
-  // Replace climbing content so placeholder rows/media drop out of the site.
-  await db.delete(schema.climbingSends);
-  await db.delete(schema.climbingSessions);
-  await db.delete(schema.climbingProjects);
-  await db.delete(schema.galleryItems).where(eq(schema.galleryItems.interest, "climbing"));
-  await db
-    .delete(schema.climbingLocations)
-    .where(
-      notInArray(schema.climbingLocations.id, [
-        "climbers-rock",
-        "gravity",
-        "the-hub",
-        "outdoor",
-      ])
-    );
 
   for (const [index, project] of climbingProjects.entries()) {
     const imageMediaId = await ensureMedia(db, project.imageSrc, project.name);
-    await db.insert(schema.climbingProjects).values({
-      id: project.id,
-      grade: project.grade,
-      name: project.name,
-      locationId: project.locationId,
-      type: project.type,
-      status: project.status,
-      imageMediaId,
-      sortOrder: index,
-    });
+    await db
+      .insert(schema.climbingProjects)
+      .values({
+        id: project.id,
+        grade: project.grade,
+        name: project.name,
+        locationId: project.locationId,
+        type: project.type,
+        status: project.status,
+        imageMediaId,
+        sortOrder: index,
+      })
+      .onConflictDoNothing({ target: schema.climbingProjects.id });
   }
 
   for (const [index, send] of recentSends.entries()) {
@@ -306,40 +273,42 @@ async function seed() {
         locationId: send.locationId,
         notes: null,
       })
-      .onConflictDoUpdate({
-        target: schema.climbingSessions.id,
-        set: {
-          sessionDate: send.sessionDate,
-          locationId: send.locationId,
-        },
-      });
+      .onConflictDoNothing({ target: schema.climbingSessions.id });
 
     const imageMediaId = await ensureMedia(db, send.imageSrc, send.routeName);
-    await db.insert(schema.climbingSends).values({
-      id: send.id,
-      slug: send.slug,
-      grade: send.grade,
-      routeName: send.routeName,
-      locationId: send.locationId,
-      type: send.type,
-      color: send.color,
-      result: send.result,
-      sessionId,
-      sendDateLabel: send.date,
-      durationLabel: send.duration,
-      imageMediaId,
-      sortOrder: index,
-    });
+    await db
+      .insert(schema.climbingSends)
+      .values({
+        id: send.id,
+        slug: send.slug,
+        grade: send.grade,
+        routeName: send.routeName,
+        locationId: send.locationId,
+        type: send.type,
+        color: send.color,
+        result: send.result,
+        sessionId,
+        sendDateLabel: send.date,
+        durationLabel: send.duration,
+        imageMediaId,
+        sortOrder: index,
+      })
+      .onConflictDoNothing({ target: schema.climbingSends.id });
   }
 
-  await db.delete(schema.climbingProgression);
-  await db.insert(schema.climbingProgression).values(
-    progressionTimeline.map((item, index) => ({
-      yearLabel: item.year,
-      milestoneLabel: item.label,
-      sortOrder: index,
-    }))
-  );
+  const existingProgression = await db
+    .select({ id: schema.climbingProgression.id })
+    .from(schema.climbingProgression)
+    .limit(1);
+  if (!existingProgression[0] && progressionTimeline.length > 0) {
+    await db.insert(schema.climbingProgression).values(
+      progressionTimeline.map((item, index) => ({
+        yearLabel: item.year,
+        milestoneLabel: item.label,
+        sortOrder: index,
+      }))
+    );
+  }
 
   for (const [index, item] of climbingGallerySeedItems.entries()) {
     const mediaAssetId = await ensureMedia(db, item.src, item.alt, {
@@ -347,17 +316,20 @@ async function seed() {
       posterUrl: item.posterSrc,
       durationLabel: item.duration,
     });
-    await db.insert(schema.galleryItems).values({
-      id: item.id,
-      interest: "climbing",
-      mediaAssetId,
-      title: item.title ?? null,
-      dateTaken: item.dateTaken,
-      filters: item.filters,
-      durationLabel: item.duration ?? null,
-      sortOrder: index,
-      published: true,
-    });
+    await db
+      .insert(schema.galleryItems)
+      .values({
+        id: item.id,
+        interest: "climbing",
+        mediaAssetId,
+        title: item.title ?? null,
+        dateTaken: item.dateTaken,
+        filters: item.filters,
+        durationLabel: item.duration ?? null,
+        sortOrder: index,
+        published: true,
+      })
+      .onConflictDoNothing({ target: schema.galleryItems.id });
   }
 
   console.log("Seeding travel…");
@@ -381,13 +353,10 @@ async function seed() {
       .onConflictDoUpdate({
         target: schema.destinations.id,
         set: {
+          // Admin owns dates, counts, and card images — seed only refreshes map chrome.
           displayNumber: dest.number,
           title: dest.title,
           subtitle: dest.subtitle ?? null,
-          photosCount: dest.photosCount,
-          notesCount: dest.notesCount,
-          dateLabel: dest.date,
-          // Do not overwrite imageMediaId — admin uploads win after first seed.
           mapX: dest.mapCoordinates.x,
           mapY: dest.mapCoordinates.y,
           sortOrder: index,
@@ -395,41 +364,48 @@ async function seed() {
       });
   }
 
-  // Oman trip: keep curated route map + moments; do not touch hero/summary/admin fields.
-  const [omanTrip] = await db
+  // Attach canonical R2 route maps (clean “Route 1” maps) when missing / hero stand-in / old local JPG.
+  const allTrips = await db
     .select({
       id: schema.trips.id,
       heroMediaId: schema.trips.heroMediaId,
       routeMapMediaId: schema.trips.routeMapMediaId,
     })
-    .from(schema.trips)
-    .where(eq(schema.trips.id, "oman"))
-    .limit(1);
+    .from(schema.trips);
 
-  if (omanTrip) {
+  for (const trip of allTrips) {
+    const canonicalMapUrl = tripRouteMapSrcById[trip.id];
+    if (!canonicalMapUrl) continue;
+
     const [routeMapAsset] = await db
       .select({ url: schema.mediaAssets.url })
       .from(schema.mediaAssets)
-      .where(eq(schema.mediaAssets.id, omanTrip.routeMapMediaId))
+      .where(eq(schema.mediaAssets.id, trip.routeMapMediaId))
       .limit(1);
 
-    const routeIsPlaceholder =
-      omanTrip.routeMapMediaId === omanTrip.heroMediaId ||
+    const routeNeedsFix =
+      trip.routeMapMediaId === trip.heroMediaId ||
       !routeMapAsset ||
-      routeMapAsset.url === omanTripRouteMapSrc;
+      routeMapAsset.url === omanTripRouteMapSrc ||
+      routeMapAsset.url !== canonicalMapUrl;
 
-    if (routeIsPlaceholder) {
+    if (routeNeedsFix) {
       const routeMapMediaId = await ensureMedia(
         db,
-        omanTripRouteMapSrc,
-        "Oman route map"
+        canonicalMapUrl,
+        `${trip.id} route map`
       );
       await db
         .update(schema.trips)
         .set({ routeMapMediaId })
-        .where(eq(schema.trips.id, "oman"));
+        .where(eq(schema.trips.id, trip.id));
+      console.log(`  route map → ${trip.id}: ${canonicalMapUrl}`);
     }
+  }
 
+  // Oman trip moments only (do not touch hero/summary/admin fields).
+  const omanTrip = allTrips.find((trip) => trip.id === "oman");
+  if (omanTrip) {
     const existingMoments = await db
       .select({ id: schema.tripMoments.id })
       .from(schema.tripMoments)

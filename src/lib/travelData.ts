@@ -160,6 +160,20 @@ export const omanTripMomentSeeds = [
   },
 ] as const;
 
+/**
+ * Canonical route maps on R2 (clean “Route 1” exports — no text overlays).
+ * Seed attaches these when a trip’s route map is missing / still the hero / old local path.
+ */
+export const tripRouteMapSrcById: Record<string, string> = {
+  iceland: "https://media.aknaim.com/travel/iceland/map.webp",
+  india: "https://media.aknaim.com/travel/india/map.webp",
+  japan: "https://media.aknaim.com/travel/japan/map.webp",
+  oman: "https://media.aknaim.com/travel/oman/map.webp",
+  russia: "https://media.aknaim.com/travel/russia/map.webp",
+  uae: "https://media.aknaim.com/travel/uae/map.webp",
+};
+
+/** Old local Oman map (text overlay) — seed detects this URL and replaces with R2. */
 export const omanTripRouteMapSrc = "/images/travel/oman/oman-route-map.jpg";
 
 /** Old Oman stock gallery rows — delete on seed so they don’t return. */

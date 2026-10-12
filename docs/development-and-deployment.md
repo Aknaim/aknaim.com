@@ -52,7 +52,7 @@ flowchart TB
 | Domain | `http://localhost:3000` | `https://aknaim.com` + `www` |
 | Images today | Admin uploads → `public/media` (local); seed/`public/images` still fine | Admin uploads → R2; `media_assets.url` is the public HTTPS URL |
 
-**Rule:** `npm run db:seed` / `db:push` use whatever `DATABASE_URL` is in `.env`. Keep that on Docker locally. Production Neon is updated only when you intentionally set a Neon URL (or use Worker secrets + a one-off seed). See `.env.example`.
+**Rule:** Keep `DATABASE_URL` on **local Docker** only. `npm run db:seed` **refuses Neon** and will not wipe climbs or overwrite travel dates. Production data changes go through the admin UI (or surgical SQL) — never by seeding Neon. See `.env.example`.
 
 **Mental model:** Cloudflare does **not** host Node forever; OpenNext compiles the Next app into a Worker. Neon is a separate hosted Postgres. Domains are DNS + Worker custom domains, not something in React code.
 
@@ -93,7 +93,7 @@ flowchart LR
 - **Next.js** — pages, UI, server components, admin actions  
 - **Drizzle** — TypeScript schema → SQL tables; queries in `src/lib/db/`  
 - **OpenNext + Wrangler** — build and upload the Worker  
-- **Neon** — hosted Postgres (schema via `db:push`, data via `db:seed`)  
+- **Neon** — hosted Postgres (schema via careful `db:push`; data via admin / local workflows — never `db:seed`)  
 - **Secrets** — `DATABASE_URL`, `ADMIN_PASSWORD`, `SESSION_SECRET` on the Worker  
 
 ---
@@ -132,7 +132,7 @@ SESSION_SECRET=long-random-string-here
 
 **WSL note:** if Postgres runs in Docker Desktop and Next runs in WSL, use `host.docker.internal` instead of `localhost` in `DATABASE_URL`.
 
-**Neon-as-dev:** you can put the Neon pooled `DATABASE_URL` in `.env` instead of Docker. Then skip Docker; still run `db:push` / `db:seed` against that URL.
+**Avoid Neon-as-dev:** prefer Docker locally. `db:seed` will refuse a Neon `DATABASE_URL`. Use `DATABASE_URL_NEON_PRODUCTION` only for pull/compare scripts.
 
 ### 3.3 Start database (Docker path)
 
@@ -146,7 +146,7 @@ npm run db:seed
 |---------|----------------|
 | `docker:up` | Starts Postgres 16 via `docker-compose.dev.yml` |
 | `db:push` | Applies Drizzle schema to the DB in `DATABASE_URL` |
-| `db:seed` | Upserts recipes, travel, climbing, gallery seed data |
+| `db:seed` | Local-only bootstrap: insert-missing content; never deletes climbs; never overwrites travel dates |
 
 ### 3.4 Run the site
 
@@ -178,7 +178,7 @@ sequenceDiagram
 | `npm run build` / `npm start` | Production-like Node server (not Cloudflare) |
 | `npm run preview` | Build with OpenNext and run **Workers** runtime locally |
 | `npm run db:studio` | Drizzle Studio UI for the DB |
-| `npm run db:seed` | Re-seed (safe to re-run; upserts / refreshes related rows) |
+| `npm run db:seed` | Re-seed local only (insert-missing; safe for climbs / travel dates) |
 | `npm run docker:down` | Stop local Postgres |
 
 ### 3.6 Local vs Workers preview
@@ -215,21 +215,24 @@ Already done for this project once; keep as the checklist for a new machine/acco
 
 ```mermaid
 flowchart TD
-  A[Neon project + branch] --> B[db:push + db:seed using Neon URL]
-  B --> C[wrangler login]
-  C --> D[wrangler secret put DATABASE_URL<br/>ADMIN_PASSWORD SESSION_SECRET]
-  D --> E[npm run deploy]
-  E --> F[Custom domains aknaim.com + www]
-  F --> G[Smoke test HTTPS pages]
+  A[Neon project + branch] --> B[db:push schema against Neon once]
+  B --> C[Load data via admin or db:pull-neon inverse carefully]
+  C --> D[wrangler login]
+  D --> E[wrangler secret put DATABASE_URL<br/>ADMIN_PASSWORD SESSION_SECRET]
+  E --> F[npm run deploy]
+  F --> G[Custom domains aknaim.com + www]
+  G --> H[Smoke test HTTPS pages]
 ```
 
-1. **Neon** — project linked (`morning-art-…` / `production`). Pooled URL → `DATABASE_URL`.  
-2. **Schema + seed** (from laptop against Neon):
+1. **Neon** — project linked (`morning-art-…` / `production`). Pooled URL → Worker secret only.  
+2. **Schema** (from laptop against Neon once if needed):
 
    ```bash
+   # temporary: point DATABASE_URL at Neon for schema only, then switch back to Docker
    npm run db:push
-   npm run db:seed
    ```
+
+   Do **not** run `db:seed` against Neon (script refuses). Bootstrap content locally, then use admin / `db:pull-neon` workflows.
 
 3. **Cloudflare auth:**
 
@@ -320,12 +323,13 @@ After code changes on `main`:
 npm run deploy
 ```
 
-Database changes:
+Database schema changes (careful — Neon):
 
 ```bash
-# point DATABASE_URL at Neon
-npm run db:push    # schema
-npm run db:seed    # optional data refresh
+# temporary: point DATABASE_URL at Neon for schema only
+npm run db:push
+# switch DATABASE_URL back to local Docker immediately
+# never: npm run db:seed against Neon
 ```
 
 GitHub is the source of truth for code; Cloudflare holds runtime secrets. GitHub auto-deploy (Workers Builds) is optional and not required for the site to stay live.

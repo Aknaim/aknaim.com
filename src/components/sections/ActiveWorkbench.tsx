@@ -252,14 +252,9 @@ function MobileWorkbenchBag({
               {item.label}
             </span>
           </div>
-          {item.workbenchNote ? (
-            <p className="cupboard-bag-note mt-1.5 line-clamp-2 text-meta leading-snug text-foreground-subtle/80 transition-colors duration-300">
-              {item.workbenchNote}
-            </p>
-          ) : null}
-          {isPeeked && item.peekCaption ? (
-            <p className="mt-1.5 line-clamp-2 text-meta leading-snug text-foreground-muted">
-              {item.peekCaption}
+          {item.bagTag ? (
+            <p className="cupboard-bag-note mt-1.5 text-meta leading-snug text-foreground-muted">
+              {item.bagTag}
             </p>
           ) : null}
           {lastActiveLabel ? (

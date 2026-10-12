@@ -378,7 +378,7 @@ flowchart TB
 ```bash
 npm run docker:up    # Postgres only (docker-compose.dev.yml)
 npm run db:push      # apply schema
-npm run db:seed      # load content from legacy TS files
+npm run db:seed      # local-only insert-missing bootstrap (refuses Neon)
 npm run dev          # Next.js dev server
 ```
 
@@ -449,5 +449,5 @@ The `media_assets` table already has columns for future video support (`media_ty
 | [`docker-compose.yml`](../docker-compose.yml) | App + Postgres |
 | [`drizzle.config.ts`](../drizzle.config.ts) | Drizzle Kit config |
 | [`src/lib/db/schema/index.ts`](../src/lib/db/schema/index.ts) | Schema source of truth |
-| [`src/lib/db/seed.ts`](../src/lib/db/seed.ts) | Idempotent seed from legacy data |
+| [`src/lib/db/seed.ts`](../src/lib/db/seed.ts) | Local-only insert-missing seed (refuses Neon) |
 | [`.env.example`](../.env.example) | Required environment variables |

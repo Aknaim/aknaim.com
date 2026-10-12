@@ -448,7 +448,7 @@ erDiagram
 | [`queries/travel.ts`](../src/lib/db/queries/travel.ts) | `getDestinations`, `getTravelStats`, `getTripById`, `getTravelGalleryConfig` |
 | [`queries/gallery.ts`](../src/lib/db/queries/gallery.ts) | `getGalleryItems(interest, filters)` |
 
-Seed: [`src/lib/db/seed.ts`](../src/lib/db/seed.ts) — idempotent upsert from legacy TS modules.
+Seed: [`src/lib/db/seed.ts`](../src/lib/db/seed.ts) — local-only insert-missing bootstrap (refuses Neon; never wipes climbs).
 
 ---
 
