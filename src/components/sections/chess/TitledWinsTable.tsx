@@ -1,11 +1,11 @@
 "use client";
 
-import { useMemo, useState, type ReactNode } from "react";
+import { useMemo, useState } from "react";
 import type { ChessAccountId, ChessTimeControl, TitledWin } from "@/lib/chess";
 
 const FORMAT_ORDER: ChessTimeControl[] = ["bullet", "blitz", "rapid"];
 
-/** Short time-control context (hover + caption when a format filter is selected). */
+/** Short time-control context (hover on format cells). */
 const FORMAT_BLURBS: Record<ChessTimeControl, string> = {
   bullet: "Bullet — under 3 minutes per player; very fast online chess.",
   blitz: "Blitz — 3–10 minutes per player; the usual online speed.",
@@ -25,7 +25,7 @@ const TITLE_ORDER = [
   "WCM",
 ] as const;
 
-/** Short FIDE / national-title context (shown when a title filter is selected). */
+/** Short FIDE / national-title context (hover on title cells). */
 const TITLE_BLURBS: Record<(typeof TITLE_ORDER)[number], string> = {
   GM: "Grandmaster — ~2500+ FIDE; elite over-the-board title.",
   WGM: "Woman Grandmaster — FIDE women’s title, roughly ~2300+ FIDE.",
@@ -59,11 +59,28 @@ type AccountOption = {
   site: string;
 };
 
-type SortMode = "title" | "newest" | "oldest";
+type SortKey = "title" | "opponent" | "format" | "account" | "site" | "date";
+type SortDir = "asc" | "desc";
+type SortEntry = { key: SortKey; dir: SortDir };
+
+const SORTABLE: SortKey[] = [
+  "title",
+  "opponent",
+  "format",
+  "account",
+  "site",
+  "date",
+];
 
 function titleRank(title: string): number {
   const index = TITLE_ORDER.indexOf(title as (typeof TITLE_ORDER)[number]);
   return index === -1 ? TITLE_ORDER.length : index;
+}
+
+function formatRank(timeControl?: string): number {
+  if (!timeControl) return FORMAT_ORDER.length;
+  const index = FORMAT_ORDER.indexOf(timeControl as ChessTimeControl);
+  return index === -1 ? FORMAT_ORDER.length : index;
 }
 
 function dateValue(playedAt?: string): number {
@@ -72,18 +89,101 @@ function dateValue(playedAt?: string): number {
   return Number.isNaN(value) ? 0 : value;
 }
 
-function sortWins(wins: TitledWin[], sortMode: SortMode): TitledWin[] {
+function compareKey(
+  a: TitledWin,
+  b: TitledWin,
+  key: SortKey,
+  dir: SortDir,
+  accountMeta: (id: ChessAccountId) => AccountOption | undefined
+): number {
+  let result = 0;
+  switch (key) {
+    case "title":
+      result = titleRank(a.title) - titleRank(b.title);
+      break;
+    case "opponent":
+      result = a.opponent.localeCompare(b.opponent);
+      break;
+    case "format":
+      result = formatRank(a.timeControl) - formatRank(b.timeControl);
+      break;
+    case "account": {
+      const la = accountMeta(a.accountId)?.label ?? a.accountId;
+      const lb = accountMeta(b.accountId)?.label ?? b.accountId;
+      result = la.localeCompare(lb);
+      break;
+    }
+    case "site": {
+      const sa = accountMeta(a.accountId)?.site ?? "";
+      const sb = accountMeta(b.accountId)?.site ?? "";
+      result = sa.localeCompare(sb);
+      break;
+    }
+    case "date":
+      result = dateValue(a.playedAt) - dateValue(b.playedAt);
+      break;
+  }
+  return dir === "asc" ? result : -result;
+}
+
+function sortWins(
+  wins: TitledWin[],
+  sorts: SortEntry[],
+  accountMeta: (id: ChessAccountId) => AccountOption | undefined
+): TitledWin[] {
+  const keys =
+    sorts.length > 0 ? sorts : ([{ key: "title", dir: "asc" }] as SortEntry[]);
   return [...wins].sort((a, b) => {
-    if (sortMode === "newest") {
-      return dateValue(b.playedAt) - dateValue(a.playedAt);
+    for (const { key, dir } of keys) {
+      const result = compareKey(a, b, key, dir, accountMeta);
+      if (result !== 0) return result;
     }
-    if (sortMode === "oldest") {
-      return dateValue(a.playedAt) - dateValue(b.playedAt);
-    }
-    const byTitle = titleRank(a.title) - titleRank(b.title);
-    if (byTitle !== 0) return byTitle;
     return a.opponent.localeCompare(b.opponent);
   });
+}
+
+/** Default direction when a column is first added to the sort stack. */
+function defaultDir(key: SortKey): SortDir {
+  if (key === "date") return "desc"; // newest first
+  return "asc"; // title: highest first (GM=0); others A→Z / format order
+}
+
+function SortHeader({
+  label,
+  sortKey,
+  sorts,
+  onSort,
+}: {
+  label: string;
+  sortKey: SortKey;
+  sorts: SortEntry[];
+  onSort: (key: SortKey) => void;
+}) {
+  const index = sorts.findIndex((entry) => entry.key === sortKey);
+  const active = index !== -1;
+  const entry = active ? sorts[index] : null;
+  const arrow = entry ? (entry.dir === "asc" ? " ↑" : " ↓") : "";
+  const priority =
+    active && sorts.length > 1 ? ` ${index + 1}` : "";
+
+  return (
+    <button
+      type="button"
+      onClick={() => onSort(sortKey)}
+      title={
+        active
+          ? `Sort ${index + 1}: ${label} (${entry?.dir === "asc" ? "ascending" : "descending"}). Click to flip; click again when primary to clear.`
+          : `Add ${label} to sort (combines with other selected columns)`
+      }
+      className={`font-mono text-[11px] uppercase tracking-widest transition-colors ${
+        active ? "text-accent" : "text-foreground-muted hover:text-white"
+      }`}
+    >
+      {label}
+      {arrow}
+      {priority}
+    </button>
+  );
 }
 
 export function TitledWinsTable({
@@ -93,155 +193,123 @@ export function TitledWinsTable({
   wins: TitledWin[];
   accounts: AccountOption[];
 }) {
-  const [titleFilter, setTitleFilter] = useState<string>("all");
-  const [accountFilter, setAccountFilter] = useState<ChessAccountId | "all">("all");
-  const [formatFilter, setFormatFilter] = useState<ChessTimeControl | "all">("all");
-  const [sortMode, setSortMode] = useState<SortMode>("title");
-
-  const availableTitles = useMemo(() => {
-    const present = new Set(wins.map((win) => win.title));
-    return TITLE_ORDER.filter((title) => present.has(title));
-  }, [wins]);
-
-  const availableFormats = useMemo(() => {
-    const present = new Set(
-      wins.map((win) => win.timeControl).filter((value): value is string => Boolean(value))
-    );
-    return FORMAT_ORDER.filter((format) => present.has(format));
-  }, [wins]);
-
-  const filtered = useMemo(() => {
-    const next = wins.filter((win) => {
-      if (titleFilter !== "all" && win.title !== titleFilter) return false;
-      if (accountFilter !== "all" && win.accountId !== accountFilter) return false;
-      if (formatFilter !== "all" && win.timeControl !== formatFilter) return false;
-      return true;
-    });
-    return sortWins(next, sortMode);
-  }, [wins, titleFilter, accountFilter, formatFilter, sortMode]);
-
-  const titleCaption = titleFilter !== "all" ? titleBlurb(titleFilter) : undefined;
-  const formatCaption = formatFilter !== "all" ? formatBlurb(formatFilter) : undefined;
+  /** Click order = priority. Empty → default highest title. */
+  const [sorts, setSorts] = useState<SortEntry[]>([
+    { key: "title", dir: "asc" },
+  ]);
 
   const accountMeta = (accountId: ChessAccountId) =>
     accounts.find((account) => account.id === accountId);
 
+  const sorted = useMemo(
+    () => sortWins(wins, sorts, accountMeta),
+    [wins, sorts, accounts]
+  );
+
+  const handleSort = (key: SortKey) => {
+    setSorts((current) => {
+      const index = current.findIndex((entry) => entry.key === key);
+      if (index === 0) {
+        // Primary: flip direction; if already flipped once from default, clear column
+        const primary = current[0];
+        if (primary.dir === defaultDir(key)) {
+          return [{ ...primary, dir: primary.dir === "asc" ? "desc" : "asc" }, ...current.slice(1)];
+        }
+        // Second click on primary after flip → remove it
+        const rest = current.slice(1);
+        return rest.length > 0 ? rest : [{ key: "title", dir: "asc" }];
+      }
+      if (index > 0) {
+        // Promote to primary, keep direction
+        const entry = current[index];
+        return [entry, ...current.filter((_, i) => i !== index)];
+      }
+      // New column becomes primary
+      return [{ key, dir: defaultDir(key) }, ...current];
+    });
+  };
+
   if (wins.length === 0) {
-    return <p className="text-sm text-foreground-muted">No titled wins found yet.</p>;
+    return (
+      <p className="text-sm text-foreground-muted">No titled wins found yet.</p>
+    );
   }
 
+  const sortSummary =
+    sorts.length === 0
+      ? "highest title"
+      : sorts
+          .map((entry, index) => {
+            const name =
+              entry.key === "title"
+                ? "Title"
+                : entry.key === "opponent"
+                  ? "Opponent"
+                  : entry.key === "format"
+                    ? "Format"
+                    : entry.key === "account"
+                      ? "Account"
+                      : entry.key === "site"
+                        ? "Site"
+                        : "Date";
+            const dir = entry.dir === "asc" ? "↑" : "↓";
+            return sorts.length > 1
+              ? `${index + 1}. ${name} ${dir}`
+              : `${name} ${dir}`;
+          })
+          .join(" · ");
+
   return (
-    <div className="space-y-5">
-      <div className="space-y-3">
-        <FilterRow label="Account">
-          <FilterChip
-            active={accountFilter === "all"}
-            onClick={() => setAccountFilter("all")}
-            label="All"
-          />
-          {accounts.map((account) => (
-            <FilterChip
-              key={account.id}
-              active={accountFilter === account.id}
-              onClick={() => setAccountFilter(account.id)}
-              label={`${account.site} · ${account.label}`}
-            />
-          ))}
-        </FilterRow>
-
-        <FilterRow label="Title">
-          <FilterChip
-            active={titleFilter === "all"}
-            onClick={() => setTitleFilter("all")}
-            label="All"
-          />
-          {availableTitles.map((title) => (
-            <FilterChip
-              key={title}
-              active={titleFilter === title}
-              onClick={() => setTitleFilter(title)}
-              label={title}
-              hint={TITLE_BLURBS[title]}
-            />
-          ))}
-        </FilterRow>
-        {titleCaption ? (
-          <p className="font-mono text-[10px] leading-relaxed text-foreground-subtle sm:pl-20">
-            {titleCaption}
-          </p>
-        ) : null}
-
-        <FilterRow label="Sort">
-          <FilterChip
-            active={sortMode === "title"}
-            onClick={() => setSortMode("title")}
-            label="Highest title"
-          />
-          <FilterChip
-            active={sortMode === "newest"}
-            onClick={() => setSortMode("newest")}
-            label="Newest"
-          />
-          <FilterChip
-            active={sortMode === "oldest"}
-            onClick={() => setSortMode("oldest")}
-            label="Oldest"
-          />
-        </FilterRow>
-
-        {availableFormats.length > 0 ? (
-          <>
-            <FilterRow label="Format">
-              <FilterChip
-                active={formatFilter === "all"}
-                onClick={() => setFormatFilter("all")}
-                label="All"
-              />
-              {availableFormats.map((format) => (
-                <FilterChip
-                  key={format}
-                  active={formatFilter === format}
-                  onClick={() => setFormatFilter(format)}
-                  label={formatLabel(format)}
-                  hint={FORMAT_BLURBS[format]}
-                />
-              ))}
-            </FilterRow>
-            {formatCaption ? (
-              <p className="font-mono text-[10px] leading-relaxed text-foreground-subtle sm:pl-20">
-                {formatCaption}
-              </p>
-            ) : null}
-          </>
-        ) : null}
-      </div>
-
+    <div className="space-y-4">
       <p className="font-mono text-[11px] text-foreground-subtle">
-        {filtered.length} of {wins.length}
+        {sorted.length} win{sorted.length === 1 ? "" : "s"}
+        <span className="text-foreground-subtle/70">
+          {" · "}
+          sort: {sortSummary}
+        </span>
       </p>
 
       <div className="overflow-x-auto border border-[#141414]">
         <table className="w-full min-w-[44rem] text-left text-base">
           <thead>
             <tr className="border-b border-[#141414] font-mono text-[11px] uppercase tracking-widest text-foreground-muted">
-              <th className="px-5 py-3.5 font-normal">Title</th>
-              <th className="px-5 py-3.5 font-normal">Opponent</th>
-              <th className="px-5 py-3.5 font-normal">Format</th>
-              <th className="px-5 py-3.5 font-normal">Account</th>
-              <th className="px-5 py-3.5 font-normal">Site</th>
-              <th className="px-5 py-3.5 font-normal">Date</th>
+              {SORTABLE.map((key) => (
+                <th key={key} className="px-5 py-3.5 font-normal">
+                  <SortHeader
+                    label={
+                      key === "title"
+                        ? "Title"
+                        : key === "opponent"
+                          ? "Opponent"
+                          : key === "format"
+                            ? "Format"
+                            : key === "account"
+                              ? "Account"
+                              : key === "site"
+                                ? "Site"
+                                : "Date"
+                    }
+                    sortKey={key}
+                    sorts={sorts}
+                    onSort={handleSort}
+                  />
+                </th>
+              ))}
               <th className="px-5 py-3.5 font-normal text-right">Game</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-[#141414]">
-            {filtered.map((win) => {
+            {sorted.map((win) => {
               const account = accountMeta(win.accountId);
               return (
-                <tr key={win.id} className="hover:bg-[#111111]/40 transition-colors">
+                <tr
+                  key={win.id}
+                  className="transition-colors hover:bg-[#111111]/40"
+                >
                   <td className="px-5 py-3.5">
                     <span
                       title={titleBlurb(win.title)}
-                      className="font-mono text-xs text-accent/90 cursor-help underline decoration-accent/25 underline-offset-2"
+                      className="cursor-help font-mono text-xs text-accent/90 underline decoration-accent/25 underline-offset-2"
                     >
                       {win.title}
                     </span>
@@ -250,7 +318,7 @@ export function TitledWinsTable({
                   <td className="px-5 py-3.5">
                     <span
                       title={formatBlurb(win.timeControl)}
-                      className="font-mono text-[11px] uppercase tracking-widest text-foreground-subtle cursor-help underline decoration-foreground-subtle/30 underline-offset-2"
+                      className="cursor-help font-mono text-[11px] uppercase tracking-widest text-foreground-subtle underline decoration-foreground-subtle/30 underline-offset-2"
                     >
                       {formatLabel(win.timeControl)}
                     </span>
@@ -261,7 +329,7 @@ export function TitledWinsTable({
                   <td className="px-5 py-3.5 font-mono text-[11px] uppercase tracking-widest text-foreground-subtle">
                     {account?.site ?? "—"}
                   </td>
-                  <td className="px-5 py-3.5 font-mono text-[11px] text-foreground-subtle tabular-nums">
+                  <td className="px-5 py-3.5 font-mono text-[11px] tabular-nums text-foreground-subtle">
                     {win.playedAt ?? "—"}
                   </td>
                   <td className="px-5 py-3.5 text-right">
@@ -269,7 +337,7 @@ export function TitledWinsTable({
                       href={win.url}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="font-mono text-[11px] uppercase tracking-widest text-accent/80 hover:text-accent transition-colors"
+                      className="font-mono text-[11px] uppercase tracking-widest text-accent/80 transition-colors hover:text-accent"
                     >
                       Open ↗
                     </a>
@@ -281,51 +349,5 @@ export function TitledWinsTable({
         </table>
       </div>
     </div>
-  );
-}
-
-function FilterRow({
-  label,
-  children,
-}: {
-  label: string;
-  children: ReactNode;
-}) {
-  return (
-    <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-4">
-      <span className="font-mono text-[11px] uppercase tracking-widest text-foreground-subtle shrink-0 w-16">
-        {label}
-      </span>
-      <div className="flex flex-wrap gap-2" role="group" aria-label={label}>
-        {children}
-      </div>
-    </div>
-  );
-}
-
-function FilterChip({
-  active,
-  onClick,
-  label,
-  hint,
-}: {
-  active: boolean;
-  onClick: () => void;
-  label: string;
-  hint?: string;
-}) {
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      title={hint}
-      className={`font-mono text-[11px] uppercase tracking-widest px-3 py-1.5 border transition-colors ${
-        active
-          ? "border-accent/50 text-accent bg-accent/10"
-          : "border-[#262626] text-foreground-muted hover:border-[#3a3a3a] hover:text-white"
-      }`}
-    >
-      {label}
-    </button>
   );
 }
