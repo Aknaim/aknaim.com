@@ -1,6 +1,9 @@
+"use client";
+
 import Image from "next/image";
 import Link from "next/link";
 import { Play } from "lucide-react";
+import { useState } from "react";
 import type { ProgressionMilestone } from "@/lib/climbing-progression";
 import { holdSrcForMilestone } from "@/lib/climbing-holds";
 
@@ -103,28 +106,44 @@ function leaderPath(entry: LaidOutMilestone): string {
 function MilestoneCopy({
   item,
   isLast,
+  active,
+  onActiveChange,
 }: {
   item: ProgressionMilestone;
   isLast: boolean;
+  active: boolean;
+  onActiveChange: (active: boolean) => void;
 }) {
   const copy = (
     <span className="flex items-baseline gap-2 text-left">
       <span className="inline-flex min-w-0 items-baseline gap-1">
         {item.href ? (
           <Play
-            className="relative top-px size-2.5 shrink-0 fill-accent/85 text-accent/85 drop-shadow-[0_1px_2px_rgba(0,0,0,0.9)] transition-transform group-hover:scale-110"
+            className={`relative top-px size-2.5 shrink-0 drop-shadow-[0_1px_2px_rgba(0,0,0,0.9)] transition-transform duration-200 ${
+              active
+                ? "scale-110 fill-accent text-accent"
+                : "fill-accent/85 text-accent/85"
+            }`}
             aria-hidden
           />
         ) : null}
         <span
-          className={`text-sm leading-snug drop-shadow-[0_1px_3px_rgba(0,0,0,0.95)] ${
-            isLast ? "font-medium text-white" : "text-white/90"
-          } ${item.href ? "group-hover:text-white" : ""}`}
+          className={`text-sm leading-snug drop-shadow-[0_1px_3px_rgba(0,0,0,0.95)] transition-colors duration-200 ${
+            active
+              ? "font-medium text-white"
+              : isLast
+                ? "font-medium text-white"
+                : "text-white/90"
+          }`}
         >
           {item.label}
         </span>
       </span>
-      <span className="shrink-0 font-mono text-[8px] uppercase tracking-wider text-accent/75 drop-shadow-[0_1px_2px_rgba(0,0,0,0.9)]">
+      <span
+        className={`shrink-0 font-mono text-[8px] uppercase tracking-wider drop-shadow-[0_1px_2px_rgba(0,0,0,0.9)] transition-colors duration-200 ${
+          active ? "text-accent" : "text-accent/75"
+        }`}
+      >
         {item.dateLabel}
       </span>
     </span>
@@ -134,8 +153,12 @@ function MilestoneCopy({
     return (
       <Link
         href={item.href}
-        className="group block transition-opacity hover:opacity-95"
+        className="block transition-opacity hover:opacity-95"
         title="Watch send"
+        onMouseEnter={() => onActiveChange(true)}
+        onMouseLeave={() => onActiveChange(false)}
+        onFocus={() => onActiveChange(true)}
+        onBlur={() => onActiveChange(false)}
       >
         {copy}
       </Link>
@@ -218,6 +241,8 @@ export function ClimbingProgression({
 }: {
   timeline: ProgressionMilestone[];
 }) {
+  const [activeIndex, setActiveIndex] = useState<number | null>(null);
+
   if (timeline.length === 0) {
     return (
       <p className="text-sm text-foreground-muted">
@@ -260,72 +285,115 @@ export function ClimbingProgression({
             preserveAspectRatio="none"
             aria-hidden
           >
-            {laidOut.map((entry) => (
-              <path
-                key={`lead-${entry.index}`}
-                d={leaderPath(entry)}
-                fill="none"
-                stroke={
-                  entry.isLast
-                    ? "rgba(197,160,89,0.35)"
-                    : "rgba(255,255,255,0.14)"
-                }
-                strokeWidth="0.2"
-                strokeLinecap="round"
-                vectorEffect="non-scaling-stroke"
-              />
-            ))}
+            {laidOut.map((entry) => {
+              const active = activeIndex === entry.index;
+              return (
+                <path
+                  key={`lead-${entry.index}`}
+                  d={leaderPath(entry)}
+                  fill="none"
+                  stroke={
+                    active
+                      ? "rgba(197,160,89,0.65)"
+                      : entry.isLast
+                        ? "rgba(197,160,89,0.35)"
+                        : "rgba(255,255,255,0.14)"
+                  }
+                  strokeWidth={active ? "0.32" : "0.2"}
+                  strokeLinecap="round"
+                  vectorEffect="non-scaling-stroke"
+                  className="transition-[stroke,stroke-width] duration-200"
+                />
+              );
+            })}
           </svg>
 
-          <ol
-            className="pointer-events-none absolute inset-0 z-[1] list-none"
-            aria-hidden
-          >
+          <ol className="absolute inset-0 z-[3] list-none">
             {laidOut.map((entry) => {
               const sizeClass = entry.isLast
                 ? "h-[3.5rem] w-[3.5rem]"
                 : "h-[2.85rem] w-[2.85rem]";
+              const active = activeIndex === entry.index;
+              const holdVisual = (
+                <div
+                  className="pointer-events-none absolute inset-0"
+                  style={{ transform: `rotate(${entry.tilt}deg)` }}
+                >
+                  <span
+                    className={`absolute left-[8%] top-[58%] h-[38%] w-[84%] rounded-[100%] bg-black/50 blur-[6px] transition-opacity duration-200 ${
+                      active ? "opacity-80" : ""
+                    }`}
+                    aria-hidden
+                  />
+                  <Image
+                    src={entry.src}
+                    alt=""
+                    fill
+                    className={`object-contain drop-shadow-[0_3px_5px_rgba(0,0,0,0.6)] transition-[filter,drop-shadow] duration-200 ${
+                      active
+                        ? "brightness-125 drop-shadow-[0_6px_14px_rgba(197,160,89,0.45)]"
+                        : ""
+                    }`}
+                    sizes="60px"
+                  />
+                </div>
+              );
+
               return (
                 <li
                   key={`hold-${entry.index}`}
                   className="absolute"
                   style={{ left: `${entry.holdX}%`, top: `${entry.holdY}%` }}
                 >
-                  <div
-                    className={`relative ${sizeClass}`}
-                    style={{
-                      transform: `translate(-50%, -50%) rotate(${entry.tilt}deg)`,
-                    }}
-                  >
-                    <span
-                      className="absolute left-[8%] top-[58%] h-[38%] w-[84%] rounded-[100%] bg-black/50 blur-[6px]"
-                      aria-hidden
-                    />
-                    <Image
-                      src={entry.src}
-                      alt=""
-                      fill
-                      className="object-contain [filter:drop-shadow(0_3px_5px_rgba(0,0,0,0.6))]"
-                      sizes="60px"
-                    />
+                  <div className="-translate-x-1/2 -translate-y-1/2">
+                    {entry.item.href ? (
+                      <Link
+                        href={entry.item.href}
+                        title={`Watch send: ${entry.item.label}`}
+                        aria-label={`Watch send: ${entry.item.label}`}
+                        onMouseEnter={() => setActiveIndex(entry.index)}
+                        onMouseLeave={() => setActiveIndex(null)}
+                        onFocus={() => setActiveIndex(entry.index)}
+                        onBlur={() => setActiveIndex(null)}
+                        className={`relative block ${sizeClass} origin-center transition-transform duration-200 ease-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/50 ${
+                          active ? "z-10 scale-125" : ""
+                        }`}
+                      >
+                        {holdVisual}
+                      </Link>
+                    ) : (
+                      <div
+                        className={`pointer-events-none relative ${sizeClass}`}
+                        aria-hidden
+                      >
+                        {holdVisual}
+                      </div>
+                    )}
                   </div>
                 </li>
               );
             })}
           </ol>
 
-          <ol className="absolute inset-0 z-[2] list-none">
+          <ol className="pointer-events-none absolute inset-0 z-[2] list-none">
             {laidOut.map((entry) => (
               <li
                 key={`label-${entry.item.date}-${entry.item.label}`}
-                className="absolute w-[38%] max-w-[17rem] pl-2"
+                className="pointer-events-auto absolute w-[38%] max-w-[17rem] pl-2"
                 style={{
                   left: `${LABEL_RAIL_X}%`,
                   top: `${entry.labelY}%`,
                   transform: "translateY(-50%)",
                 }}
               >
-                <MilestoneCopy item={entry.item} isLast={entry.isLast} />
+                <MilestoneCopy
+                  item={entry.item}
+                  isLast={entry.isLast}
+                  active={activeIndex === entry.index}
+                  onActiveChange={(on) =>
+                    setActiveIndex(on ? entry.index : null)
+                  }
+                />
               </li>
             ))}
           </ol>
