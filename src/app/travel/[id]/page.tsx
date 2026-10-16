@@ -36,7 +36,7 @@ export default async function TripDetailPage({ params }: TripDetailPageProps) {
 
   return (
     <main className="min-h-screen bg-[#0b0a09] text-[#eaeaea] font-body pb-24 selection:bg-accent/30 selection:text-white">
-      <section className="relative w-full h-[70vh] min-h-[550px] flex flex-col justify-between p-6 md:p-16 overflow-hidden">
+      <section className="relative w-full h-[70vh] min-h-[550px] flex flex-col justify-end p-6 md:p-16 overflow-hidden">
         <div className="absolute inset-0 z-0">
           <Image
             src={trip.heroImage}
@@ -51,12 +51,12 @@ export default async function TripDetailPage({ params }: TripDetailPageProps) {
           <div className="absolute inset-x-0 top-0 h-40 bg-gradient-to-b from-black/55 to-transparent" />
         </div>
 
-        <div className="relative z-10 max-w-7xl w-full mx-auto mt-12 space-y-4 mb-4">
+        <div className="relative z-10 max-w-7xl w-full mx-auto space-y-4 mb-4">
           <h1 className="font-display text-5xl md:text-7xl font-light tracking-tight text-white">
             {trip.country}
           </h1>
           <p className="font-serif italic text-sm text-accent tracking-wide">{trip.date}</p>
-          <p className="text-foreground-muted text-base max-w-md leading-relaxed">{trip.summary}</p>
+          <p className="text-base max-w-md leading-relaxed text-white/75">{trip.summary}</p>
 
           {Object.values(trip.stats).some((val) => Number(val) > 0) ? (
             <div className="flex gap-8 md:gap-12 pt-6 border-t border-white/10 max-w-xl">
@@ -65,7 +65,7 @@ export default async function TripDetailPage({ params }: TripDetailPageProps) {
                 .map(([key, val]) => (
                   <div key={key} className="flex flex-col">
                     <span className="text-xl font-light text-white tracking-tight">{val}</span>
-                    <span className="text-eyebrow text-foreground-muted mt-0.5">
+                    <span className="text-eyebrow text-white/55 mt-0.5">
                       {key}
                     </span>
                   </div>
