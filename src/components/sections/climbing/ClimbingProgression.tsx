@@ -308,7 +308,7 @@ export function ClimbingProgression({
             })}
           </svg>
 
-          <ol className="absolute inset-0 z-[3] list-none">
+          <ol className="pointer-events-none absolute inset-0 z-[3] list-none">
             {laidOut.map((entry) => {
               const sizeClass = entry.isLast
                 ? "h-[3.5rem] w-[3.5rem]"
@@ -355,7 +355,7 @@ export function ClimbingProgression({
                         onMouseLeave={() => setActiveIndex(null)}
                         onFocus={() => setActiveIndex(entry.index)}
                         onBlur={() => setActiveIndex(null)}
-                        className={`relative block ${sizeClass} origin-center transition-transform duration-200 ease-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/50 ${
+                        className={`pointer-events-auto relative block ${sizeClass} origin-center transition-transform duration-200 ease-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/50 ${
                           active ? "z-10 scale-125" : ""
                         }`}
                       >
@@ -375,7 +375,7 @@ export function ClimbingProgression({
             })}
           </ol>
 
-          <ol className="pointer-events-none absolute inset-0 z-[2] list-none">
+          <ol className="pointer-events-none absolute inset-0 z-[4] list-none">
             {laidOut.map((entry) => (
               <li
                 key={`label-${entry.item.date}-${entry.item.label}`}
