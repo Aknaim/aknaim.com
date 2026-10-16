@@ -137,7 +137,7 @@ function PinGridOverlay({
             />
             {major ? (
               <span
-                className="absolute top-1 -translate-x-1/2 font-mono text-[9px] text-[#e6ca65] [text-shadow:0_1px_2px_rgba(0,0,0,0.9)]"
+                className="absolute top-1 -translate-x-1/2 font-mono text-xs text-[#e6ca65] [text-shadow:0_1px_2px_rgba(0,0,0,0.9)]"
                 style={{ left: `${pct}%` }}
               >
                 {pct}
@@ -159,7 +159,7 @@ function PinGridOverlay({
             />
             {major ? (
               <span
-                className="absolute left-1 -translate-y-1/2 font-mono text-[9px] text-[#e6ca65] [text-shadow:0_1px_2px_rgba(0,0,0,0.9)]"
+                className="absolute left-1 -translate-y-1/2 font-mono text-xs text-[#e6ca65] [text-shadow:0_1px_2px_rgba(0,0,0,0.9)]"
                 style={{ top: `${pct}%` }}
               >
                 {pct}
@@ -296,7 +296,7 @@ export function TravelPageClient({
                 sample={sample}
               />
             </div>
-            <div className="absolute top-6 right-6 z-40 max-w-xs rounded border border-[#e6ca65]/30 bg-[#0b0a09]/90 px-3 py-2 font-mono text-[10px] text-[#e6ca65] shadow-lg">
+            <div className="absolute top-6 right-6 z-40 max-w-xs rounded border border-[#e6ca65]/30 bg-[#0b0a09]/90 px-3 py-2 font-mono text-xs text-[#e6ca65] shadow-lg">
               <p className="uppercase tracking-widest text-[#baa482]">
                 {pinPickMode ? "Pick pin for admin" : "Pin grid"}
               </p>
@@ -372,7 +372,7 @@ export function TravelPageClient({
                   <span className="absolute bottom-0 left-1/2 -translate-x-1/2 h-5 w-5 rounded-full bg-[#e6ca65]/5 border border-[#e6ca65]/10 scale-50 opacity-0 -z-10 transition-all duration-500 ease-out group-hover:scale-100 group-hover:opacity-100 mix-blend-screen" />
                 </div>
 
-                <span className="absolute top-8 font-serif italic text-[11px] text-[#baa482]/80 whitespace-nowrap tracking-wider pointer-events-none select-none transition-all duration-300 group-hover:text-[#e6ca65] group-hover:translate-y-[0.5px] [text-shadow:0_1px_2px_rgba(0,0,0,0.8)]">
+                <span className="absolute top-8 font-serif italic text-xs text-[#baa482]/80 whitespace-nowrap tracking-wider pointer-events-none select-none transition-all duration-300 group-hover:text-[#e6ca65] group-hover:translate-y-[0.5px] [text-shadow:0_1px_2px_rgba(0,0,0,0.8)]">
                   {dest.title.split(",")[0]}
                 </span>
               </>
@@ -403,7 +403,7 @@ export function TravelPageClient({
         <div className="absolute top-6 left-6 z-40">
           <Link
             href="/"
-            className="text-[11px] uppercase tracking-widest text-foreground-muted hover:text-accent transition-colors duration-200 font-medium"
+            className="text-eyebrow text-foreground-muted hover:text-accent transition-colors duration-200 font-medium"
           >
             ← Workbench
           </Link>
@@ -411,14 +411,14 @@ export function TravelPageClient({
 
         {/* Sit above the mid-lat pin belt so Canada/USA aren’t covered */}
         <div className="relative z-20 max-w-[18rem] sm:max-w-xs mt-10 md:mt-12 space-y-4 pointer-events-none">
-          <span className="font-mono text-[10px] uppercase tracking-[0.25em] text-accent/80 block">
+          <span className="text-eyebrow tracking-[0.25em] text-accent/80 block">
             Travel
           </span>
           <h1 className="font-display text-3xl sm:text-4xl font-medium tracking-tight leading-[1.15] text-white">
             Places I’ve been.<br />
             Stories I’m <span className="font-serif italic text-accent font-normal">carrying.</span>
           </h1>
-          <p className="text-foreground-muted text-sm leading-relaxed max-w-[16rem]">
+          <p className="text-foreground-muted text-base leading-relaxed max-w-[16rem]">
             A map of chapters—each place leaving its mark, each journey shaping how I see the world.
           </p>
 
@@ -449,7 +449,7 @@ export function TravelPageClient({
           ].map((stat) => (
             <div key={stat.label} className="flex flex-col gap-1">
               <span className="text-2xl font-light text-white tracking-tight">{stat.value}</span>
-              <span className="font-mono text-[9px] uppercase tracking-widest text-foreground-muted">
+              <span className="text-eyebrow text-foreground-muted">
                 {stat.label}
               </span>
             </div>
@@ -459,10 +459,10 @@ export function TravelPageClient({
 
       <section id="destinations-grid" className="max-w-7xl mx-auto px-6 py-16 md:py-24">
         <div className="flex justify-between items-end border-b border-[#141414] pb-4 mb-8">
-          <h2 className="font-mono text-[10px] uppercase tracking-widest text-foreground-muted">
+          <h2 className="text-eyebrow text-foreground-muted">
             Destinations
           </h2>
-          <span className="font-mono text-[10px] text-foreground-muted">Most recent</span>
+          <span className="font-mono text-xs text-foreground-muted">Most recent</span>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -487,7 +487,7 @@ export function TravelPageClient({
                 <div className="absolute inset-0 z-10 p-5 flex flex-col justify-between pointer-events-none">
                   <div className="flex items-start justify-end gap-3">
                     {!dest.hasDetail ? (
-                      <span className="font-mono text-[9px] uppercase tracking-widest text-white/95 bg-black/55 px-2 py-1 [text-shadow:0_1px_2px_rgba(0,0,0,0.6)]">
+                      <span className="text-eyebrow text-white/95 bg-black/55 px-2 py-1 [text-shadow:0_1px_2px_rgba(0,0,0,0.6)]">
                         Coming soon
                       </span>
                     ) : null}
@@ -498,8 +498,8 @@ export function TravelPageClient({
                       {dest.title}
                     </h3>
 
-                    <div className="flex items-center justify-between pt-2 border-t border-white/10 font-mono text-[9px] text-foreground-muted uppercase tracking-wider">
-                      <span className="text-[10px] lowercase text-foreground-subtle group-hover:text-white transition-colors">
+                    <div className="flex items-center justify-between pt-2 border-t border-white/10 font-mono text-xs text-foreground-muted uppercase tracking-wider">
+                      <span className="text-xs lowercase text-foreground-subtle group-hover:text-white transition-colors">
                         {dest.date}
                       </span>
                     </div>
@@ -533,7 +533,7 @@ export function TravelPageClient({
         <p className="font-serif italic text-lg text-foreground-muted max-w-md leading-relaxed">
           “We travel not to escape life, but for life not to escape us.”
         </p>
-        <span className="font-mono text-[9px] uppercase tracking-widest text-accent/60">
+        <span className="text-eyebrow text-accent/60">
           — Unknown
         </span>
       </footer>

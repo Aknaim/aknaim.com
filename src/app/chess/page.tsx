@@ -68,7 +68,7 @@ function RatingCell({
           href={peak.gameUrl}
           target="_blank"
           rel="noopener noreferrer"
-          className="font-mono text-[11px] uppercase tracking-widest text-foreground-muted hover:text-accent transition-colors w-fit"
+          className="text-eyebrow text-foreground-muted hover:text-accent transition-colors w-fit"
         >
           Best game ↗
         </a>
@@ -95,17 +95,17 @@ export default function ChessPage() {
           <div className="space-y-6 order-2 lg:order-1">
             <Link
               href="/"
-              className="inline-flex items-center gap-2 font-mono text-xs uppercase tracking-widest text-foreground-muted hover:text-white transition-colors group"
+              className="inline-flex items-center gap-2 text-eyebrow text-foreground-muted hover:text-white transition-colors group"
             >
               <span className="transform group-hover:-translate-x-0.5 transition-transform">←</span>
               Workbench
             </Link>
 
             <div className="space-y-3">
-              <span className="font-mono text-xs uppercase tracking-[0.25em] text-accent/80 block">
+              <span className="text-eyebrow tracking-[0.25em] text-accent/80 block">
                 Chess
               </span>
-              <h1 className="font-display text-4xl sm:text-5xl font-medium tracking-tight leading-[1.15] text-white">
+              <h1 className="font-display text-5xl sm:text-6xl font-medium tracking-tight leading-[1.15] text-white">
                 Moves I&apos;m still{" "}
                 <span className="font-serif italic text-accent font-normal">thinking about.</span>
               </h1>
@@ -116,7 +116,7 @@ export default function ChessPage() {
 
             <nav
               aria-label="On this page"
-              className="flex flex-wrap gap-x-5 gap-y-2 pt-2 font-mono text-xs uppercase tracking-widest"
+              className="flex flex-wrap gap-x-5 gap-y-2 pt-2 text-eyebrow"
             >
               <a href="#ratings" className="text-foreground-muted hover:text-white transition-colors">
                 Peak ratings
@@ -148,14 +148,14 @@ export default function ChessPage() {
         id="ratings"
         className="max-w-7xl mx-auto px-6 py-14 md:py-16 border-b border-[#141414] scroll-mt-8"
       >
-        <h2 className="font-mono text-xs uppercase tracking-widest text-foreground-muted mb-6">
+        <h2 className="text-eyebrow text-foreground-muted mb-6">
           Peak ratings
         </h2>
 
         <div className="overflow-x-auto border border-[#141414]">
           <table className="w-full min-w-[36rem] text-left text-base">
             <thead>
-              <tr className="border-b border-[#141414] font-mono text-[11px] uppercase tracking-widest text-foreground-muted">
+              <tr className="border-b border-[#141414] text-eyebrow text-foreground-muted">
                 <th className="px-5 py-3.5 font-normal">Account</th>
                 {TIME_CONTROLS.map(({ key, label }) => (
                   <th key={key} className="px-5 py-3.5 font-normal">
@@ -173,7 +173,7 @@ export default function ChessPage() {
                     <td className="px-5 py-5">
                       <div className="flex flex-col gap-1">
                         <span className="text-white text-base">{displayName(account)}</span>
-                        <span className="font-mono text-[11px] uppercase tracking-widest text-foreground-subtle">
+                        <span className="text-eyebrow text-foreground-subtle">
                           {account.platform === "chesscom" ? "Chess.com" : "Lichess"}
                         </span>
                       </div>
@@ -191,7 +191,7 @@ export default function ChessPage() {
                         href={account.profileUrl}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="font-mono text-[11px] uppercase tracking-widest text-foreground-muted hover:text-accent transition-colors"
+                        className="text-eyebrow text-foreground-muted hover:text-accent transition-colors"
                       >
                         Open ↗
                       </a>
@@ -206,10 +206,10 @@ export default function ChessPage() {
 
       <section id="titled-wins" className="max-w-7xl mx-auto px-6 py-14 md:py-20 scroll-mt-8">
         <div className="flex flex-wrap items-end justify-between gap-3 mb-6">
-          <h2 className="font-mono text-xs uppercase tracking-widest text-foreground-muted">
+          <h2 className="text-eyebrow text-foreground-muted">
             Titled wins
           </h2>
-          <p className="font-mono text-[11px] text-foreground-subtle">
+          <p className="font-mono text-xs text-foreground-subtle">
             Chess.com & Lichess · {TITLED_WINS.length} unique opponents
           </p>
         </div>

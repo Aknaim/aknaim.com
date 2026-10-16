@@ -45,12 +45,12 @@ export function MediaUploadForm({ disabled }: { disabled?: boolean }) {
 
   return (
     <form action={onSubmit} className="border border-[#141414] bg-[#0c0c0c] p-4 space-y-4">
-      <h2 className="font-mono text-[10px] uppercase tracking-widest text-foreground-muted">
+      <h2 className="text-eyebrow text-foreground-muted">
         Upload to R2
       </h2>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <label className="block space-y-2">
-          <span className="font-mono text-[10px] uppercase tracking-widest text-foreground-muted">
+          <span className="text-eyebrow text-foreground-muted">
             File
           </span>
           <input
@@ -63,7 +63,7 @@ export function MediaUploadForm({ disabled }: { disabled?: boolean }) {
           />
         </label>
         <label className="block space-y-2">
-          <span className="font-mono text-[10px] uppercase tracking-widest text-foreground-muted">
+          <span className="text-eyebrow text-foreground-muted">
             Folder prefix
           </span>
           <input
@@ -74,7 +74,7 @@ export function MediaUploadForm({ disabled }: { disabled?: boolean }) {
           />
         </label>
         <label className="block space-y-2 md:col-span-2">
-          <span className="font-mono text-[10px] uppercase tracking-widest text-foreground-muted">
+          <span className="text-eyebrow text-foreground-muted">
             Alt text
           </span>
           <input
@@ -87,12 +87,12 @@ export function MediaUploadForm({ disabled }: { disabled?: boolean }) {
       <button
         type="submit"
         disabled={disabled || pending}
-        className="border border-[#262626] bg-[#141414] px-5 py-2.5 text-xs uppercase tracking-widest text-white hover:border-accent transition-colors disabled:opacity-40"
+        className="border border-[#262626] bg-[#141414] px-5 py-2.5 text-eyebrow text-white hover:border-accent transition-colors disabled:opacity-40"
       >
         {pending ? status || "Uploading…" : "Upload"}
       </button>
-      {error ? <p className="font-mono text-[10px] text-red-400">{error}</p> : null}
-      {message ? <p className="font-mono text-[10px] text-accent">{message}</p> : null}
+      {error ? <p className="font-mono text-xs text-red-400">{error}</p> : null}
+      {message ? <p className="font-mono text-xs text-accent">{message}</p> : null}
     </form>
   );
 }

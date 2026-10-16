@@ -86,7 +86,7 @@ export function GalleryFiltersSheet({
         }`}
       >
         <div className="flex items-center justify-between gap-3 border-b border-[#141414] px-5 py-4">
-          <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-foreground-muted">
+          <p className="text-eyebrow tracking-[0.2em] text-foreground-muted">
             Filters
           </p>
           <button
@@ -120,7 +120,7 @@ export function GalleryFiltersSheet({
           <button
             type="button"
             onClick={onClose}
-            className="w-full rounded-md border border-accent/35 bg-accent/10 px-4 py-2.5 font-mono text-[10px] uppercase tracking-widest text-accent transition-colors hover:bg-accent/20"
+            className="w-full rounded-md border border-accent/35 bg-accent/10 px-4 py-2.5 text-eyebrow text-accent transition-colors hover:bg-accent/20"
           >
             Done
           </button>

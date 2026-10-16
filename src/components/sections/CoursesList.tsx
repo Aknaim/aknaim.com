@@ -66,7 +66,7 @@ function TimelineNode({
   return (
     <li className="relative flex gap-4 pb-5 last:pb-0">
       <div className="flex flex-col items-center shrink-0 w-6">
-        <span className="relative z-10 flex h-6 w-6 items-center justify-center rounded-full border border-accent/40 bg-[#0c0c0c] font-mono text-[9px] text-accent">
+        <span className="relative z-10 flex h-6 w-6 items-center justify-center rounded-full border border-accent/40 bg-[#0c0c0c] font-mono text-xs text-accent">
           {index + 1}
         </span>
         {!isLast ? (
@@ -155,7 +155,7 @@ export function CoursesList({
   return (
     <section id={id} className="space-y-6 scroll-mt-8">
       <div className="border-b border-[#141414] pb-3">
-        <h2 className="font-mono text-[10px] uppercase tracking-widest text-foreground-muted">
+        <h2 className="text-eyebrow text-foreground-muted">
           {heading}
         </h2>
       </div>
@@ -178,7 +178,7 @@ export function CoursesList({
           /** Multi-week courses: one timeline step per week; dishes nest underneath. */
           const timelineBySession = populatedSessions.length > 1;
 
-          const dateClassName = `font-mono text-[11px] uppercase tracking-widest ${
+          const dateClassName = `text-eyebrow ${
             spineDate
               ? isLatest
                 ? "text-accent/90"
@@ -231,12 +231,12 @@ export function CoursesList({
                           {course.title}
                         </h3>
                         {course.code ? (
-                          <span className="font-mono text-[10px] uppercase tracking-widest text-accent/80">
+                          <span className="text-eyebrow text-accent/80">
                             {course.code}
                           </span>
                         ) : null}
                       </div>
-                      <p className="font-mono text-[9px] uppercase tracking-widest text-foreground-muted">
+                      <p className="text-eyebrow text-foreground-muted">
                         {course.school}
                       </p>
                       {course.blurb ? (
@@ -246,12 +246,12 @@ export function CoursesList({
                       ) : null}
                       <div className="flex flex-wrap items-center gap-x-4 gap-y-1 pt-1">
                         {course.hours != null ? (
-                          <span className="font-mono text-[9px] uppercase tracking-widest text-foreground-subtle">
+                          <span className="text-eyebrow text-foreground-subtle">
                             {course.hours} hours
                           </span>
                         ) : null}
                         {outcomes.length > 0 ? (
-                          <span className="font-mono text-[9px] uppercase tracking-widest text-accent/70">
+                          <span className="text-eyebrow text-accent/70">
                             {outcomes.length} photo
                             {outcomes.length === 1 ? "" : "s"}
                           </span>
@@ -261,7 +261,7 @@ export function CoursesList({
                             href={course.href}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="font-mono text-[9px] uppercase tracking-widest text-foreground-muted hover:text-accent transition-colors"
+                            className="text-eyebrow text-foreground-muted hover:text-accent transition-colors"
                           >
                             Course page ↗
                           </a>
@@ -274,7 +274,7 @@ export function CoursesList({
                         type="button"
                         onClick={() => toggleCourse(course.id)}
                         aria-expanded={isOpenCourse}
-                        className="shrink-0 font-mono text-[9px] uppercase tracking-widest text-foreground-muted hover:text-white transition-colors self-start"
+                        className="shrink-0 text-eyebrow text-foreground-muted hover:text-white transition-colors self-start"
                       >
                         {isOpenCourse ? "Collapse" : "Expand"}
                       </button>
@@ -364,7 +364,7 @@ export function CoursesList({
 
                       {unassigned.length > 0 ? (
                         <div className="space-y-2 pt-5 mt-2 border-t border-[#141414]">
-                          <p className="font-mono text-[9px] uppercase tracking-widest text-accent/70">
+                          <p className="text-eyebrow text-accent/70">
                             Course photos
                           </p>
                           <OutcomeThumbs

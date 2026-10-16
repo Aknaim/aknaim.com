@@ -49,12 +49,12 @@ export default async function AdminHomePage({
     <main className="space-y-10">
       <div className="flex items-end justify-between gap-4">
         <div>
-          <h1 className="font-display text-3xl font-light text-white">Dashboard</h1>
+          <h1 className="font-display text-4xl font-light text-white">Dashboard</h1>
           <p className="text-sm text-foreground-muted mt-2">
             Manage site sections first. Gallery and media are shared library tools.
           </p>
           {refreshed ? (
-            <p className="font-mono text-[10px] uppercase tracking-widest text-accent mt-2">
+            <p className="text-eyebrow text-accent mt-2">
               All public pages cache cleared
             </p>
           ) : null}
@@ -62,7 +62,7 @@ export default async function AdminHomePage({
         <form action={refreshAllPublicPages}>
           <button
             type="submit"
-            className="border border-[#262626] px-4 py-2 text-xs uppercase tracking-widest text-foreground-muted hover:border-accent hover:text-white transition-colors"
+            className="border border-[#262626] px-4 py-2 text-eyebrow text-foreground-muted hover:border-accent hover:text-white transition-colors"
           >
             Refresh all public pages
           </button>
@@ -70,7 +70,7 @@ export default async function AdminHomePage({
       </div>
 
       <section className="space-y-3">
-        <h2 className="font-mono text-[10px] uppercase tracking-widest text-foreground-muted">
+        <h2 className="text-eyebrow text-foreground-muted">
           Site sections
         </h2>
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
@@ -84,7 +84,7 @@ export default async function AdminHomePage({
                 <h3 className="font-display text-xl font-light text-white group-hover:text-accent transition-colors">
                   {section.label}
                 </h3>
-                <span className="font-mono text-[10px] uppercase tracking-widest text-foreground-subtle">
+                <span className="text-eyebrow text-foreground-subtle">
                   Open →
                 </span>
               </div>
@@ -95,7 +95,7 @@ export default async function AdminHomePage({
       </section>
 
       <section className="space-y-3">
-        <h2 className="font-mono text-[10px] uppercase tracking-widest text-foreground-muted">
+        <h2 className="text-eyebrow text-foreground-muted">
           Library
         </h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">

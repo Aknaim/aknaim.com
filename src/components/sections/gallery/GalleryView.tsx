@@ -321,7 +321,7 @@ export function GalleryView({
       <div className="max-w-7xl mx-auto px-6 pt-8 md:pt-12">
         <Link
           href={backHref}
-          className="inline-flex items-center gap-2 font-mono text-[10px] uppercase tracking-widest text-foreground-muted hover:text-white transition-colors group mb-8"
+          className="inline-flex items-center gap-2 text-eyebrow text-foreground-muted hover:text-white transition-colors group mb-8"
         >
           <span className="transform group-hover:-translate-x-0.5 transition-transform">←</span>
           {backLabel.replace(/^←\s*/, "")}
@@ -348,18 +348,18 @@ export function GalleryView({
           <div className="flex-1 min-w-0">
             <header className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 border-b border-[#141414] pb-6 mb-8">
               <div className="space-y-2">
-                <span className="font-mono text-[10px] uppercase tracking-[0.25em] text-accent/80 block">
+                <span className="text-eyebrow tracking-[0.25em] text-accent/80 block">
                   {config.interest}
                 </span>
                 <h1 className="font-display text-3xl md:text-4xl font-light tracking-tight text-white">
                   {config.title}
                 </h1>
-                <p className="text-foreground-muted text-sm max-w-md leading-relaxed">
+                <p className="text-foreground-muted text-base max-w-md leading-relaxed">
                   {activeTripLabel
                     ? `Photos from ${activeTripLabel}. ${config.subtitle}`
                     : config.subtitle}
                 </p>
-                <span className="font-mono text-[10px] uppercase tracking-widest text-foreground-subtle">
+                <span className="text-eyebrow text-foreground-subtle">
                   {summaryLine}
                 </span>
               </div>
@@ -367,7 +367,7 @@ export function GalleryView({
                 <button
                   type="button"
                   onClick={() => setFiltersOpen(true)}
-                  className="lg:hidden inline-flex items-center gap-2 rounded-md border border-[#1a1a1a] bg-[#0c0c0c] px-3 py-2 font-mono text-[10px] uppercase tracking-widest text-foreground-muted transition-colors hover:border-[#2a2a2a] hover:text-white"
+                  className="lg:hidden inline-flex items-center gap-2 rounded-md border border-[#1a1a1a] bg-[#0c0c0c] px-3 py-2 text-eyebrow text-foreground-muted transition-colors hover:border-[#2a2a2a] hover:text-white"
                 >
                   Filters
                   {activeFilterCount > 0 ? (
@@ -390,19 +390,19 @@ export function GalleryView({
             {paged ? (
               <div ref={sentinelRef} className="h-8 flex items-center justify-center mt-8">
                 {loadError ? (
-                  <p className="font-mono text-[10px] uppercase tracking-widest text-red-400">
+                  <p className="text-eyebrow text-red-400">
                     {loadError}
                   </p>
                 ) : loadingMore ? (
-                  <p className="font-mono text-[10px] uppercase tracking-widest text-foreground-subtle">
+                  <p className="text-eyebrow text-foreground-subtle">
                     Loading more…
                   </p>
                 ) : hasMore ? (
-                  <p className="font-mono text-[10px] uppercase tracking-widest text-foreground-subtle">
+                  <p className="text-eyebrow text-foreground-subtle">
                     Scroll for more
                   </p>
                 ) : displayItems.length > 0 ? (
-                  <p className="font-mono text-[10px] uppercase tracking-widest text-foreground-subtle">
+                  <p className="text-eyebrow text-foreground-subtle">
                     End of gallery
                   </p>
                 ) : null}
@@ -415,7 +415,7 @@ export function GalleryView({
                 onClick={() =>
                   window.scrollTo({ top: 0, behavior: "smooth" })
                 }
-                className="font-mono text-[10px] uppercase tracking-widest text-foreground-muted hover:text-white transition-colors"
+                className="text-eyebrow text-foreground-muted hover:text-white transition-colors"
               >
                 ↑ Back to top
               </button>

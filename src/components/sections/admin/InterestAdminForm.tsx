@@ -30,7 +30,7 @@ export function InterestAdminForm({
       <input type="hidden" name="id" value={setting.id} />
 
       {saved ? (
-        <p className="font-mono text-[10px] uppercase tracking-widest text-accent">
+        <p className="text-eyebrow text-accent">
           Saved
         </p>
       ) : null}
@@ -72,7 +72,7 @@ export function InterestAdminForm({
       <button
         type="submit"
         disabled={pending}
-        className="border border-accent/50 bg-accent/10 px-5 py-2.5 text-xs uppercase tracking-widest text-white hover:bg-accent/20 transition-colors disabled:opacity-50"
+        className="border border-accent/50 bg-accent/10 px-5 py-2.5 text-eyebrow text-white hover:bg-accent/20 transition-colors disabled:opacity-50"
       >
         {pending ? "Saving…" : "Save"}
       </button>

@@ -14,14 +14,14 @@ export default async function AdminGalleryPage() {
     <main className="space-y-8">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div>
-          <h1 className="font-display text-3xl font-light text-white">Gallery</h1>
+          <h1 className="font-display text-4xl font-light text-white">Gallery</h1>
           <p className="text-sm text-foreground-muted mt-2">
             Edit or delete existing gallery items.
           </p>
         </div>
         <Link
           href="/admin/gallery/new"
-          className="border border-[#262626] px-4 py-2 text-xs uppercase tracking-widest text-white hover:border-accent transition-colors w-fit"
+          className="border border-[#262626] px-4 py-2 text-eyebrow text-white hover:border-accent transition-colors w-fit"
         >
           New item
         </Link>
@@ -44,7 +44,7 @@ export default async function AdminGalleryPage() {
                 >
                   {item.title || item.id}
                 </Link>
-                <div className="font-mono text-[10px] text-foreground-muted mt-1">
+                <div className="font-mono text-xs text-foreground-muted mt-1">
                   {item.interest} · {item.dateTaken}
                   {item.durationLabel ? ` · ${item.durationLabel}` : ""} ·{" "}
                   {item.published ? "published" : "draft"}
@@ -53,7 +53,7 @@ export default async function AdminGalleryPage() {
               <div className="flex items-center gap-3 shrink-0">
                 <Link
                   href={`/gallery/${item.interest}`}
-                  className="font-mono text-[10px] uppercase tracking-widest text-foreground-muted hover:text-white"
+                  className="text-eyebrow text-foreground-muted hover:text-white"
                 >
                   View
                 </Link>
@@ -62,7 +62,7 @@ export default async function AdminGalleryPage() {
                   <input type="hidden" name="returnTo" value="/admin/gallery" />
                   <button
                     type="submit"
-                    className="font-mono text-[10px] uppercase tracking-widest text-red-400 hover:text-red-300"
+                    className="text-eyebrow text-red-400 hover:text-red-300"
                   >
                     Delete
                   </button>

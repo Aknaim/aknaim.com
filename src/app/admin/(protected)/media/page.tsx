@@ -17,7 +17,7 @@ export default async function AdminMediaPage() {
     <main className="space-y-8">
       <div className="flex items-end justify-between gap-4">
         <div>
-          <h1 className="font-display text-3xl font-light text-white">Media</h1>
+          <h1 className="font-display text-4xl font-light text-white">Media</h1>
           <p className="text-sm text-foreground-muted mt-2">
             Shared upload library. Local dev writes to{" "}
             <code className="text-foreground-subtle">public/media</code>; production uses R2.
@@ -25,7 +25,7 @@ export default async function AdminMediaPage() {
         </div>
         <Link
           href="/admin/gallery"
-          className="border border-[#262626] px-4 py-2 text-xs uppercase tracking-widest text-foreground-muted hover:text-white hover:border-accent transition-colors"
+          className="border border-[#262626] px-4 py-2 text-eyebrow text-foreground-muted hover:text-white hover:border-accent transition-colors"
         >
           Gallery →
         </Link>
@@ -51,14 +51,14 @@ export default async function AdminMediaPage() {
             <li key={asset.id} className="flex items-start justify-between gap-4 px-4 py-3">
               <div className="min-w-0">
                 <div className="text-sm text-white truncate">{asset.alt || asset.url}</div>
-                <div className="font-mono text-[10px] text-foreground-muted mt-1 break-all">
+                <div className="font-mono text-xs text-foreground-muted mt-1 break-all">
                   {asset.mediaType} · {asset.id}
                 </div>
                 <a
                   href={asset.url}
                   target="_blank"
                   rel="noreferrer"
-                  className="font-mono text-[10px] text-accent/80 hover:text-accent break-all"
+                  className="font-mono text-xs text-accent/80 hover:text-accent break-all"
                 >
                   {asset.url}
                 </a>

@@ -28,11 +28,11 @@ export default async function AdminTravelEditPage({
       <div>
         <Link
           href="/admin/travel"
-          className="font-mono text-[10px] uppercase tracking-widest text-foreground-muted hover:text-white"
+          className="text-eyebrow text-foreground-muted hover:text-white"
         >
           ← Travel
         </Link>
-        <h1 className="font-display text-3xl font-light text-white mt-4">
+        <h1 className="font-display text-4xl font-light text-white mt-4">
           Edit {destination.title}
         </h1>
         <p className="text-sm text-foreground-muted mt-2">

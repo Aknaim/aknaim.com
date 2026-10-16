@@ -107,7 +107,7 @@ export function MediaUploadField({
 
   return (
     <div className="space-y-2">
-      <span className="font-mono text-[10px] uppercase tracking-widest text-foreground-muted block">
+      <span className="text-eyebrow text-foreground-muted block">
         {label}
         {required ? <span className="text-accent/70"> *</span> : null}
       </span>
@@ -117,7 +117,7 @@ export function MediaUploadField({
 
       {disabled ? (
         <div className="border border-dashed border-[#262626] bg-[#0c0c0c] px-3 py-4 text-center">
-          <p className="font-mono text-[10px] text-foreground-subtle">
+          <p className="font-mono text-xs text-foreground-subtle">
             {disabledReason || "Unavailable"}
           </p>
         </div>
@@ -128,11 +128,11 @@ export function MediaUploadField({
             accept={accept}
             disabled={pending}
             onChange={(e) => void onFileChange(e.target.files)}
-            className="block w-full text-xs text-foreground-muted file:mr-3 file:border file:border-[#262626] file:bg-[#141414] file:px-3 file:py-1.5 file:text-[10px] file:uppercase file:tracking-widest file:text-white hover:file:border-accent disabled:opacity-40"
+            className="block w-full text-xs text-foreground-muted file:mr-3 file:border file:border-[#262626] file:bg-[#141414] file:px-3 file:py-1.5 file:text-xs file:uppercase file:tracking-widest file:text-white hover:file:border-accent disabled:opacity-40"
           />
 
           <label className="block space-y-1">
-            <span className="font-mono text-[9px] uppercase tracking-widest text-foreground-subtle">
+            <span className="text-eyebrow text-foreground-subtle">
               Or paste URL / path
             </span>
             <input
@@ -150,13 +150,13 @@ export function MediaUploadField({
       )}
 
       {pending ? (
-        <p className="font-mono text-[10px] text-amber-400/90">
+        <p className="font-mono text-xs text-amber-400/90">
           {status ?? "Uploading… wait before saving"}
         </p>
       ) : null}
-      {error ? <p className="font-mono text-[10px] text-red-400">{error}</p> : null}
+      {error ? <p className="font-mono text-xs text-red-400">{error}</p> : null}
       {url && !pending && !disabled ? (
-        <p className="font-mono text-[10px] text-accent/80 truncate" title={url}>
+        <p className="font-mono text-xs text-accent/80 truncate" title={url}>
           Ready · {url}
         </p>
       ) : null}

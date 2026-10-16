@@ -22,12 +22,12 @@ export default async function AdminClimbingPage({
     <main className="space-y-10">
       <div className="flex items-end justify-between gap-4">
         <div>
-          <h1 className="font-display text-3xl font-light text-white">Climbing</h1>
+          <h1 className="font-display text-4xl font-light text-white">Climbing</h1>
           <p className="text-sm text-foreground-muted mt-2">
             Create sends with still / grade / video uploads and duration labels.
           </p>
           {refreshed ? (
-            <p className="font-mono text-[10px] uppercase tracking-widest text-accent mt-2">
+            <p className="text-eyebrow text-accent mt-2">
               Public climbing page cache cleared
             </p>
           ) : null}
@@ -36,14 +36,14 @@ export default async function AdminClimbingPage({
           <form action={refreshClimbingPublicPage}>
             <button
               type="submit"
-              className="border border-[#262626] px-4 py-2 text-xs uppercase tracking-widest text-foreground-muted hover:border-accent hover:text-white transition-colors"
+              className="border border-[#262626] px-4 py-2 text-eyebrow text-foreground-muted hover:border-accent hover:text-white transition-colors"
             >
               Refresh public page
             </button>
           </form>
           <Link
             href="/admin/climbing/new"
-            className="border border-[#262626] px-4 py-2 text-xs uppercase tracking-widest text-white hover:border-accent transition-colors"
+            className="border border-[#262626] px-4 py-2 text-eyebrow text-white hover:border-accent transition-colors"
           >
             New climb
           </Link>
@@ -51,7 +51,7 @@ export default async function AdminClimbingPage({
       </div>
 
       <section className="space-y-3">
-        <h2 className="font-mono text-[10px] uppercase tracking-widest text-foreground-muted">
+        <h2 className="text-eyebrow text-foreground-muted">
           Climbs ({sends.length})
         </h2>
         <ul className="divide-y divide-[#141414] border border-[#141414]">
@@ -70,7 +70,7 @@ export default async function AdminClimbingPage({
                       <span className="text-foreground-muted"> · {send.color}</span>
                     ) : null}
                   </Link>
-                  <div className="font-mono text-[10px] text-foreground-muted mt-1">
+                  <div className="font-mono text-xs text-foreground-muted mt-1">
                     {formatAdminDate(send.sessionDate, send.sendDateLabel)}
                     {" · "}
                     {send.grade} · {send.locationName} · {send.result}
@@ -83,7 +83,7 @@ export default async function AdminClimbingPage({
                   <input type="hidden" name="slug" value={send.slug} />
                   <button
                     type="submit"
-                    className="font-mono text-[10px] uppercase tracking-widest text-red-400 hover:text-red-300"
+                    className="text-eyebrow text-red-400 hover:text-red-300"
                   >
                     Delete
                   </button>

@@ -34,7 +34,7 @@ export function InterestTabsContainer({ tabs }: { tabs: TabData[] }) {
             key={tab.id}
             type="button"
             onClick={() => setActiveTabId(tab.id)}
-            className={`text-xs uppercase tracking-wider font-medium pb-2 transition-all relative ${
+            className={`text-eyebrow font-medium pb-2 transition-all relative ${
               activeTabId === tab.id 
                 ? "text-accent" 
                 : "text-foreground-muted hover:text-foreground-subtle"
@@ -73,7 +73,7 @@ export function InterestTabsContainer({ tabs }: { tabs: TabData[] }) {
                   <h3 className="text-body-sm font-medium text-foreground transition-colors group-hover:text-white">
                     {item.title}
                   </h3>
-                  <p className="mt-0.5 text-[11px] text-meta text-foreground-muted">
+                  <p className="mt-0.5 text-xs text-meta text-foreground-muted">
                     {item.meta}
                   </p>
                 </div>

@@ -54,7 +54,7 @@ export default async function TripDetailPage({ params }: TripDetailPageProps) {
         <div className="relative z-10 max-w-7xl w-full mx-auto mt-12">
           <Link
             href="/travel"
-            className="inline-flex items-center gap-2 font-mono text-[10px] uppercase tracking-widest text-white/90 hover:text-white transition-colors group drop-shadow-[0_1px_2px_rgba(0,0,0,0.9)]"
+            className="inline-flex items-center gap-2 text-eyebrow text-white/90 hover:text-white transition-colors group drop-shadow-[0_1px_2px_rgba(0,0,0,0.9)]"
           >
             <span className="transform group-hover:-translate-x-0.5 transition-transform">←</span> Back to Map
           </Link>
@@ -65,7 +65,7 @@ export default async function TripDetailPage({ params }: TripDetailPageProps) {
             {trip.country}
           </h1>
           <p className="font-serif italic text-sm text-accent tracking-wide">{trip.date}</p>
-          <p className="text-foreground-muted text-sm max-w-md leading-relaxed">{trip.summary}</p>
+          <p className="text-foreground-muted text-base max-w-md leading-relaxed">{trip.summary}</p>
 
           {Object.values(trip.stats).some((val) => Number(val) > 0) ? (
             <div className="flex gap-8 md:gap-12 pt-6 border-t border-white/10 max-w-xl">
@@ -74,7 +74,7 @@ export default async function TripDetailPage({ params }: TripDetailPageProps) {
                 .map(([key, val]) => (
                   <div key={key} className="flex flex-col">
                     <span className="text-xl font-light text-white tracking-tight">{val}</span>
-                    <span className="font-mono text-[9px] uppercase tracking-widest text-foreground-muted mt-0.5">
+                    <span className="text-eyebrow text-foreground-muted mt-0.5">
                       {key}
                     </span>
                   </div>
@@ -108,7 +108,7 @@ export default async function TripDetailPage({ params }: TripDetailPageProps) {
               ) : null}
 
               <div className={hasDedicatedMap ? "lg:col-span-5 space-y-4" : "lg:col-span-12 space-y-4"}>
-                <span className="font-mono text-[9px] uppercase tracking-widest text-accent">
+                <span className="text-eyebrow text-accent">
                   The Route
                 </span>
                 {trip.route.stops.length > 0 ? (
@@ -130,12 +130,12 @@ export default async function TripDetailPage({ params }: TripDetailPageProps) {
       {trip.moments.length > 0 ? (
         <section className="max-w-7xl mx-auto px-6 mt-16 md:mt-24 pb-24">
           <div className="flex justify-between items-end border-b border-[#141414] pb-3 mb-6">
-            <h2 className="font-mono text-[10px] uppercase tracking-widest text-foreground-muted">
+            <h2 className="text-eyebrow text-foreground-muted">
               Moments Along the Way
             </h2>
             <Link
               href={getTripGalleryHref(trip.id)}
-              className="font-mono text-[10px] text-foreground-subtle hover:text-accent transition-colors"
+              className="font-mono text-xs text-foreground-subtle hover:text-accent transition-colors"
             >
               View all photos →
             </Link>
@@ -144,7 +144,7 @@ export default async function TripDetailPage({ params }: TripDetailPageProps) {
           <div className="mt-10 flex justify-center">
             <Link
               href={getTripGalleryHref(trip.id)}
-              className="inline-flex items-center gap-2 border border-[#262626] px-5 py-2.5 font-mono text-[10px] uppercase tracking-widest text-foreground-muted hover:border-accent hover:text-white transition-colors"
+              className="inline-flex items-center gap-2 border border-[#262626] px-5 py-2.5 text-eyebrow text-foreground-muted hover:border-accent hover:text-white transition-colors"
             >
               Open full gallery
               <span aria-hidden>→</span>
@@ -156,7 +156,7 @@ export default async function TripDetailPage({ params }: TripDetailPageProps) {
           <div className="flex justify-center">
             <Link
               href={getTripGalleryHref(trip.id)}
-              className="inline-flex items-center gap-2 border border-[#262626] px-5 py-2.5 font-mono text-[10px] uppercase tracking-widest text-foreground-muted hover:border-accent hover:text-white transition-colors"
+              className="inline-flex items-center gap-2 border border-[#262626] px-5 py-2.5 text-eyebrow text-foreground-muted hover:border-accent hover:text-white transition-colors"
             >
               Open full gallery
               <span aria-hidden>→</span>

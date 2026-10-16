@@ -15,11 +15,11 @@ export default async function AdminClimbingNewPage() {
       <div>
         <Link
           href="/admin/climbing"
-          className="font-mono text-[10px] uppercase tracking-widest text-foreground-muted hover:text-white"
+          className="text-eyebrow text-foreground-muted hover:text-white"
         >
           ← Climbing
         </Link>
-        <h1 className="font-display text-3xl font-light text-white mt-4">New climb</h1>
+        <h1 className="font-display text-4xl font-light text-white mt-4">New climb</h1>
       </div>
       <ClimbSendAdminForm locations={locations} />
     </main>

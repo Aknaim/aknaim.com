@@ -35,10 +35,10 @@ export default async function ProtectedAdminLayout({
       <header className="border-b border-[#141414] -mx-6 px-6 mb-8">
         <div className="flex items-center justify-between gap-4 py-4">
           <div className="flex items-center gap-6 min-w-0">
-            <Link href="/admin" className="font-mono text-[10px] uppercase tracking-widest text-accent shrink-0">
+            <Link href="/admin" className="text-eyebrow text-accent shrink-0">
               Admin
             </Link>
-            <nav className="flex items-center gap-4 font-mono text-[10px] uppercase tracking-widest text-foreground-muted flex-wrap">
+            <nav className="flex items-center gap-4 text-eyebrow text-foreground-muted flex-wrap">
               {siteSections.map((link) => (
                 <Link key={link.href} href={link.href} className="hover:text-white transition-colors">
                   {link.label}
@@ -60,7 +60,7 @@ export default async function ProtectedAdminLayout({
           <form action={logoutAdmin}>
             <button
               type="submit"
-              className="font-mono text-[10px] uppercase tracking-widest text-foreground-muted hover:text-white transition-colors"
+              className="text-eyebrow text-foreground-muted hover:text-white transition-colors"
             >
               Log out
             </button>

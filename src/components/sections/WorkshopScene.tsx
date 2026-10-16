@@ -112,7 +112,7 @@ export function WorkshopScene({
                           strokeWidth={1.5}
                           aria-hidden
                         />
-                        <span className="truncate text-[10px] uppercase tracking-wider text-[#e8e0d4]">
+                        <span className="truncate text-xs uppercase tracking-wider text-[#e8e0d4]">
                           {item.label}
                         </span>
                       </span>
@@ -218,7 +218,7 @@ function DeskBag({
             aria-hidden
           />
           <span
-            className={`text-[10px] font-medium uppercase tracking-[0.14em] ${
+            className={`text-xs font-medium uppercase tracking-[0.14em] ${
               isActive ? "text-accent" : "text-[#d4c4a8]"
             }`}
           >

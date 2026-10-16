@@ -31,7 +31,7 @@ export default async function CookingPage() {
           <div className="space-y-6 order-2 lg:order-1">
             <Link
               href="/"
-              className="inline-flex items-center gap-2 font-mono text-[10px] uppercase tracking-widest text-foreground-muted hover:text-white transition-colors group"
+              className="inline-flex items-center gap-2 text-eyebrow text-foreground-muted hover:text-white transition-colors group"
             >
               <span className="transform group-hover:-translate-x-0.5 transition-transform">
                 ←
@@ -40,14 +40,14 @@ export default async function CookingPage() {
             </Link>
 
             <div className="space-y-3">
-              <span className="font-mono text-[10px] uppercase tracking-[0.25em] text-accent/80 block">
+              <span className="text-eyebrow tracking-[0.25em] text-accent/80 block">
                 Cooking
               </span>
-              <h1 className="font-display text-4xl sm:text-5xl font-medium tracking-tight leading-[1.15] text-white">
+              <h1 className="font-display text-5xl sm:text-6xl font-medium tracking-tight leading-[1.15] text-white">
                 Flavours I&apos;m still{" "}
                 <span className="font-serif italic text-accent font-normal">craving.</span>
               </h1>
-              <p className="text-foreground-muted text-sm leading-relaxed max-w-sm">
+              <p className="text-foreground-muted text-base leading-relaxed max-w-sm">
                 Continuing-ed kitchens, sharp knives, and the dish that earns a remake.
               </p>
             </div>
@@ -63,7 +63,7 @@ export default async function CookingPage() {
                   <span className="text-2xl font-light text-white tracking-tight">
                     {stat.value}
                   </span>
-                  <span className="font-mono text-[9px] uppercase tracking-widest text-foreground-muted">
+                  <span className="text-eyebrow text-foreground-muted">
                     {stat.label}
                   </span>
                 </div>
@@ -72,7 +72,7 @@ export default async function CookingPage() {
 
             <nav
               aria-label="On this page"
-              className="flex flex-wrap gap-x-5 gap-y-2 pt-2 font-mono text-[10px] uppercase tracking-widest"
+              className="flex flex-wrap gap-x-5 gap-y-2 pt-2 text-eyebrow"
             >
               <a href="#courses" className="text-foreground-muted hover:text-white transition-colors">
                 Courses
@@ -92,7 +92,7 @@ export default async function CookingPage() {
               href={cookingBestWork.href}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 border border-[#262626] px-4 py-2.5 font-mono text-[10px] uppercase tracking-widest text-foreground-muted hover:border-accent hover:text-white transition-colors"
+              className="inline-flex items-center gap-2 border border-[#262626] px-4 py-2.5 text-eyebrow text-foreground-muted hover:border-accent hover:text-white transition-colors"
             >
               {cookingBestWork.label}
               <span aria-hidden>↗</span>

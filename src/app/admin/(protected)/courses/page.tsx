@@ -20,7 +20,7 @@ export default async function AdminCoursesPage({
     <main className="space-y-8">
       <div className="flex items-end justify-between gap-4">
         <div>
-          <h1 className="font-display text-3xl font-light text-white">
+          <h1 className="font-display text-4xl font-light text-white">
             Courses{" "}
             <span className="font-mono text-base text-foreground-muted align-middle">
               ({courses.length})
@@ -31,7 +31,7 @@ export default async function AdminCoursesPage({
             Titles and syllabi stay in code.
           </p>
           {refreshed ? (
-            <p className="font-mono text-[10px] uppercase tracking-widest text-accent mt-2">
+            <p className="text-eyebrow text-accent mt-2">
               Public course pages cache cleared
             </p>
           ) : null}
@@ -39,7 +39,7 @@ export default async function AdminCoursesPage({
         <form action={refreshCoursePublicPages}>
           <button
             type="submit"
-            className="border border-[#262626] px-4 py-2 text-xs uppercase tracking-widest text-foreground-muted hover:border-accent hover:text-white transition-colors"
+            className="border border-[#262626] px-4 py-2 text-eyebrow text-foreground-muted hover:border-accent hover:text-white transition-colors"
           >
             Refresh public pages
           </button>
@@ -59,7 +59,7 @@ export default async function AdminCoursesPage({
               >
                 {course.title}
               </Link>
-              <div className="font-mono text-[10px] text-foreground-muted mt-1">
+              <div className="font-mono text-xs text-foreground-muted mt-1">
                 {course.interest}
                 {course.code ? ` · ${course.code}` : ""}
                 {" · "}
@@ -70,7 +70,7 @@ export default async function AdminCoursesPage({
             </div>
             <Link
               href={`/admin/courses/${course.id}`}
-              className="font-mono text-[10px] uppercase tracking-widest text-foreground-muted hover:text-white"
+              className="text-eyebrow text-foreground-muted hover:text-white"
             >
               Edit →
             </Link>

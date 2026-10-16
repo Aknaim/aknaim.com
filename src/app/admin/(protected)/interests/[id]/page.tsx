@@ -25,11 +25,11 @@ export default async function AdminInterestEditPage({
       <div>
         <Link
           href="/admin/interests"
-          className="font-mono text-[10px] uppercase tracking-widest text-foreground-muted hover:text-white"
+          className="text-eyebrow text-foreground-muted hover:text-white"
         >
           ← Interests
         </Link>
-        <h1 className="font-display text-3xl font-light text-white mt-4">
+        <h1 className="font-display text-4xl font-light text-white mt-4">
           Edit {setting.label}
         </h1>
         <p className="text-sm text-foreground-muted mt-2">

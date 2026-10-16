@@ -23,7 +23,7 @@ export default async function AdminLoginPage({
         </div>
         <input type="hidden" name="next" value={next} />
         <label className="block space-y-2">
-          <span className="font-mono text-[10px] uppercase tracking-widest text-foreground-muted">
+          <span className="text-eyebrow text-foreground-muted">
             Password
           </span>
           <input
@@ -38,7 +38,7 @@ export default async function AdminLoginPage({
         ) : null}
         <button
           type="submit"
-          className="w-full border border-[#262626] bg-[#141414] px-4 py-2 text-xs uppercase tracking-widest text-white hover:border-accent transition-colors"
+          className="w-full border border-[#262626] bg-[#141414] px-4 py-2 text-eyebrow text-white hover:border-accent transition-colors"
         >
           Sign in
         </button>

@@ -140,7 +140,7 @@ function MilestoneCopy({
         </span>
       </span>
       <span
-        className={`shrink-0 font-mono text-[8px] uppercase tracking-wider drop-shadow-[0_1px_2px_rgba(0,0,0,0.9)] transition-colors duration-200 ${
+        className={`shrink-0 text-eyebrow drop-shadow-[0_1px_2px_rgba(0,0,0,0.9)] transition-colors duration-200 ${
           active ? "text-accent" : "text-accent/75"
         }`}
       >
@@ -188,7 +188,7 @@ function TimelineList({ timeline }: { timeline: ProgressionMilestone[] }) {
               ) : null}
               <span>{item.label}</span>
             </p>
-            <p className="mt-1 font-mono text-[10px] uppercase tracking-widest text-foreground-muted">
+            <p className="mt-1 text-eyebrow text-foreground-muted">
               {item.dateLabel}
             </p>
           </>

@@ -24,7 +24,7 @@ export function AdminField({
 }) {
   return (
     <label className="block space-y-2">
-      <span className="font-mono text-[10px] uppercase tracking-widest text-foreground-muted">
+      <span className="text-eyebrow text-foreground-muted">
         {label}
       </span>
       <input
@@ -38,7 +38,7 @@ export function AdminField({
         className="w-full bg-[#111111] border border-[#262626] px-3 py-2 text-sm text-white outline-none focus:border-accent"
       />
       {hint ? (
-        <span className="font-mono text-[9px] text-foreground-subtle">{hint}</span>
+        <span className="font-mono text-xs text-foreground-subtle">{hint}</span>
       ) : null}
     </label>
   );
@@ -67,7 +67,7 @@ export function AdminSelect({
 }) {
   return (
     <label className="block space-y-2">
-      <span className="font-mono text-[10px] uppercase tracking-widest text-foreground-muted">
+      <span className="text-eyebrow text-foreground-muted">
         {label}
       </span>
       <select
@@ -106,7 +106,7 @@ export function AdminTextarea({
 }) {
   return (
     <label className="block space-y-2">
-      <span className="font-mono text-[10px] uppercase tracking-widest text-foreground-muted">
+      <span className="text-eyebrow text-foreground-muted">
         {label}
       </span>
       <textarea
@@ -141,7 +141,7 @@ export function AdminDateField({
 }) {
   return (
     <label className="block space-y-2">
-      <span className="font-mono text-[10px] uppercase tracking-widest text-foreground-muted">
+      <span className="text-eyebrow text-foreground-muted">
         {label}
       </span>
       <input
@@ -154,7 +154,7 @@ export function AdminDateField({
         className="w-full bg-[#111111] border border-[#262626] px-3 py-2 text-sm text-white outline-none focus:border-accent [color-scheme:dark]"
       />
       {hint ? (
-        <span className="font-mono text-[9px] text-foreground-subtle">{hint}</span>
+        <span className="font-mono text-xs text-foreground-subtle">{hint}</span>
       ) : null}
     </label>
   );

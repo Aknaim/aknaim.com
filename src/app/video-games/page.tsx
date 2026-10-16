@@ -15,17 +15,17 @@ export default function VideoGamesPage() {
           <div className="space-y-6 order-2 lg:order-1">
             <Link
               href="/"
-              className="inline-flex items-center gap-2 font-mono text-[10px] uppercase tracking-widest text-foreground-muted hover:text-white transition-colors group"
+              className="inline-flex items-center gap-2 text-eyebrow text-foreground-muted hover:text-white transition-colors group"
             >
               <span className="transform group-hover:-translate-x-0.5 transition-transform">←</span>
               Workbench
             </Link>
 
             <div className="space-y-3">
-              <span className="font-mono text-[10px] uppercase tracking-[0.25em] text-accent/80 block">
+              <span className="text-eyebrow tracking-[0.25em] text-accent/80 block">
                 Video Games
               </span>
-              <h1 className="font-display text-4xl sm:text-5xl font-medium tracking-tight leading-[1.15] text-white">
+              <h1 className="font-display text-5xl sm:text-6xl font-medium tracking-tight leading-[1.15] text-white">
                 Matches I&apos;m still{" "}
                 <span className="font-serif italic text-accent font-normal">queueing for.</span>
               </h1>
@@ -33,7 +33,7 @@ export default function VideoGamesPage() {
 
             <nav
               aria-label="On this page"
-              className="flex flex-wrap gap-x-5 gap-y-2 pt-2 font-mono text-[10px] uppercase tracking-widest"
+              className="flex flex-wrap gap-x-5 gap-y-2 pt-2 text-eyebrow"
             >
               <a href="#shelf" className="text-foreground-muted hover:text-white transition-colors">
                 Shelf
@@ -56,7 +56,7 @@ export default function VideoGamesPage() {
       </section>
 
       <section id="shelf" className="max-w-7xl mx-auto px-6 py-14 md:py-20 scroll-mt-8">
-        <h2 className="font-mono text-[10px] uppercase tracking-widest text-foreground-muted mb-6">
+        <h2 className="text-eyebrow text-foreground-muted mb-6">
           Shelf
         </h2>
         <GamesShelf />

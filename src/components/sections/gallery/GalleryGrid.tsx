@@ -28,7 +28,7 @@ export function GalleryGrid({ items, viewMode, showDuration = false, onItemClick
     return (
       <div className="flex flex-col items-center justify-center py-24 text-center">
         <p className="font-display text-lg text-foreground-muted">No photos match these filters.</p>
-        <p className="font-mono text-[10px] uppercase tracking-widest text-foreground-subtle mt-2">
+        <p className="text-eyebrow text-foreground-subtle mt-2">
           Try adjusting or resetting your filters
         </p>
       </div>
@@ -71,7 +71,7 @@ export function GalleryGrid({ items, viewMode, showDuration = false, onItemClick
             </div>
             <div className="flex flex-col justify-center min-w-0">
               <span className="text-sm text-white font-medium truncate">{item.title ?? item.alt}</span>
-              <span className="font-mono text-[9px] uppercase tracking-widest text-foreground-muted mt-1">
+              <span className="text-eyebrow text-foreground-muted mt-1">
                 {item.dateTaken}
                 {showDuration && item.duration ? ` · ${item.duration}` : ""}
                 {isVideo(item) ? " · Video" : ""}
@@ -109,7 +109,7 @@ export function GalleryGrid({ items, viewMode, showDuration = false, onItemClick
           />
           <figcaption className="absolute inset-0 flex flex-col justify-end p-3 bg-gradient-to-t from-[#070707]/90 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
             <span className="text-xs text-white font-medium">{item.title ?? item.alt}</span>
-            <span className="font-mono text-[8px] uppercase tracking-widest text-foreground-muted mt-0.5">
+            <span className="text-eyebrow text-foreground-muted mt-0.5">
               {item.dateTaken}
             </span>
           </figcaption>
@@ -121,7 +121,7 @@ export function GalleryGrid({ items, viewMode, showDuration = false, onItemClick
                 </span>
               </span>
               {showDuration && item.duration ? (
-                <span className="absolute bottom-2 right-2 font-mono text-[9px] text-white/80 bg-black/50 px-1.5 py-0.5 rounded">
+                <span className="absolute bottom-2 right-2 font-mono text-xs text-white/80 bg-black/50 px-1.5 py-0.5 rounded">
                   {item.duration}
                 </span>
               ) : null}

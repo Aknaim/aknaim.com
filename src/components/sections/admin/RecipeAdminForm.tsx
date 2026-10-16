@@ -154,13 +154,13 @@ export function RecipeAdminForm({ recipe }: RecipeAdminFormProps) {
       }}
     >
       {formError ? (
-        <p className="font-mono text-[10px] uppercase tracking-widest text-red-400">
+        <p className="text-eyebrow text-red-400">
           {formError}
         </p>
       ) : null}
 
       <section className="space-y-4">
-        <h2 className="font-mono text-[10px] uppercase tracking-widest text-foreground-muted">
+        <h2 className="text-eyebrow text-foreground-muted">
           Recipe
         </h2>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -251,7 +251,7 @@ export function RecipeAdminForm({ recipe }: RecipeAdminFormProps) {
       </section>
 
       <section className="space-y-4">
-        <h2 className="font-mono text-[10px] uppercase tracking-widest text-foreground-muted">
+        <h2 className="text-eyebrow text-foreground-muted">
           Photos
         </h2>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -283,17 +283,17 @@ export function RecipeAdminForm({ recipe }: RecipeAdminFormProps) {
       <section className="space-y-4">
         <div className="flex items-end justify-between gap-4">
           <div>
-            <h2 className="font-mono text-[10px] uppercase tracking-widest text-foreground-muted">
+            <h2 className="text-eyebrow text-foreground-muted">
               Nutrition
             </h2>
-            <p className="font-mono text-[9px] text-foreground-subtle mt-1">
+            <p className="font-mono text-xs text-foreground-subtle mt-1">
               Optional. Hidden on the public page when empty.
             </p>
           </div>
           <button
             type="button"
             onClick={() => setShowNutrition((value) => !value)}
-            className="font-mono text-[10px] uppercase tracking-widest text-foreground-muted hover:text-accent transition-colors"
+            className="text-eyebrow text-foreground-muted hover:text-accent transition-colors"
           >
             {showNutrition ? "Hide" : "Add nutrition"}
           </button>
@@ -301,7 +301,7 @@ export function RecipeAdminForm({ recipe }: RecipeAdminFormProps) {
         {showNutrition ? (
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
             <label className="block space-y-2">
-              <span className="font-mono text-[10px] uppercase tracking-widest text-foreground-muted">
+              <span className="text-eyebrow text-foreground-muted">
                 Calories
               </span>
               <input
@@ -315,7 +315,7 @@ export function RecipeAdminForm({ recipe }: RecipeAdminFormProps) {
               />
             </label>
             <label className="block space-y-2">
-              <span className="font-mono text-[10px] uppercase tracking-widest text-foreground-muted">
+              <span className="text-eyebrow text-foreground-muted">
                 Protein
               </span>
               <input
@@ -330,7 +330,7 @@ export function RecipeAdminForm({ recipe }: RecipeAdminFormProps) {
               />
             </label>
             <label className="block space-y-2">
-              <span className="font-mono text-[10px] uppercase tracking-widest text-foreground-muted">
+              <span className="text-eyebrow text-foreground-muted">
                 Carbs
               </span>
               <input
@@ -345,7 +345,7 @@ export function RecipeAdminForm({ recipe }: RecipeAdminFormProps) {
               />
             </label>
             <label className="block space-y-2">
-              <span className="font-mono text-[10px] uppercase tracking-widest text-foreground-muted">
+              <span className="text-eyebrow text-foreground-muted">
                 Fat
               </span>
               <input
@@ -373,10 +373,10 @@ export function RecipeAdminForm({ recipe }: RecipeAdminFormProps) {
       <section className="space-y-4">
         <div className="flex items-end justify-between gap-4">
           <div>
-            <h2 className="font-mono text-[10px] uppercase tracking-widest text-foreground-muted">
+            <h2 className="text-eyebrow text-foreground-muted">
               Ingredients
             </h2>
-            <p className="font-mono text-[9px] text-foreground-subtle mt-1">
+            <p className="font-mono text-xs text-foreground-subtle mt-1">
               Amount + unit. US/metric converts on the recipe page. Use count for “4 tomatoes”,
               and note for “finely chopped”.
             </p>
@@ -384,7 +384,7 @@ export function RecipeAdminForm({ recipe }: RecipeAdminFormProps) {
           <button
             type="button"
             onClick={() => setGroups((current) => [...current, emptyGroup()])}
-            className="font-mono text-[10px] uppercase tracking-widest text-foreground-muted hover:text-accent transition-colors"
+            className="text-eyebrow text-foreground-muted hover:text-accent transition-colors"
           >
             + Add group
           </button>
@@ -400,7 +400,7 @@ export function RecipeAdminForm({ recipe }: RecipeAdminFormProps) {
             >
               <div className="flex items-end justify-between gap-3">
                 <label className="block flex-1 space-y-2">
-                  <span className="font-mono text-[10px] uppercase tracking-widest text-foreground-muted">
+                  <span className="text-eyebrow text-foreground-muted">
                     Group label
                   </span>
                   <input
@@ -425,7 +425,7 @@ export function RecipeAdminForm({ recipe }: RecipeAdminFormProps) {
                   onClick={() =>
                     setGroups((current) => current.filter((_, i) => i !== groupIndex))
                   }
-                  className="mb-2 shrink-0 font-mono text-[10px] uppercase tracking-widest text-foreground-subtle hover:text-red-400 transition-colors disabled:opacity-30"
+                  className="mb-2 shrink-0 text-eyebrow text-foreground-subtle hover:text-red-400 transition-colors disabled:opacity-30"
                 >
                   Remove group
                 </button>
@@ -442,7 +442,7 @@ export function RecipeAdminForm({ recipe }: RecipeAdminFormProps) {
                   {["Amount", "Unit", "Ingredient", "Note / prep", ""].map((label) => (
                     <span
                       key={label || "actions"}
-                      className="font-mono text-[10px] uppercase tracking-widest text-foreground-muted"
+                      className="text-eyebrow text-foreground-muted"
                     >
                       {label}
                     </span>
@@ -569,7 +569,7 @@ export function RecipeAdminForm({ recipe }: RecipeAdminFormProps) {
                             )
                           )
                         }
-                        className="font-mono text-[10px] uppercase tracking-widest text-foreground-subtle hover:text-red-400 transition-colors disabled:opacity-30"
+                        className="text-eyebrow text-foreground-subtle hover:text-red-400 transition-colors disabled:opacity-30"
                       >
                         Remove
                       </button>
@@ -589,7 +589,7 @@ export function RecipeAdminForm({ recipe }: RecipeAdminFormProps) {
                     )
                   )
                 }
-                className="font-mono text-[10px] uppercase tracking-widest text-foreground-muted hover:text-accent transition-colors"
+                className="text-eyebrow text-foreground-muted hover:text-accent transition-colors"
               >
                 + Add ingredient
               </button>
@@ -601,17 +601,17 @@ export function RecipeAdminForm({ recipe }: RecipeAdminFormProps) {
       <section className="space-y-4">
         <div className="flex items-end justify-between gap-4">
           <div>
-            <h2 className="font-mono text-[10px] uppercase tracking-widest text-foreground-muted">
+            <h2 className="text-eyebrow text-foreground-muted">
               Steps
             </h2>
-            <p className="font-mono text-[9px] text-foreground-subtle mt-1">
+            <p className="font-mono text-xs text-foreground-subtle mt-1">
               Optional photo per step.
             </p>
           </div>
           <button
             type="button"
             onClick={() => setSteps((current) => [...current, emptyStep()])}
-            className="font-mono text-[10px] uppercase tracking-widest text-foreground-muted hover:text-accent transition-colors"
+            className="text-eyebrow text-foreground-muted hover:text-accent transition-colors"
           >
             + Add step
           </button>
@@ -626,7 +626,7 @@ export function RecipeAdminForm({ recipe }: RecipeAdminFormProps) {
               className="space-y-3 border border-[#141414] bg-[#0c0c0c] p-4"
             >
               <div className="flex items-center justify-between gap-3">
-                <h3 className="font-mono text-[10px] uppercase tracking-widest text-foreground-muted">
+                <h3 className="text-eyebrow text-foreground-muted">
                   Step {index + 1}
                 </h3>
                 <button
@@ -635,7 +635,7 @@ export function RecipeAdminForm({ recipe }: RecipeAdminFormProps) {
                   onClick={() =>
                     setSteps((current) => current.filter((_, i) => i !== index))
                   }
-                  className="font-mono text-[10px] uppercase tracking-widest text-foreground-subtle hover:text-red-400 transition-colors disabled:opacity-30"
+                  className="text-eyebrow text-foreground-subtle hover:text-red-400 transition-colors disabled:opacity-30"
                 >
                   Remove step
                 </button>
@@ -668,7 +668,7 @@ export function RecipeAdminForm({ recipe }: RecipeAdminFormProps) {
       <button
         type="submit"
         disabled={uploadsPending > 0}
-        className="border border-[#262626] bg-[#141414] px-5 py-2.5 text-xs uppercase tracking-widest text-white hover:border-accent transition-colors disabled:opacity-50"
+        className="border border-[#262626] bg-[#141414] px-5 py-2.5 text-eyebrow text-white hover:border-accent transition-colors disabled:opacity-50"
       >
         {uploadsPending > 0 ? "Uploading…" : "Save recipe"}
       </button>

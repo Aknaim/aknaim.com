@@ -149,17 +149,17 @@ export function ImageLightbox({
             <p className="font-display text-lg text-white tracking-wide">{current.title}</p>
           )}
           {current.subtitle && (
-            <p className="font-mono text-[10px] uppercase tracking-widest text-foreground-muted">
+            <p className="text-eyebrow text-foreground-muted">
               {current.subtitle}
             </p>
           )}
-          <p className="font-mono text-[10px] uppercase tracking-widest text-foreground-subtle">
+          <p className="text-eyebrow text-foreground-subtle">
             {(activeIndex ?? 0) + 1} / {images.length}
           </p>
           {current.href && (
             <Link
               href={current.href}
-              className="inline-flex items-center gap-1.5 font-mono text-[10px] uppercase tracking-widest text-accent hover:text-accent-hover transition-colors mt-2 group"
+              className="inline-flex items-center gap-1.5 text-eyebrow text-accent hover:text-accent-hover transition-colors mt-2 group"
             >
               View Recipe
               <span className="transform group-hover:translate-x-0.5 transition-transform">→</span>

@@ -31,11 +31,11 @@ export default async function AdminGalleryEditPage({
       <div>
         <Link
           href="/admin/gallery"
-          className="font-mono text-[10px] uppercase tracking-widest text-foreground-muted hover:text-white"
+          className="text-eyebrow text-foreground-muted hover:text-white"
         >
           ← Gallery
         </Link>
-        <h1 className="font-display text-3xl font-light text-white mt-4">
+        <h1 className="font-display text-4xl font-light text-white mt-4">
           Edit {item.title || item.id}
         </h1>
       </div>

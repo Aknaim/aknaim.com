@@ -32,24 +32,24 @@ export default async function ClimbingPage() {
           <div className="space-y-6 order-2 lg:order-1">
             <Link
               href="/"
-              className="inline-flex items-center gap-2 font-mono text-[10px] uppercase tracking-widest text-foreground-muted hover:text-white transition-colors group"
+              className="inline-flex items-center gap-2 text-eyebrow text-foreground-muted hover:text-white transition-colors group"
             >
               <span className="transform group-hover:-translate-x-0.5 transition-transform">←</span>
               Workbench
             </Link>
 
             <div className="space-y-3">
-              <span className="font-mono text-[10px] uppercase tracking-[0.25em] text-accent/80 block">
+              <span className="text-eyebrow tracking-[0.25em] text-accent/80 block">
                 Climbing
               </span>
-              <h1 className="font-display text-4xl sm:text-5xl font-medium tracking-tight leading-[1.15] text-white">
+              <h1 className="font-display text-5xl sm:text-6xl font-medium tracking-tight leading-[1.15] text-white">
                 Heights I&apos;m still{" "}
                 <span className="font-serif italic text-accent font-normal">chasing.</span>
               </h1>
               <p className="font-display text-xl text-accent tracking-wide border-b border-accent/30 pb-3 inline-block">
                 Max Grades {currentLevel ?? "—"}
               </p>
-              <p className="text-foreground-muted text-sm leading-relaxed max-w-sm">
+              <p className="text-foreground-muted text-base leading-relaxed max-w-sm">
                 Gravity, on purpose.
               </p>
             </div>
@@ -63,7 +63,7 @@ export default async function ClimbingPage() {
               ].map((stat) => (
                 <div key={stat.label} className="flex flex-col gap-1">
                   <span className="text-2xl font-light text-white tracking-tight">{stat.value}</span>
-                  <span className="font-mono text-[9px] uppercase tracking-widest text-foreground-muted">
+                  <span className="text-eyebrow text-foreground-muted">
                     {stat.label}
                   </span>
                 </div>
@@ -95,7 +95,7 @@ export default async function ClimbingPage() {
 
       <section className="max-w-7xl mx-auto px-6 py-16 md:py-20 space-y-16">
         <div className="space-y-6">
-          <h2 className="font-mono text-[10px] uppercase tracking-widest text-foreground-muted">
+          <h2 className="text-eyebrow text-foreground-muted">
             Progression
           </h2>
           <ClimbingProgression timeline={progressionTimeline} />

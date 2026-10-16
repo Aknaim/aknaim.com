@@ -55,7 +55,7 @@ export default async function RecipePage({ params }: RecipePageProps) {
       <div className="max-w-7xl mx-auto px-6 pt-8 md:pt-12">
         <Link
           href="/cooking"
-          className="inline-flex items-center gap-2 font-mono text-[10px] uppercase tracking-widest text-foreground-muted hover:text-white transition-colors group mb-8"
+          className="inline-flex items-center gap-2 text-eyebrow text-foreground-muted hover:text-white transition-colors group mb-8"
         >
           <span className="transform group-hover:-translate-x-0.5 transition-transform">←</span>
           Cooking
@@ -65,14 +65,14 @@ export default async function RecipePage({ params }: RecipePageProps) {
           <h1 className="font-display text-3xl md:text-5xl font-light tracking-tight text-white max-w-3xl">
             {recipe.title}
           </h1>
-          <p className="text-foreground-muted text-sm leading-relaxed max-w-2xl">
+          <p className="text-foreground-muted text-base leading-relaxed max-w-2xl">
             {recipe.description}
           </p>
           <div className="flex flex-wrap gap-6 pt-4 border-t border-[#141414]">
             {quickStats.map(({ icon: Icon, label }) => (
               <div key={label} className="flex items-center gap-2">
                 <Icon className="h-3.5 w-3.5 text-accent/80" strokeWidth={1.5} />
-                <span className="font-mono text-[10px] uppercase tracking-widest text-foreground-muted">
+                <span className="text-eyebrow text-foreground-muted">
                   {label}
                 </span>
               </div>
@@ -112,7 +112,7 @@ export default async function RecipePage({ params }: RecipePageProps) {
         <div className="mt-12 pt-8 border-t border-[#141414]">
           <Link
             href={getCookingGalleryHref()}
-            className="inline-flex items-center gap-2 font-mono text-[10px] uppercase tracking-widest text-foreground-subtle hover:text-accent transition-colors group"
+            className="inline-flex items-center gap-2 text-eyebrow text-foreground-subtle hover:text-accent transition-colors group"
           >
             Browse gallery
             <span className="transform group-hover:translate-x-0.5 transition-transform">→</span>

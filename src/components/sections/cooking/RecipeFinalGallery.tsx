@@ -24,7 +24,7 @@ export function RecipeFinalGallery({ images, recipeTitle }: RecipeFinalGalleryPr
   return (
     <section className="space-y-6">
       <div className="border-b border-[#141414] pb-3">
-        <h2 className="font-mono text-[10px] uppercase tracking-widest text-foreground-muted">
+        <h2 className="text-eyebrow text-foreground-muted">
           Final Result
         </h2>
       </div>

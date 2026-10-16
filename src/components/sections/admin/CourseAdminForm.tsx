@@ -28,7 +28,7 @@ export function CourseAdminForm({
       <input type="hidden" name="id" value={course.id} />
 
       {saved ? (
-        <p className="font-mono text-[10px] uppercase tracking-widest text-accent">
+        <p className="text-eyebrow text-accent">
           Saved
         </p>
       ) : null}
@@ -36,11 +36,11 @@ export function CourseAdminForm({
 
       <div className="space-y-1 text-sm text-foreground-muted">
         <p className="text-white">{course.title}</p>
-        <p className="font-mono text-[10px] uppercase tracking-widest">
+        <p className="text-eyebrow">
           {[course.code, course.school].filter(Boolean).join(" · ")}
         </p>
         {preview ? (
-          <p className="font-mono text-[10px] uppercase tracking-widest text-accent/80 pt-1">
+          <p className="text-eyebrow text-accent/80 pt-1">
             {preview}
           </p>
         ) : null}
@@ -63,7 +63,7 @@ export function CourseAdminForm({
       <button
         type="submit"
         disabled={pending}
-        className="border border-accent/50 bg-accent/10 px-5 py-2.5 text-xs uppercase tracking-widest text-white hover:bg-accent/20 transition-colors disabled:opacity-50"
+        className="border border-accent/50 bg-accent/10 px-5 py-2.5 text-eyebrow text-white hover:bg-accent/20 transition-colors disabled:opacity-50"
       >
         {pending ? "Saving…" : "Save"}
       </button>

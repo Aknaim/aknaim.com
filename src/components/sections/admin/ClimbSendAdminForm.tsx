@@ -266,7 +266,7 @@ export function ClimbSendAdminForm({
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <label className="block space-y-2">
-          <span className="font-mono text-[10px] uppercase tracking-widest text-foreground-muted">
+          <span className="text-eyebrow text-foreground-muted">
             Route name
           </span>
           <input
@@ -277,13 +277,13 @@ export function ClimbSendAdminForm({
             placeholder="Halloween"
             className="w-full bg-[#111111] border border-[#262626] px-3 py-2 text-sm text-white outline-none focus:border-accent"
           />
-          <span className="font-mono text-[9px] text-foreground-subtle">
+          <span className="font-mono text-xs text-foreground-subtle">
             Folder: {climbSlug || "…"}
             {folderWillRename ? ` (will rename from ${send?.slug} on save)` : ""}
           </span>
         </label>
         <label className="block space-y-2">
-          <span className="font-mono text-[10px] uppercase tracking-widest text-foreground-muted">
+          <span className="text-eyebrow text-foreground-muted">
             Color
           </span>
           <select
@@ -307,7 +307,7 @@ export function ClimbSendAdminForm({
           options={locations.map((l) => ({ id: l.id, label: l.name }))}
         />
         <label className="block space-y-2">
-          <span className="font-mono text-[10px] uppercase tracking-widest text-foreground-muted">
+          <span className="text-eyebrow text-foreground-muted">
             Type
           </span>
           <select
@@ -322,7 +322,7 @@ export function ClimbSendAdminForm({
           </select>
         </label>
         <label className="block space-y-2">
-          <span className="font-mono text-[10px] uppercase tracking-widest text-foreground-muted">
+          <span className="text-eyebrow text-foreground-muted">
             Grade
           </span>
           <select
@@ -361,7 +361,7 @@ export function ClimbSendAdminForm({
           hint="Auto-filled from the video file date when you upload send.mp4"
         />
         <label className="block space-y-2">
-          <span className="font-mono text-[10px] uppercase tracking-widest text-foreground-muted">
+          <span className="text-eyebrow text-foreground-muted">
             Duration
           </span>
           <input
@@ -371,35 +371,35 @@ export function ClimbSendAdminForm({
             placeholder="0:38"
             className="w-full bg-[#111111] border border-[#262626] px-3 py-2 text-sm text-white outline-none focus:border-accent"
           />
-          <span className="font-mono text-[9px] text-foreground-subtle">
+          <span className="font-mono text-xs text-foreground-subtle">
             Auto-filled from the video length when you upload send.mp4
           </span>
         </label>
       </div>
 
       {metaNote ? (
-        <p className="font-mono text-[10px] text-accent/80">{metaNote}</p>
+        <p className="font-mono text-xs text-accent/80">{metaNote}</p>
       ) : null}
       {formError || saveState?.error ? (
-        <p className="font-mono text-[10px] text-red-400">
+        <p className="font-mono text-xs text-red-400">
           {formError || saveState?.error}
         </p>
       ) : null}
       {posterBusy ? (
-        <p className="font-mono text-[10px] text-amber-400/90">
+        <p className="font-mono text-xs text-amber-400/90">
           Creating photo from video frame…
         </p>
       ) : null}
       {uploadsPending > 0 ? (
-        <p className="font-mono text-[10px] text-amber-400/90">
+        <p className="font-mono text-xs text-amber-400/90">
           Uploading {uploadsPending} file{uploadsPending === 1 ? "" : "s"}… save unlocks when done.
         </p>
       ) : null}
       {saving ? (
-        <p className="font-mono text-[10px] text-accent/80">Saving climb…</p>
+        <p className="font-mono text-xs text-accent/80">Saving climb…</p>
       ) : null}
 
-      <p className="font-mono text-[10px] text-foreground-subtle">
+      <p className="font-mono text-xs text-foreground-subtle">
         Files go to{" "}
         <span className="text-foreground-muted">media.aknaim.com/{mediaFolder}/</span>
         {" "}(or local /media in dev). Video alone is fine — a poster frame is grabbed
@@ -407,7 +407,7 @@ export function ClimbSendAdminForm({
       </p>
 
       {!climbSlug ? (
-        <p className="font-mono text-[10px] text-amber-400/90">
+        <p className="font-mono text-xs text-amber-400/90">
           Enter a route name (and color) before uploading — files need the climb folder id.
         </p>
       ) : null}
@@ -462,7 +462,7 @@ export function ClimbSendAdminForm({
       <button
         type="submit"
         disabled={busy}
-        className="border border-[#262626] bg-[#141414] px-5 py-2.5 text-xs uppercase tracking-widest text-white hover:border-accent transition-colors disabled:opacity-40"
+        className="border border-[#262626] bg-[#141414] px-5 py-2.5 text-eyebrow text-white hover:border-accent transition-colors disabled:opacity-40"
       >
         {saving
           ? "Saving…"

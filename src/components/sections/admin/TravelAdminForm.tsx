@@ -102,17 +102,17 @@ export function TravelPlaceAdminForm({
       }}
     >
       {saved ? (
-        <p className="font-mono text-[10px] uppercase tracking-widest text-accent">
+        <p className="text-eyebrow text-accent">
           Saved — you&apos;re on the edit page for this place.
         </p>
       ) : null}
 
       <section className="space-y-6">
         <div>
-          <h2 className="font-mono text-[10px] uppercase tracking-widest text-foreground-muted">
+          <h2 className="text-eyebrow text-foreground-muted">
             Place card
           </h2>
-          <p className="font-mono text-[9px] text-foreground-subtle mt-1">
+          <p className="font-mono text-xs text-foreground-subtle mt-1">
             Required for /travel. Media folder:{" "}
             <span className="text-foreground-muted">/{paths.root}/</span>
           </p>
@@ -159,11 +159,11 @@ export function TravelPlaceAdminForm({
             href="/travel?pinPick=1"
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center rounded-md border border-accent/35 bg-accent/10 px-3 py-2 font-mono text-[10px] uppercase tracking-widest text-accent transition-colors hover:bg-accent/20"
+            className="inline-flex items-center rounded-md border border-accent/35 bg-accent/10 px-3 py-2 text-eyebrow text-accent transition-colors hover:bg-accent/20"
           >
             Pick on map
           </a>
-          <p className="font-mono text-[9px] text-foreground-subtle">
+          <p className="font-mono text-xs text-foreground-subtle">
             Opens the map in a new tab — click a spot, then return here.
             {pinApplied ? (
               <span className="ml-2 text-accent">Pin updated from map.</span>
@@ -186,10 +186,10 @@ export function TravelPlaceAdminForm({
 
       <section className="space-y-6 border-t border-[#141414] pt-8">
         <div>
-          <h2 className="font-mono text-[10px] uppercase tracking-widest text-foreground-muted">
+          <h2 className="text-eyebrow text-foreground-muted">
             Detail page
           </h2>
-          <p className="font-mono text-[9px] text-foreground-subtle mt-1">
+          <p className="font-mono text-xs text-foreground-subtle mt-1">
             Fill a summary to publish /travel/{placeId === "inbox" ? "[id]" : placeId}. Leave
             summary empty for card-only (“Coming soon”). Hero and route map are optional —
             highlight is used when hero is blank; route map can wait.
@@ -205,7 +205,7 @@ export function TravelPlaceAdminForm({
             placeholder="e.g. 10"
           />
         </div>
-        <p className="font-mono text-[9px] text-foreground-subtle">
+        <p className="font-mono text-xs text-foreground-subtle">
           Stops = filled cities below. Photos come from gallery uploads.
         </p>
 
@@ -225,17 +225,17 @@ export function TravelPlaceAdminForm({
         <section className="space-y-3">
           <div className="flex items-end justify-between gap-4">
             <div>
-              <h3 className="font-mono text-[10px] uppercase tracking-widest text-foreground-muted">
+              <h3 className="text-eyebrow text-foreground-muted">
                 Route cities
               </h3>
-              <p className="font-mono text-[9px] text-foreground-subtle mt-1">
+              <p className="font-mono text-xs text-foreground-subtle mt-1">
                 Shown as City → City. {filledStops} stop{filledStops === 1 ? "" : "s"}.
               </p>
             </div>
             <button
               type="button"
               onClick={() => setRoutePlaces((places) => [...places, ""])}
-              className="font-mono text-[10px] uppercase tracking-widest text-foreground-muted hover:text-accent transition-colors"
+              className="text-eyebrow text-foreground-muted hover:text-accent transition-colors"
             >
               + Add city
             </button>
@@ -243,7 +243,7 @@ export function TravelPlaceAdminForm({
           <div className="space-y-2">
             {routePlaces.map((place, index) => (
               <div key={`route-place-${index}`} className="flex items-center gap-2">
-                <span className="font-mono text-[10px] text-foreground-subtle w-5 shrink-0">
+                <span className="font-mono text-xs text-foreground-subtle w-5 shrink-0">
                   {index + 1}
                 </span>
                 <input
@@ -265,7 +265,7 @@ export function TravelPlaceAdminForm({
                   onClick={() =>
                     setRoutePlaces((places) => places.filter((_, i) => i !== index))
                   }
-                  className="font-mono text-[10px] uppercase tracking-widest text-foreground-subtle hover:text-red-400 transition-colors disabled:opacity-30"
+                  className="text-eyebrow text-foreground-subtle hover:text-red-400 transition-colors disabled:opacity-30"
                   aria-label={`Remove city ${index + 1}`}
                 >
                   Remove
@@ -304,7 +304,7 @@ export function TravelPlaceAdminForm({
         </div>
 
         <section className="space-y-4">
-          <h3 className="font-mono text-[10px] uppercase tracking-widest text-foreground-muted">
+          <h3 className="text-eyebrow text-foreground-muted">
             Moments along the way
           </h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -340,10 +340,10 @@ export function TravelPlaceAdminForm({
       </section>
 
       {formError || saveState?.error ? (
-        <p className="font-mono text-[10px] text-red-400">{formError || saveState?.error}</p>
+        <p className="font-mono text-xs text-red-400">{formError || saveState?.error}</p>
       ) : null}
       {uploadsPending > 0 ? (
-        <p className="font-mono text-[10px] text-amber-400/90">
+        <p className="font-mono text-xs text-amber-400/90">
           Uploading {uploadsPending} file{uploadsPending === 1 ? "" : "s"}… save unlocks when done.
         </p>
       ) : null}
@@ -351,7 +351,7 @@ export function TravelPlaceAdminForm({
       <button
         type="submit"
         disabled={busy}
-        className="border border-[#262626] bg-[#141414] px-5 py-2.5 text-xs uppercase tracking-widest text-white hover:border-accent transition-colors disabled:opacity-40"
+        className="border border-[#262626] bg-[#141414] px-5 py-2.5 text-eyebrow text-white hover:border-accent transition-colors disabled:opacity-40"
       >
         {uploadsPending > 0 ? "Waiting for uploads…" : saving ? "Saving…" : "Save place"}
       </button>

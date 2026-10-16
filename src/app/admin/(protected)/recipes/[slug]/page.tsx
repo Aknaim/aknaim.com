@@ -20,7 +20,7 @@ export default async function EditRecipePage({ params }: PageProps) {
 
   return (
     <main className="space-y-6">
-      <h1 className="font-display text-3xl font-light text-white">Edit recipe</h1>
+      <h1 className="font-display text-4xl font-light text-white">Edit recipe</h1>
       <RecipeAdminForm recipe={recipe} />
     </main>
   );

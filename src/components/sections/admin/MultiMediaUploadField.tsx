@@ -156,10 +156,10 @@ export function MultiMediaUploadField({
 
   return (
     <div className="space-y-3">
-      <span className="font-mono text-[10px] uppercase tracking-widest text-foreground-muted block">
+      <span className="text-eyebrow text-foreground-muted block">
         {label}
       </span>
-      <p className="font-mono text-[9px] text-foreground-subtle">
+      <p className="font-mono text-xs text-foreground-subtle">
         Saves under <span className="text-foreground-muted">/{folder}/</span>
         {tripId
           ? ". Attaches to the trip gallery as each batch finishes (don’t wait for Save)."
@@ -177,25 +177,25 @@ export function MultiMediaUploadField({
           void onFileChange(e.target.files);
           e.target.value = "";
         }}
-        className="block w-full text-xs text-foreground-muted file:mr-3 file:border file:border-[#262626] file:bg-[#141414] file:px-3 file:py-1.5 file:text-[10px] file:uppercase file:tracking-widest file:text-white hover:file:border-accent disabled:opacity-40"
+        className="block w-full text-xs text-foreground-muted file:mr-3 file:border file:border-[#262626] file:bg-[#141414] file:px-3 file:py-1.5 file:text-xs file:uppercase file:tracking-widest file:text-white hover:file:border-accent disabled:opacity-40"
       />
 
       {pending > 0 ? (
-        <p className="font-mono text-[10px] text-amber-400/90">
+        <p className="font-mono text-xs text-amber-400/90">
           {status ?? `Working ${pending} file(s)…`}
         </p>
       ) : null}
       {attachedCount > 0 ? (
-        <p className="font-mono text-[10px] text-accent/80">
+        <p className="font-mono text-xs text-accent/80">
           {attachedCount} photo{attachedCount === 1 ? "" : "s"} in gallery
         </p>
       ) : null}
-      {error ? <p className="font-mono text-[10px] text-red-400 whitespace-pre-wrap">{error}</p> : null}
+      {error ? <p className="font-mono text-xs text-red-400 whitespace-pre-wrap">{error}</p> : null}
 
       {pendingItems.length > 0 ? (
         <div className="space-y-2">
           <div className="flex flex-wrap items-center gap-3">
-            <p className="font-mono text-[10px] text-amber-400/90">
+            <p className="font-mono text-xs text-amber-400/90">
               {pendingItems.length} not attached yet
             </p>
             {tripId ? (
@@ -203,7 +203,7 @@ export function MultiMediaUploadField({
                 type="button"
                 onClick={() => void retryPendingAttach()}
                 disabled={pending > 0}
-                className="font-mono text-[9px] uppercase tracking-widest text-accent hover:text-white disabled:opacity-40"
+                className="text-eyebrow text-accent hover:text-white disabled:opacity-40"
               >
                 Retry attach
               </button>
@@ -215,13 +215,13 @@ export function MultiMediaUploadField({
                 key={`${item.mediaId}-${index}`}
                 className="flex items-center justify-between gap-3 px-3 py-2"
               >
-                <span className="font-mono text-[10px] text-accent/80 truncate" title={item.url}>
+                <span className="font-mono text-xs text-accent/80 truncate" title={item.url}>
                   {item.name}
                 </span>
                 <button
                   type="button"
                   onClick={() => removeAt(index)}
-                  className="font-mono text-[9px] uppercase tracking-widest text-red-400 hover:text-red-300 shrink-0"
+                  className="text-eyebrow text-red-400 hover:text-red-300 shrink-0"
                 >
                   Remove
                 </button>
@@ -230,7 +230,7 @@ export function MultiMediaUploadField({
           </ul>
         </div>
       ) : (
-        <p className="font-mono text-[10px] text-foreground-subtle">
+        <p className="font-mono text-xs text-foreground-subtle">
           {attachedCount > 0 ? "All new uploads attached." : "No new uploads yet."}
         </p>
       )}

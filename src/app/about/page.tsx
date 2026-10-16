@@ -17,7 +17,7 @@ export default function AboutPage() {
       <section className="max-w-6xl mx-auto px-6 pt-10 md:pt-16 pb-16 md:pb-24">
         <Link
           href="/"
-          className="inline-flex items-center gap-2 font-mono text-[10px] uppercase tracking-widest text-foreground-muted hover:text-white transition-colors group mb-10 md:mb-14"
+          className="inline-flex items-center gap-2 text-eyebrow text-foreground-muted hover:text-white transition-colors group mb-10 md:mb-14"
         >
           <span className="transform group-hover:-translate-x-0.5 transition-transform">
             ←
@@ -37,23 +37,23 @@ export default function AboutPage() {
                 sizes="(max-width: 1024px) 100vw, 40vw"
               />
             </div>
-            <figcaption className="mt-3 font-mono text-[9px] uppercase tracking-widest text-foreground-muted">
+            <figcaption className="mt-3 text-eyebrow text-foreground-muted">
               Kelso · Ontario
             </figcaption>
           </figure>
 
           <article className="lg:col-span-7 space-y-8">
             <header className="space-y-3">
-              <span className="font-mono text-[10px] uppercase tracking-[0.25em] text-accent/80 block">
+              <span className="text-eyebrow tracking-[0.25em] text-accent/80 block">
                 About Me
               </span>
-              <h1 className="font-display text-4xl sm:text-5xl font-light tracking-tight text-white">
+              <h1 className="font-display text-5xl sm:text-6xl font-light tracking-tight text-white">
                 Hi, I&apos;m{" "}
                 <span className="italic text-accent">Akbar</span>.
               </h1>
             </header>
 
-            <div className="space-y-5 text-foreground-muted text-sm sm:text-[15px] leading-[1.85] max-w-xl">
+            <div className="space-y-5 text-foreground-muted text-base leading-[1.85] max-w-xl">
               <p>
                 I&apos;m a software engineer based in Canada with an interest in
                 backend development, cloud infrastructure, and platform
@@ -77,13 +77,13 @@ export default function AboutPage() {
       <footer className="border-t border-[#141414]">
         <div className="max-w-6xl mx-auto px-6 py-12 grid grid-cols-1 sm:grid-cols-3 gap-8 lg:grid-cols-12">
           <div className="lg:col-span-5 space-y-1">
-            <p className="font-mono text-[9px] uppercase tracking-widest text-foreground-muted">
+            <p className="text-eyebrow text-foreground-muted">
               Based in
             </p>
             <p className="text-sm text-white">{personal.location}</p>
           </div>
           <div className="lg:col-span-4 space-y-1">
-            <p className="font-mono text-[9px] uppercase tracking-widest text-foreground-muted">
+            <p className="text-eyebrow text-foreground-muted">
               Say hello
             </p>
             <a
@@ -102,7 +102,7 @@ export default function AboutPage() {
                   href={link.url}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="font-mono text-[10px] uppercase tracking-widest text-foreground-muted hover:text-accent transition-colors"
+                  className="text-eyebrow text-foreground-muted hover:text-accent transition-colors"
                 >
                   {link.label}
                 </a>

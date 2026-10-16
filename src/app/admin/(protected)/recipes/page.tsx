@@ -29,7 +29,7 @@ export default async function AdminRecipesPage({
     <main className="space-y-10">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div>
-          <h1 className="font-display text-3xl font-light text-white">Cooking</h1>
+          <h1 className="font-display text-4xl font-light text-white">Cooking</h1>
           <p className="text-sm text-foreground-muted mt-2">
             Recipes, plus gallery plates that don’t need a full write-up.
           </p>
@@ -37,13 +37,13 @@ export default async function AdminRecipesPage({
         <div className="flex flex-wrap gap-2">
           <Link
             href="/gallery/cooking"
-            className="border border-[#262626] px-4 py-2 text-xs uppercase tracking-widest text-foreground-muted hover:text-white hover:border-accent transition-colors"
+            className="border border-[#262626] px-4 py-2 text-eyebrow text-foreground-muted hover:text-white hover:border-accent transition-colors"
           >
             View gallery
           </Link>
           <Link
             href="/admin/recipes/new"
-            className="border border-[#262626] px-4 py-2 text-xs uppercase tracking-widest text-white hover:border-accent transition-colors"
+            className="border border-[#262626] px-4 py-2 text-eyebrow text-white hover:border-accent transition-colors"
           >
             New recipe
           </Link>
@@ -51,7 +51,7 @@ export default async function AdminRecipesPage({
       </div>
 
       {Number.isFinite(photosCount) && photosCount > 0 ? (
-        <p className="font-mono text-[11px] text-accent/90 border border-accent/30 bg-accent/10 px-4 py-3">
+        <p className="font-mono text-xs text-accent/90 border border-accent/30 bg-accent/10 px-4 py-3">
           Added {photosCount} cooking gallery photo{photosCount === 1 ? "" : "s"}.
         </p>
       ) : null}
@@ -59,7 +59,7 @@ export default async function AdminRecipesPage({
       <CookingGalleryDumpForm />
 
       <section className="space-y-4">
-        <h2 className="font-mono text-[10px] uppercase tracking-widest text-foreground-muted">
+        <h2 className="text-eyebrow text-foreground-muted">
           Gallery photos
         </h2>
         <ul className="divide-y divide-[#141414] border border-[#141414]">
@@ -91,7 +91,7 @@ export default async function AdminRecipesPage({
                     >
                       {photo.title || photo.id}
                     </Link>
-                    <div className="font-mono text-[10px] text-foreground-muted mt-1">
+                    <div className="font-mono text-xs text-foreground-muted mt-1">
                       {photo.dateTaken}
                       {photo.filters.category ? ` · ${photo.filters.category}` : ""}
                       {photo.filters.cuisine ? ` · ${photo.filters.cuisine}` : ""}
@@ -102,7 +102,7 @@ export default async function AdminRecipesPage({
                 <div className="flex items-center gap-3 shrink-0">
                   <Link
                     href={`/admin/recipes/gallery/${photo.id}`}
-                    className="font-mono text-[10px] uppercase tracking-widest text-foreground-muted hover:text-white"
+                    className="text-eyebrow text-foreground-muted hover:text-white"
                   >
                     Edit
                   </Link>
@@ -111,7 +111,7 @@ export default async function AdminRecipesPage({
                     <input type="hidden" name="returnTo" value="/admin/recipes" />
                     <button
                       type="submit"
-                      className="font-mono text-[10px] uppercase tracking-widest text-red-400 hover:text-red-300"
+                      className="text-eyebrow text-red-400 hover:text-red-300"
                     >
                       Delete
                     </button>
@@ -124,7 +124,7 @@ export default async function AdminRecipesPage({
       </section>
 
       <section className="space-y-4">
-        <h2 className="font-mono text-[10px] uppercase tracking-widest text-foreground-muted">
+        <h2 className="text-eyebrow text-foreground-muted">
           Recipes
         </h2>
         <ul className="divide-y divide-[#141414] border border-[#141414]">
@@ -145,14 +145,14 @@ export default async function AdminRecipesPage({
                   >
                     {recipe.title}
                   </Link>
-                  <div className="font-mono text-[10px] text-foreground-muted mt-1">
+                  <div className="font-mono text-xs text-foreground-muted mt-1">
                     {recipe.slug} · {recipe.category} · {recipe.cuisine}
                   </div>
                 </div>
                 <div className="flex items-center gap-3">
                   <Link
                     href={`/cooking/${recipe.slug}`}
-                    className="font-mono text-[10px] uppercase tracking-widest text-foreground-muted hover:text-white"
+                    className="text-eyebrow text-foreground-muted hover:text-white"
                   >
                     View
                   </Link>
@@ -160,7 +160,7 @@ export default async function AdminRecipesPage({
                     <input type="hidden" name="slug" value={recipe.slug} />
                     <button
                       type="submit"
-                      className="font-mono text-[10px] uppercase tracking-widest text-red-400 hover:text-red-300"
+                      className="text-eyebrow text-red-400 hover:text-red-300"
                     >
                       Delete
                     </button>

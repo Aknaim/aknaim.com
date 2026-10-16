@@ -12,7 +12,7 @@ export default async function AdminInterestsPage() {
   return (
     <main className="space-y-8">
       <div>
-        <h1 className="font-display text-3xl font-light text-white">Interests</h1>
+        <h1 className="font-display text-4xl font-light text-white">Interests</h1>
         <p className="text-sm text-foreground-muted mt-2">
           Toggle workbench vs cupboard and edit status-line copy. Bag art and tabs stay in
           code.
@@ -32,13 +32,13 @@ export default async function AdminInterestsPage() {
               >
                 {interest.label}
               </Link>
-              <div className="font-mono text-[10px] text-foreground-muted mt-1">
+              <div className="font-mono text-xs text-foreground-muted mt-1">
                 {interest.id} · {interest.status}
               </div>
             </div>
             <Link
               href={`/admin/interests/${interest.id}`}
-              className="font-mono text-[10px] uppercase tracking-widest text-foreground-muted hover:text-white"
+              className="text-eyebrow text-foreground-muted hover:text-white"
             >
               Edit →
             </Link>

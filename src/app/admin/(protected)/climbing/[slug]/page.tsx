@@ -45,11 +45,11 @@ export default async function AdminClimbingEditPage({
       <div>
         <Link
           href="/admin/climbing"
-          className="font-mono text-[10px] uppercase tracking-widest text-foreground-muted hover:text-white"
+          className="text-eyebrow text-foreground-muted hover:text-white"
         >
           ← Climbing
         </Link>
-        <h1 className="font-display text-3xl font-light text-white mt-4">
+        <h1 className="font-display text-4xl font-light text-white mt-4">
           Edit {send.routeName}
         </h1>
       </div>

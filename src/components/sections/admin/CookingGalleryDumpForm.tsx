@@ -156,7 +156,7 @@ export function CookingGalleryDumpForm() {
   return (
     <form onSubmit={onSubmit} className="space-y-5 border border-[#141414] bg-[#0c0c0c] p-5">
       <div>
-        <h2 className="font-mono text-[10px] uppercase tracking-widest text-foreground-muted">
+        <h2 className="text-eyebrow text-foreground-muted">
           Gallery dump
         </h2>
         <p className="text-sm text-foreground-muted mt-2 max-w-xl">
@@ -178,7 +178,7 @@ export function CookingGalleryDumpForm() {
             <button
               type="button"
               onClick={applyDefaultDateToAll}
-              className="font-mono text-[10px] uppercase tracking-widest text-accent/80 hover:text-accent"
+              className="text-eyebrow text-accent/80 hover:text-accent"
             >
               Apply default to all staged
             </button>
@@ -219,7 +219,7 @@ export function CookingGalleryDumpForm() {
       </div>
 
       <div className="space-y-2">
-        <span className="font-mono text-[10px] uppercase tracking-widest text-foreground-muted block">
+        <span className="text-eyebrow text-foreground-muted block">
           Photos
         </span>
         <input
@@ -231,9 +231,9 @@ export function CookingGalleryDumpForm() {
             void onFilesPicked(e.target.files);
             e.target.value = "";
           }}
-          className="block w-full text-xs text-foreground-muted file:mr-3 file:border file:border-[#262626] file:bg-[#141414] file:px-3 file:py-1.5 file:text-[10px] file:uppercase file:tracking-widest file:text-white hover:file:border-accent disabled:opacity-40"
+          className="block w-full text-xs text-foreground-muted file:mr-3 file:border file:border-[#262626] file:bg-[#141414] file:px-3 file:py-1.5 file:text-xs file:uppercase file:tracking-widest file:text-white hover:file:border-accent disabled:opacity-40"
         />
-        <p className="font-mono text-[9px] text-foreground-subtle">
+        <p className="font-mono text-xs text-foreground-subtle">
           Titles and dates are per photo — edit in the list before saving.
         </p>
       </div>
@@ -253,7 +253,7 @@ export function CookingGalleryDumpForm() {
               />
               <div className="flex-1 min-w-0 grid grid-cols-1 sm:grid-cols-2 gap-2">
                 <label className="block space-y-1">
-                  <span className="font-mono text-[9px] uppercase tracking-widest text-foreground-subtle">
+                  <span className="text-eyebrow text-foreground-subtle">
                     Title
                   </span>
                   <input
@@ -264,7 +264,7 @@ export function CookingGalleryDumpForm() {
                   />
                 </label>
                 <label className="block space-y-1">
-                  <span className="font-mono text-[9px] uppercase tracking-widest text-foreground-subtle">
+                  <span className="text-eyebrow text-foreground-subtle">
                     Date
                   </span>
                   <input
@@ -275,14 +275,14 @@ export function CookingGalleryDumpForm() {
                     className="w-full bg-[#111111] border border-[#262626] px-3 py-2 text-sm text-white outline-none focus:border-accent [color-scheme:dark]"
                   />
                 </label>
-                <p className="font-mono text-[9px] text-foreground-subtle truncate sm:col-span-2">
+                <p className="font-mono text-xs text-foreground-subtle truncate sm:col-span-2">
                   {row.file.name}
                 </p>
               </div>
               <button
                 type="button"
                 onClick={() => removeStaged(row.key)}
-                className="font-mono text-[10px] uppercase tracking-widest text-red-400 hover:text-red-300 shrink-0"
+                className="text-eyebrow text-red-400 hover:text-red-300 shrink-0"
               >
                 Remove
               </button>
@@ -292,14 +292,14 @@ export function CookingGalleryDumpForm() {
       ) : null}
 
       {status ? (
-        <p className="font-mono text-[10px] text-amber-400/90">{status}</p>
+        <p className="font-mono text-xs text-amber-400/90">{status}</p>
       ) : null}
-      {error ? <p className="font-mono text-[10px] text-red-400">{error}</p> : null}
+      {error ? <p className="font-mono text-xs text-red-400">{error}</p> : null}
 
       <button
         type="submit"
         disabled={pending || staged.length === 0}
-        className="border border-[#262626] bg-[#141414] px-5 py-2.5 text-xs uppercase tracking-widest text-white hover:border-accent transition-colors disabled:opacity-40"
+        className="border border-[#262626] bg-[#141414] px-5 py-2.5 text-eyebrow text-white hover:border-accent transition-colors disabled:opacity-40"
       >
         {pending
           ? "Saving…"

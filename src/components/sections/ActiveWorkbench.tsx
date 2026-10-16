@@ -258,7 +258,7 @@ function MobileWorkbenchBag({
             </p>
           ) : null}
           {lastActiveLabel ? (
-            <p className="mt-1 font-mono text-[9px] uppercase tracking-widest text-foreground-subtle/60">
+            <p className="mt-1 text-eyebrow text-foreground-subtle/60">
               {lastActiveLabel}
             </p>
           ) : null}
@@ -346,7 +346,7 @@ function WorkbenchItem({
             </p>
           ) : null}
           {lastActiveLabel ? (
-            <p className="mt-1 font-mono text-[9px] uppercase tracking-widest text-foreground-subtle">
+            <p className="mt-1 text-eyebrow text-foreground-subtle">
               {lastActiveLabel}
             </p>
           ) : null}
@@ -399,7 +399,7 @@ function PeekFrame({
             <p className="text-meta text-foreground-muted">{item.workbenchNote}</p>
           ) : null}
           {lastActiveLabel ? (
-            <p className="font-mono text-[9px] uppercase tracking-widest text-foreground-subtle">
+            <p className="text-eyebrow text-foreground-subtle">
               {lastActiveLabel}
             </p>
           ) : null}

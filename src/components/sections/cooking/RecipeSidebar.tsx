@@ -29,7 +29,7 @@ export function RecipeSidebar({ recipe }: RecipeSidebarProps) {
     <aside className="space-y-6">
       {infoRows.length > 0 || recipe.info.keywords.length > 0 ? (
         <div className="rounded-card border border-[#141414] bg-[#0c0c0c] p-5 space-y-4">
-          <h2 className="font-mono text-[9px] uppercase tracking-[0.2em] text-foreground-muted">
+          <h2 className="text-eyebrow tracking-[0.2em] text-foreground-muted">
             Recipe Info
           </h2>
           {infoRows.length > 0 ? (
@@ -44,14 +44,14 @@ export function RecipeSidebar({ recipe }: RecipeSidebarProps) {
           ) : null}
           {recipe.info.keywords.length > 0 ? (
             <div className={infoRows.length > 0 ? "pt-3 border-t border-[#141414]" : undefined}>
-              <p className="font-mono text-[9px] uppercase tracking-widest text-foreground-muted mb-2">
+              <p className="text-eyebrow text-foreground-muted mb-2">
                 Keywords
               </p>
               <div className="flex flex-wrap gap-1.5">
                 {recipe.info.keywords.map((keyword) => (
                   <span
                     key={keyword}
-                    className="font-mono text-[8px] uppercase tracking-wider px-2 py-1 rounded border border-[#262626] text-foreground-subtle"
+                    className="text-eyebrow px-2 py-1 rounded border border-[#262626] text-foreground-subtle"
                   >
                     {keyword}
                   </span>
@@ -64,14 +64,14 @@ export function RecipeSidebar({ recipe }: RecipeSidebarProps) {
 
       {nutritionRows.length > 0 ? (
         <div className="rounded-card border border-[#141414] bg-[#0c0c0c] p-5 space-y-4">
-          <h2 className="font-mono text-[9px] uppercase tracking-[0.2em] text-foreground-muted">
+          <h2 className="text-eyebrow tracking-[0.2em] text-foreground-muted">
             Nutrition
           </h2>
           <div className="grid grid-cols-2 gap-4">
             {nutritionRows.map((fact) => (
               <div key={fact.label} className="text-center">
                 <span className="block text-lg font-light text-white">{fact.value}</span>
-                <span className="font-mono text-[8px] uppercase tracking-widest text-foreground-muted">
+                <span className="text-eyebrow text-foreground-muted">
                   {fact.label}
                 </span>
               </div>
@@ -82,7 +82,7 @@ export function RecipeSidebar({ recipe }: RecipeSidebarProps) {
 
       {recipe.notes.trim() ? (
         <div className="rounded-card border border-[#141414] bg-[#0c0c0c] p-5 space-y-3">
-          <h2 className="font-mono text-[9px] uppercase tracking-[0.2em] text-foreground-muted">
+          <h2 className="text-eyebrow tracking-[0.2em] text-foreground-muted">
             Notes
           </h2>
           <p className="font-serif italic text-xs text-foreground-muted leading-relaxed">

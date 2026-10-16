@@ -20,7 +20,7 @@ export default async function CarpentryPage() {
           <div className="space-y-6 order-2 lg:order-1">
             <Link
               href="/"
-              className="inline-flex items-center gap-2 font-mono text-[10px] uppercase tracking-widest text-foreground-muted hover:text-white transition-colors group"
+              className="inline-flex items-center gap-2 text-eyebrow text-foreground-muted hover:text-white transition-colors group"
             >
               <span className="transform group-hover:-translate-x-0.5 transition-transform">
                 ←
@@ -29,21 +29,21 @@ export default async function CarpentryPage() {
             </Link>
 
             <div className="space-y-3">
-              <span className="font-mono text-[10px] uppercase tracking-[0.25em] text-accent/80 block">
+              <span className="text-eyebrow tracking-[0.25em] text-accent/80 block">
                 Carpentry &amp; Home Renovation
               </span>
-              <h1 className="font-display text-4xl sm:text-5xl font-medium tracking-tight leading-[1.15] text-white">
+              <h1 className="font-display text-5xl sm:text-6xl font-medium tracking-tight leading-[1.15] text-white">
                 Rooms I&apos;m still{" "}
                 <span className="font-serif italic text-accent font-normal">fixing.</span>
               </h1>
-              <p className="text-foreground-muted text-sm leading-relaxed max-w-sm">
+              <p className="text-foreground-muted text-base leading-relaxed max-w-sm">
                 Shop skills, home repairs, and the next cut that fits.
               </p>
             </div>
 
             <nav
               aria-label="On this page"
-              className="flex flex-wrap gap-x-5 gap-y-2 pt-2 font-mono text-[10px] uppercase tracking-widest"
+              className="flex flex-wrap gap-x-5 gap-y-2 pt-2 text-eyebrow"
             >
               <a href="#courses" className="text-foreground-muted hover:text-white transition-colors">
                 Courses

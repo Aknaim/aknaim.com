@@ -74,7 +74,7 @@ export function CookingGalleryItemForm({ item }: { item: AdminGalleryItem }) {
 
       <button
         type="submit"
-        className="border border-[#262626] bg-[#141414] px-5 py-2.5 text-xs uppercase tracking-widest text-white hover:border-accent transition-colors"
+        className="border border-[#262626] bg-[#141414] px-5 py-2.5 text-eyebrow text-white hover:border-accent transition-colors"
       >
         Save photo
       </button>

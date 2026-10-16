@@ -38,7 +38,7 @@ export default async function InterestPage({ params }: InterestPageProps) {
         <div className="absolute top-6 left-6 z-20">
           <Link 
             href="/" 
-            className="text-[11px] uppercase tracking-widest text-foreground-muted hover:text-accent transition-colors duration-200 font-medium"
+            className="text-eyebrow text-foreground-muted hover:text-accent transition-colors duration-200 font-medium"
           >
             ← Workbench
           </Link>
@@ -48,16 +48,16 @@ export default async function InterestPage({ params }: InterestPageProps) {
         <div className="absolute bottom-8 left-0 w-full px-6 sm:px-12 max-w-5xl mx-auto z-10">
           <div className="flex items-center gap-2 mb-2">
             <Icon className="h-3.5 w-3.5 text-accent/90" strokeWidth={1.5} aria-hidden />
-            <span className="text-[10px] text-accent uppercase tracking-widest font-medium">
+            <span className="text-eyebrow text-accent font-medium">
               Home / {interest.label}
             </span>
           </div>
           
-          <h1 className="font-display text-4xl font-medium tracking-tight text-white sm:text-5xl">
+          <h1 className="font-display text-5xl font-medium tracking-tight text-white sm:text-6xl">
             {interest.label}
           </h1>
           
-          <p className="mt-2.5 max-w-md text-xs text-foreground-subtle leading-relaxed">
+          <p className="mt-2.5 max-w-md text-sm text-foreground-subtle leading-relaxed">
             {interest.tagline}
           </p>
         </div>
@@ -75,10 +75,10 @@ export default async function InterestPage({ params }: InterestPageProps) {
           {/* Right Column: Context Note Panel Card */}
           {interest.workbenchNote && (
             <aside className="rounded-card border border-[#1f1f1f] bg-[#111111]/30 p-5 backdrop-blur-xs lg:mt-12">
-              <h2 className="text-[10px] uppercase tracking-widest text-accent font-medium mb-2">
+              <h2 className="text-eyebrow text-accent font-medium mb-2">
                 Status Note
               </h2>
-              <p className="text-xs text-foreground-subtle leading-relaxed italic">
+              <p className="text-sm text-foreground-subtle leading-relaxed italic">
                 "{interest.workbenchNote}"
               </p>
             </aside>

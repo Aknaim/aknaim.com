@@ -68,7 +68,7 @@ export function GallerySidebar({
                 className="w-full flex items-center justify-between gap-2 text-left group"
                 aria-expanded={open}
               >
-                <span className="font-mono text-[9px] uppercase tracking-[0.2em] text-foreground-muted group-hover:text-white transition-colors">
+                <span className="text-eyebrow tracking-[0.2em] text-foreground-muted group-hover:text-white transition-colors">
                   {group.label}
                   {activeLabel && !open ? (
                     <span className="ml-2 normal-case tracking-normal text-accent/80">
@@ -76,12 +76,12 @@ export function GallerySidebar({
                     </span>
                   ) : null}
                 </span>
-                <span className="font-mono text-[9px] text-foreground-subtle">
+                <span className="font-mono text-xs text-foreground-subtle">
                   {open ? "−" : "+"}
                 </span>
               </button>
             ) : (
-              <h2 className="font-mono text-[9px] uppercase tracking-[0.2em] text-foreground-muted">
+              <h2 className="text-eyebrow tracking-[0.2em] text-foreground-muted">
                 {group.label}
               </h2>
             )}
@@ -174,7 +174,7 @@ export function GallerySidebar({
         <button
           type="button"
           onClick={onReset}
-          className="font-mono text-[10px] uppercase tracking-widest text-foreground-subtle hover:text-accent transition-colors"
+          className="text-eyebrow text-foreground-subtle hover:text-accent transition-colors"
         >
           Reset Filters
         </button>
@@ -203,7 +203,7 @@ function FilterButton({ label, count, active, onClick }: FilterButtonProps) {
     >
       <span>{label}</span>
       {count !== undefined ? (
-        <span className="font-mono text-[9px] text-foreground-subtle">{count}</span>
+        <span className="font-mono text-xs text-foreground-subtle">{count}</span>
       ) : null}
     </button>
   );
@@ -218,7 +218,7 @@ interface GallerySortSelectProps {
 export function GallerySortSelect({ sortOptions, value, onChange }: GallerySortSelectProps) {
   return (
     <div className="space-y-3">
-      <h2 className="font-mono text-[9px] uppercase tracking-[0.2em] text-foreground-muted">
+      <h2 className="text-eyebrow tracking-[0.2em] text-foreground-muted">
         Sort By
       </h2>
       <select

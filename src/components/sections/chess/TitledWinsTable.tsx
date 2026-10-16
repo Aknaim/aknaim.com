@@ -175,7 +175,7 @@ function SortHeader({
           ? `Sort ${index + 1}: ${label} (${entry?.dir === "asc" ? "ascending" : "descending"}). Click to flip; click again when primary to clear.`
           : `Add ${label} to sort (combines with other selected columns)`
       }
-      className={`font-mono text-[11px] uppercase tracking-widest transition-colors ${
+      className={`text-eyebrow transition-colors ${
         active ? "text-accent" : "text-foreground-muted hover:text-white"
       }`}
     >
@@ -261,7 +261,7 @@ export function TitledWinsTable({
 
   return (
     <div className="space-y-4">
-      <p className="font-mono text-[11px] text-foreground-subtle">
+      <p className="font-mono text-xs text-foreground-subtle">
         {sorted.length} win{sorted.length === 1 ? "" : "s"}
         <span className="text-foreground-subtle/70">
           {" · "}
@@ -272,7 +272,7 @@ export function TitledWinsTable({
       <div className="overflow-x-auto border border-[#141414]">
         <table className="w-full min-w-[44rem] text-left text-base">
           <thead>
-            <tr className="border-b border-[#141414] font-mono text-[11px] uppercase tracking-widest text-foreground-muted">
+            <tr className="border-b border-[#141414] text-eyebrow text-foreground-muted">
               {SORTABLE.map((key) => (
                 <th key={key} className="px-5 py-3.5 font-normal">
                   <SortHeader
@@ -318,7 +318,7 @@ export function TitledWinsTable({
                   <td className="px-5 py-3.5">
                     <span
                       title={formatBlurb(win.timeControl)}
-                      className="cursor-help font-mono text-[11px] uppercase tracking-widest text-foreground-subtle underline decoration-foreground-subtle/30 underline-offset-2"
+                      className="cursor-help text-eyebrow text-foreground-subtle underline decoration-foreground-subtle/30 underline-offset-2"
                     >
                       {formatLabel(win.timeControl)}
                     </span>
@@ -326,10 +326,10 @@ export function TitledWinsTable({
                   <td className="px-5 py-3.5 text-foreground-subtle">
                     {account?.label ?? win.accountId}
                   </td>
-                  <td className="px-5 py-3.5 font-mono text-[11px] uppercase tracking-widest text-foreground-subtle">
+                  <td className="px-5 py-3.5 text-eyebrow text-foreground-subtle">
                     {account?.site ?? "—"}
                   </td>
-                  <td className="px-5 py-3.5 font-mono text-[11px] tabular-nums text-foreground-subtle">
+                  <td className="px-5 py-3.5 font-mono text-xs tabular-nums text-foreground-subtle">
                     {win.playedAt ?? "—"}
                   </td>
                   <td className="px-5 py-3.5 text-right">
@@ -337,7 +337,7 @@ export function TitledWinsTable({
                       href={win.url}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="font-mono text-[11px] uppercase tracking-widest text-accent/80 transition-colors hover:text-accent"
+                      className="text-eyebrow text-accent/80 transition-colors hover:text-accent"
                     >
                       Open ↗
                     </a>
