@@ -23,7 +23,11 @@ export default async function ClimbingGalleryPage({
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
   const params = await searchParams;
-  const paramKeys = climbingGalleryConfig.filterGroups.map((g) => g.paramKey);
+  const paramKeys = [
+    ...climbingGalleryConfig.filterGroups.map((g) => g.paramKey),
+    // Deep-link from progression milestones → that climb’s send media
+    "climb",
+  ];
   const initialFilters = parseGallerySearchParams(params, paramKeys);
   const sort = initialFilters.sort ?? climbingGalleryConfig.defaultSort;
 

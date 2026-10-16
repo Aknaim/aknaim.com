@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 267" preserveAspectRatio="none">
+  <defs>
+    <filter id="soft" x="-4%" y="-4%" width="108%" height="108%">
+      <feGaussianBlur in="SourceGraphic" stdDeviation="4" />
+    </filter>
+  </defs>
+  <!-- Soft irregular silhouette on every side, including a natural right edge. -->
+  <path
+    fill="white"
+    filter="url(#soft)"
+    d="M30 18
+       C78 8 145 14 205 10
+       C268 6 318 14 355 32
+       C378 52 388 78 382 108
+       C376 138 392 165 386 195
+       C380 225 348 246 305 254
+       C250 263 185 260 125 250
+       C75 240 32 215 18 170
+       C8 130 12 75 22 42
+       C26 28 28 22 30 18 Z"
+  />
+</svg>

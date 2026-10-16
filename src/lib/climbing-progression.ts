@@ -6,6 +6,8 @@ export type ProgressionMilestone = {
   /** Formatted from `date` for the timeline UI */
   dateLabel: string;
   label: string;
+  /** Gallery filter for the send that earned this first (when logged). */
+  href?: string;
 };
 
 /** Clean finishes that count toward progression. */
@@ -34,8 +36,22 @@ export function formatMilestoneDate(isoDate: string): string {
   });
 }
 
-function milestone(date: string, label: string): ProgressionMilestone {
-  return { date, dateLabel: formatMilestoneDate(date), label };
+function milestone(
+  date: string,
+  label: string,
+  href?: string
+): ProgressionMilestone {
+  return {
+    date,
+    dateLabel: formatMilestoneDate(date),
+    label,
+    ...(href ? { href } : {}),
+  };
+}
+
+function galleryHrefForClimb(slug: string | null | undefined): string | undefined {
+  if (!slug) return undefined;
+  return `/gallery/climbing?climb=${encodeURIComponent(slug)}`;
 }
 
 /**
@@ -98,6 +114,8 @@ export type ProgressionSend = {
   type: ClimbType;
   result: string;
   sessionDate: string | null;
+  /** Climbing send slug — used to deep-link the gallery send media. */
+  slug?: string | null;
 };
 
 /**
@@ -136,14 +154,22 @@ export function buildProgressionFromSends(
       const label = ropeMilestoneLabel(parsed.label);
       if (!seen.has(label)) {
         seen.add(label);
-        milestones.push(milestone(send.sessionDate, label));
+        milestones.push(
+          milestone(send.sessionDate, label, galleryHrefForClimb(send.slug))
+        );
       }
 
       if (send.type === "lead" && parsed.rank >= parseGrade("5.12-")!.rank) {
         const leadLabel = "First 5.12 Lead";
         if (!seen.has(leadLabel)) {
           seen.add(leadLabel);
-          milestones.push(milestone(send.sessionDate, leadLabel));
+          milestones.push(
+            milestone(
+              send.sessionDate,
+              leadLabel,
+              galleryHrefForClimb(send.slug)
+            )
+          );
         }
       }
     }
@@ -156,7 +182,9 @@ export function buildProgressionFromSends(
       const label = boulderMilestoneLabel(parsed.label);
       if (!seen.has(label)) {
         seen.add(label);
-        milestones.push(milestone(send.sessionDate, label));
+        milestones.push(
+          milestone(send.sessionDate, label, galleryHrefForClimb(send.slug))
+        );
       }
     }
   }
@@ -164,14 +192,20 @@ export function buildProgressionFromSends(
   return milestones.sort((a, b) => a.date.localeCompare(b.date));
 }
 
-/** Merge baseline + inferred; baseline wins on duplicate labels. */
+/** Merge baseline + inferred; baseline wins on duplicate labels, keeps derived href. */
 export function mergeProgression(
   baseline: ProgressionMilestone[],
   derived: ProgressionMilestone[]
 ): ProgressionMilestone[] {
   const byLabel = new Map<string, ProgressionMilestone>();
   for (const item of derived) byLabel.set(item.label, item);
-  for (const item of baseline) byLabel.set(item.label, item);
+  for (const item of baseline) {
+    const existing = byLabel.get(item.label);
+    byLabel.set(item.label, {
+      ...item,
+      href: item.href ?? existing?.href,
+    });
+  }
   return [...byLabel.values()].sort((a, b) => a.date.localeCompare(b.date));
 }
 

@@ -56,6 +56,7 @@ async function loadProgressionSends() {
       grade: climbingSends.grade,
       type: climbingSends.type,
       result: climbingSends.result,
+      slug: climbingSends.slug,
       sessionDate: climbingSessions.sessionDate,
     })
     .from(climbingSends)
@@ -65,6 +66,7 @@ async function loadProgressionSends() {
     grade: row.grade,
     type: row.type as ClimbType,
     result: row.result,
+    slug: row.slug,
     sessionDate: row.sessionDate ? String(row.sessionDate) : null,
   }));
 }

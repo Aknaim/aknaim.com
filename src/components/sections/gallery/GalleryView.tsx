@@ -138,7 +138,10 @@ export function GalleryView({
       params.set("limit", String(pagination?.pageSize ?? 48));
       const sort = nextFilters.sort ?? config.defaultSort;
       if (sort) params.set("sort", sort);
-      for (const key of paramKeys) {
+      // Include configured filters plus deep-link keys (e.g. climb=slug from progression).
+      const keys = new Set([...paramKeys, ...Object.keys(nextFilters)]);
+      for (const key of keys) {
+        if (key === "sort") continue;
         const value = nextFilters[key];
         if (value && value !== "all") params.set(key, value);
       }
