@@ -244,7 +244,7 @@ export function CoursesList({
                           {course.blurb}
                         </p>
                       ) : null}
-                      <div className="flex flex-wrap items-center gap-x-4 gap-y-1 pt-1">
+                      <div className="flex flex-wrap items-center gap-x-3 gap-y-1 pt-1 sm:gap-x-4">
                         {course.hours != null ? (
                           <span className="text-eyebrow text-foreground-subtle">
                             {course.hours} hours

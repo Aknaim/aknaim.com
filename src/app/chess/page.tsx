@@ -96,7 +96,7 @@ export default function ChessPage() {
               <span className="text-eyebrow tracking-[0.25em] text-accent/80 block">
                 Chess
               </span>
-              <h1 className="font-display text-5xl sm:text-6xl font-medium tracking-tight leading-[1.15] text-white">
+              <h1 className="font-display text-4xl sm:text-5xl lg:text-6xl font-medium tracking-tight leading-[1.15] text-white">
                 Moves I&apos;m still{" "}
                 <span className="font-serif italic text-accent font-normal">thinking about.</span>
               </h1>

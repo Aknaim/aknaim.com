@@ -302,13 +302,13 @@ function CupboardBag({
         </div>
 
         <div className="min-w-0 flex-1 self-center">
-          <div className="flex items-center gap-2">
+          <div className="flex items-start gap-2">
             <Icon
-              className="cupboard-bag-icon h-3.5 w-3.5 text-foreground-subtle transition-colors duration-300 group-hover:text-accent"
+              className="cupboard-bag-icon mt-0.5 h-3.5 w-3.5 shrink-0 text-foreground-subtle transition-colors duration-300 group-hover:text-accent"
               strokeWidth={1.5}
               aria-hidden
             />
-            <span className="cupboard-bag-label text-tab text-foreground-subtle transition-colors duration-300 group-hover:text-white">
+            <span className="cupboard-bag-label min-w-0 text-tab leading-snug text-foreground-subtle transition-colors duration-300 group-hover:text-white">
               {item.label}
             </span>
           </div>

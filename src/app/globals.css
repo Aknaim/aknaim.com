@@ -90,6 +90,21 @@
   --ease-out: cubic-bezier(0, 0, 0.2, 1);
 }
 
+/*
+ * Narrow screens: ease UI chrome density so uppercase labels (bags, stats,
+ * course meta) don’t wrap as aggressively after the 12px desktop floor bump.
+ */
+@media (max-width: 639px) {
+  :root {
+    --text-hero: clamp(2.25rem, 10vw, 3rem);
+    --text-eyebrow: 0.6875rem;
+    --text-meta: 0.6875rem;
+    --text-tab: 0.6875rem;
+    --tracking-eyebrow: 0.1em;
+    --tracking-tab: 0.08em;
+  }
+}
+
 /* ─── Light theme (toggle via data-theme on <html>) ─────────────────────────── */
 
 [data-theme="light"] {

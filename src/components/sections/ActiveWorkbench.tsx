@@ -242,13 +242,13 @@ function MobileWorkbenchBag({
         </div>
 
         <div className="min-w-0 flex-1 self-center">
-          <div className="flex items-center gap-2">
+          <div className="flex items-start gap-2">
             <Icon
-              className="cupboard-bag-icon h-3.5 w-3.5 text-foreground-subtle transition-colors duration-300"
+              className="cupboard-bag-icon mt-0.5 h-3.5 w-3.5 shrink-0 text-foreground-subtle transition-colors duration-300"
               strokeWidth={1.5}
               aria-hidden
             />
-            <span className="cupboard-bag-label text-tab text-foreground-subtle transition-colors duration-300">
+            <span className="cupboard-bag-label min-w-0 text-tab leading-snug text-foreground-subtle transition-colors duration-300">
               {item.label}
             </span>
           </div>
@@ -328,14 +328,14 @@ function WorkbenchItem({
         </div>
 
         <div className="mt-3 w-full px-0.5">
-          <div className="flex items-center gap-2">
+          <div className="flex items-start gap-2">
             <Icon
-              className={`h-3.5 w-3.5 shrink-0 ${isActive ? "text-accent" : "text-foreground-muted"}`}
+              className={`mt-0.5 h-3.5 w-3.5 shrink-0 ${isActive ? "text-accent" : "text-foreground-muted"}`}
               strokeWidth={1.5}
               aria-hidden
             />
             <span
-              className={`text-tab ${isActive ? "text-accent" : "text-foreground-muted"}`}
+              className={`min-w-0 text-tab leading-snug ${isActive ? "text-accent" : "text-foreground-muted"}`}
             >
               {item.label}
             </span>

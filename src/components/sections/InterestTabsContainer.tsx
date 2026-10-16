@@ -28,13 +28,13 @@ export function InterestTabsContainer({ tabs }: { tabs: TabData[] }) {
   return (
     <div className="w-full max-w-xl">
       {/* Tab Navigation header matching the UI underlines */}
-      <div className="flex gap-6 border-b border-[#1f1f1f] pb-2">
+      <div className="flex flex-wrap gap-6 border-b border-[#1f1f1f] pb-2 sm:flex-nowrap">
         {tabs.map((tab) => (
           <button
             key={tab.id}
             type="button"
             onClick={() => setActiveTabId(tab.id)}
-            className={`text-eyebrow font-medium pb-2 transition-all relative ${
+            className={`relative pb-2 text-eyebrow font-medium transition-all ${
               activeTabId === tab.id 
                 ? "text-accent" 
                 : "text-foreground-muted hover:text-foreground-subtle"

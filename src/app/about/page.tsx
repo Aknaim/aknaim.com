@@ -36,7 +36,7 @@ export default function AboutPage() {
               <span className="text-eyebrow tracking-[0.25em] text-accent/80 block">
                 About Me
               </span>
-              <h1 className="font-display text-5xl sm:text-6xl font-light tracking-tight text-white">
+              <h1 className="font-display text-4xl sm:text-5xl lg:text-6xl font-light tracking-tight text-white">
                 Hi, I&apos;m{" "}
                 <span className="italic text-accent">Akbar</span>.
               </h1>
