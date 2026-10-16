@@ -294,15 +294,16 @@ export function ClimbingProgression({
                   fill="none"
                   stroke={
                     active
-                      ? "rgba(197,160,89,0.65)"
+                      ? "rgba(197,160,89,0.7)"
                       : entry.isLast
-                        ? "rgba(197,160,89,0.35)"
-                        : "rgba(255,255,255,0.14)"
+                        ? "rgba(197,160,89,0.4)"
+                        : "rgba(255,255,255,0.22)"
                   }
-                  strokeWidth={active ? "0.32" : "0.2"}
+                  strokeWidth={active ? "1.25" : "1"}
                   strokeLinecap="round"
+                  strokeDasharray={active ? "2.5 2" : "2 2.5"}
                   vectorEffect="non-scaling-stroke"
-                  className="transition-[stroke,stroke-width] duration-200"
+                  className="transition-[stroke,stroke-width,stroke-dasharray] duration-200"
                 />
               );
             })}
