@@ -16,6 +16,7 @@ npx wrangler login
 npx wrangler secret put DATABASE_URL    # bare URL, no quotes
 npx wrangler secret put ADMIN_PASSWORD
 npx wrangler secret put SESSION_SECRET
+npx wrangler secret put REVALIDATE_SECRET   # post-deploy ISR bust; same value in local .env
 
 npm run deploy
 ```

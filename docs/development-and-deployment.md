@@ -94,7 +94,7 @@ flowchart LR
 - **Drizzle** — TypeScript schema → SQL tables; queries in `src/lib/db/`  
 - **OpenNext + Wrangler** — build and upload the Worker  
 - **Neon** — hosted Postgres (schema via careful `db:push`; data via admin / local workflows — never `db:seed`)  
-- **Secrets** — `DATABASE_URL`, `ADMIN_PASSWORD`, `SESSION_SECRET` on the Worker  
+- **Secrets** — `DATABASE_URL`, `ADMIN_PASSWORD`, `SESSION_SECRET`, `REVALIDATE_SECRET` on the Worker  
 
 ---
 
@@ -128,6 +128,7 @@ DATABASE_URL=postgresql://aknaim:aknaim@localhost:5432/aknaim
 # Admin
 ADMIN_PASSWORD=changeme-locally
 SESSION_SECRET=long-random-string-here
+REVALIDATE_SECRET=another-long-random-string-here
 ```
 
 **WSL note:** if Postgres runs in Docker Desktop and Next runs in WSL, use `host.docker.internal` instead of `localhost` in `DATABASE_URL`.
@@ -246,6 +247,7 @@ flowchart TD
    npx wrangler secret put DATABASE_URL
    npx wrangler secret put ADMIN_PASSWORD
    npx wrangler secret put SESSION_SECRET
+   npx wrangler secret put REVALIDATE_SECRET
    ```
 
 5. **Deploy:**
@@ -310,6 +312,7 @@ flowchart TB
 | `DATABASE_URL` | `.env` | `wrangler secret put` |
 | `ADMIN_PASSWORD` | `.env` | Worker secret |
 | `SESSION_SECRET` | `.env` | Worker secret |
+| `REVALIDATE_SECRET` | `.env` (deploy refresh) | Worker secret — Bearer for `/api/revalidate-public` |
 
 Updating a secret does **not** require a full code redeploy, but warm isolates may take a short time to pick up new values; a new deploy forces a clean start.
 

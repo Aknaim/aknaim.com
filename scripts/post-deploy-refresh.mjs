@@ -4,21 +4,18 @@
  *
  * Env:
  *   SITE_URL                 default https://aknaim.com
- *   REVALIDATE_SECRET        preferred bearer secret (falls back to SESSION_SECRET)
- *   SESSION_SECRET           fallback bearer (already a Worker secret)
+ *   REVALIDATE_SECRET        required bearer secret (Worker secret + local .env)
  *   CACHE_PURGE_ZONE_ID      optional Cloudflare zone purge
  *   CACHE_PURGE_API_TOKEN    optional Cloudflare API token with Cache Purge
  */
 import "dotenv/config";
 
 const siteUrl = (process.env.SITE_URL ?? "https://aknaim.com").replace(/\/$/, "");
-const secret =
-  process.env.REVALIDATE_SECRET?.trim() ||
-  process.env.SESSION_SECRET?.trim();
+const secret = process.env.REVALIDATE_SECRET?.trim();
 
 if (!secret) {
   console.error(
-    "post-deploy-refresh: set REVALIDATE_SECRET or SESSION_SECRET in the environment."
+    "post-deploy-refresh: set REVALIDATE_SECRET in the environment (and on the Worker)."
   );
   process.exit(1);
 }

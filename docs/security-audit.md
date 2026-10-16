@@ -17,7 +17,7 @@ Related docs:
 | Severity | Count |
 |----------|------:|
 | Critical | 0 |
-| High     | 2 open (+1 mitigated) |
+| High     | 1 open (+2 mitigated) |
 | Medium   | 7 |
 | Low      | 3 |
 
@@ -32,6 +32,7 @@ Related docs:
 - **TLS to Neon** — production uses the neon-http driver over HTTPS; the browser never holds `DATABASE_URL`.
 - **Admin gate on mutations** — `requireAdminAction` on media / travel / climbing / courses / interests; cookie is `httpOnly`, HMAC-signed, 8h TTL, `secure` in production.
 - **Fail-closed admin secrets in production** — missing/weak `ADMIN_PASSWORD` / `SESSION_SECRET` refuse login (H1 mitigated); soft per-IP login throttle.
+- **Dedicated revalidate bearer** — `/api/revalidate-public` accepts only `Authorization: Bearer <REVALIDATE_SECRET>` (H2 mitigated); no query-string or `SESSION_SECRET` fallback.
 - **Local path traversal guard** — `src/app/media/[...path]/route.ts` resolves under `LOCAL_MEDIA_ROOT`; production returns 404.
 - **Gallery pagination cap** — `getGalleryPage` clamps `limit` to ≤100.
 
@@ -48,13 +49,12 @@ Related docs:
 ~~If `ADMIN_PASSWORD` / `SESSION_SECRET` are missing, login falls back to `"changeme"` and signing to `"dev-secret"`.~~  
 **Mitigated (2026-10):** Production requires `ADMIN_PASSWORD` (≥12, not `changeme`) and `SESSION_SECRET` (≥24, not `dev-secret`); missing/weak values fail closed. Local still allows dev defaults. Soft per-IP login throttle lives in `login-rate-limit.ts` (pair with a CF WAF rule on `/admin/login`).
 
-#### H2 — Revalidate secret in query string + `SESSION_SECRET` reuse
+#### H2 — Revalidate secret in query string + `SESSION_SECRET` reuse — mitigated
 
 **Location:** `src/app/api/revalidate-public/route.ts`
 
-Auth accepts `?secret=` and falls back to `SESSION_SECRET`. Query secrets appear in CDN/proxy/browser history and can forge `admin_session` HMAC cookies.
-
-**Fix:** Require a dedicated `REVALIDATE_SECRET`; accept only `Authorization: Bearer`; reject query-string auth in production. Rotate `SESSION_SECRET` if it was ever used in a URL.
+~~Auth accepts `?secret=` and falls back to `SESSION_SECRET`.~~  
+**Mitigated (2026-10):** Requires dedicated `REVALIDATE_SECRET`; Bearer header only. `post-deploy-refresh.mjs` matches. Rotate `SESSION_SECRET` only if it was ever pasted in a URL.
 
 #### H3 — Security headers not defined in repo
 
@@ -153,7 +153,7 @@ CORS guidance lives in `.env.example`; lock `AllowedOrigins` to site origins in 
 ## Priority fix order
 
 1. ~~Fail closed on missing `ADMIN_PASSWORD` / `SESSION_SECRET` in production.~~ Done (app-level); confirm Worker secrets meet length rules.
-2. Dedicated `REVALIDATE_SECRET`; drop `?secret=`; rotate if ever logged.
+2. ~~Dedicated `REVALIDATE_SECRET`; drop `?secret=`.~~ Done — set Worker + local `.env`.
 3. Confirm or add HSTS + frame denial + CSP at Cloudflare or Next.
 4. WAF rate limits on login + revalidate (app throttle is soft); sanitize API errors.
 5. Harden R2 presign (TTL, MIME, finalize host check); shrink Server Action body limit.
@@ -184,5 +184,6 @@ Clean client/server split. Headers and rate limits are the main edge-hardening g
 
 | Date | Note |
 |------|------|
-| 2026-10-16 | **H1 done** — production fail-closed admin secrets + soft login rate limit. Open High: H2, H3. |
+| 2026-10-16 | **H2 done** — `REVALIDATE_SECRET` Bearer-only revalidate; no `?secret=` / session fallback. Open High: H3. |
+| 2026-10-16 | **H1 done** — production fail-closed admin secrets + soft login rate limit. |
 | 2026-10 | Initial audit from codebase review. |

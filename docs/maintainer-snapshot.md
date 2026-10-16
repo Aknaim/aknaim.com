@@ -201,13 +201,13 @@ Copy from `.env.example` → `.env`. Never point local `DATABASE_URL` at Neon un
 |--------|-----------|---------|
 | `DATABASE_URL` | Yes | Neon **pooled** URL, bare (no quotes) |
 | `ADMIN_PASSWORD` | Yes | Admin login |
-| `SESSION_SECRET` | Yes | Cookie + optional revalidate fallback |
+| `SESSION_SECRET` | Yes | Cookie HMAC only |
 | `R2_ACCOUNT_ID` | Yes (media) | Account id for S3 endpoint |
 | `R2_ACCESS_KEY_ID` | Yes | R2 API token |
 | `R2_SECRET_ACCESS_KEY` | Yes | R2 API secret |
 | `R2_BUCKET` | Yes | e.g. `aknaim-media` |
 | `R2_PUBLIC_BASE_URL` | Yes | e.g. `https://media.aknaim.com` |
-| `REVALIDATE_SECRET` | Recommended | Bearer for `/api/revalidate-public` |
+| `REVALIDATE_SECRET` | Yes (prod deploy) | Bearer for `/api/revalidate-public` — not `SESSION_SECRET` |
 | `SITE_URL` | For deploy refresh script | e.g. `https://aknaim.com` |
 | `CACHE_PURGE_ZONE_ID` | Optional | Zone purge after revalidate |
 | `CACHE_PURGE_API_TOKEN` | Optional | Cache Purge API token |
