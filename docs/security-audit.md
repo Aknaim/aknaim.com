@@ -17,7 +17,7 @@ Related docs:
 | Severity | Count |
 |----------|------:|
 | Critical | 0 |
-| High     | 3 |
+| High     | 2 open (+1 mitigated) |
 | Medium   | 7 |
 | Low      | 3 |
 
@@ -31,6 +31,7 @@ Related docs:
 - **ORM-parameterized SQL** — Drizzle + `@neondatabase/serverless` (HTTP) / postgres-js; gallery JSON filter *keys* are allowlisted; *values* are bound parameters.
 - **TLS to Neon** — production uses the neon-http driver over HTTPS; the browser never holds `DATABASE_URL`.
 - **Admin gate on mutations** — `requireAdminAction` on media / travel / climbing / courses / interests; cookie is `httpOnly`, HMAC-signed, 8h TTL, `secure` in production.
+- **Fail-closed admin secrets in production** — missing/weak `ADMIN_PASSWORD` / `SESSION_SECRET` refuse login (H1 mitigated); soft per-IP login throttle.
 - **Local path traversal guard** — `src/app/media/[...path]/route.ts` resolves under `LOCAL_MEDIA_ROOT`; production returns 404.
 - **Gallery pagination cap** — `getGalleryPage` clamps `limit` to ≤100.
 
@@ -40,13 +41,12 @@ Related docs:
 
 ### High
 
-#### H1 — Fail-open admin defaults
+#### H1 — Fail-open admin defaults — mitigated
 
-**Location:** `src/lib/auth/admin.ts` (approx. lines 8, 41)
+**Location:** `src/lib/auth/admin.ts`
 
-If `ADMIN_PASSWORD` / `SESSION_SECRET` are missing, login falls back to `"changeme"` and signing to `"dev-secret"`. A misconfigured Worker deploy makes `/admin` trivial to open and cookies forgeable.
-
-**Fix:** Fail closed in production when either secret is unset or too short; refuse login and do not start with defaults.
+~~If `ADMIN_PASSWORD` / `SESSION_SECRET` are missing, login falls back to `"changeme"` and signing to `"dev-secret"`.~~  
+**Mitigated (2026-10):** Production requires `ADMIN_PASSWORD` (≥12, not `changeme`) and `SESSION_SECRET` (≥24, not `dev-secret`); missing/weak values fail closed. Local still allows dev defaults. Soft per-IP login throttle lives in `login-rate-limit.ts` (pair with a CF WAF rule on `/admin/login`).
 
 #### H2 — Revalidate secret in query string + `SESSION_SECRET` reuse
 
@@ -152,10 +152,10 @@ CORS guidance lives in `.env.example`; lock `AllowedOrigins` to site origins in 
 
 ## Priority fix order
 
-1. Fail closed on missing `ADMIN_PASSWORD` / `SESSION_SECRET` in production.
+1. ~~Fail closed on missing `ADMIN_PASSWORD` / `SESSION_SECRET` in production.~~ Done (app-level); confirm Worker secrets meet length rules.
 2. Dedicated `REVALIDATE_SECRET`; drop `?secret=`; rotate if ever logged.
 3. Confirm or add HSTS + frame denial + CSP at Cloudflare or Next.
-4. WAF rate limits on login + revalidate; sanitize API errors.
+4. WAF rate limits on login + revalidate (app throttle is soft); sanitize API errors.
 5. Harden R2 presign (TTL, MIME, finalize host check); shrink Server Action body limit.
 
 ---
@@ -184,4 +184,5 @@ Clean client/server split. Headers and rate limits are the main edge-hardening g
 
 | Date | Note |
 |------|------|
+| 2026-10-16 | **H1 done** — production fail-closed admin secrets + soft login rate limit. Open High: H2, H3. |
 | 2026-10 | Initial audit from codebase review. |

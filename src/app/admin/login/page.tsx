@@ -11,8 +11,14 @@ export default async function AdminLoginPage({
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
   const params = await searchParams;
-  const error = params.error === "1";
+  const error = params.error;
   const next = typeof params.next === "string" ? params.next : "/admin";
+  const errorMessage =
+    error === "rate"
+      ? "Too many attempts. Wait a few minutes and try again."
+      : error === "1"
+        ? "Incorrect password. Try again."
+        : null;
 
   return (
     <main className="min-h-[70vh] flex items-center justify-center">
@@ -30,11 +36,12 @@ export default async function AdminLoginPage({
             type="password"
             name="password"
             required
+            autoComplete="current-password"
             className="w-full bg-[#111111] border border-[#262626] px-3 py-2 text-sm text-white outline-none focus:border-accent"
           />
         </label>
-        {error ? (
-          <p className="text-sm text-red-400">Incorrect password. Try again.</p>
+        {errorMessage ? (
+          <p className="text-sm text-red-400">{errorMessage}</p>
         ) : null}
         <button
           type="submit"
