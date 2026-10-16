@@ -53,14 +53,6 @@ export default async function RecipePage({ params }: RecipePageProps) {
   return (
     <main className="min-h-screen bg-[#070707] text-[#eaeaea] font-body pb-24 selection:bg-accent/30 selection:text-white">
       <div className="max-w-7xl mx-auto px-6 pt-8 md:pt-12">
-        <Link
-          href="/cooking"
-          className="inline-flex items-center gap-2 text-eyebrow text-foreground-muted hover:text-white transition-colors group mb-8"
-        >
-          <span className="transform group-hover:-translate-x-0.5 transition-transform">←</span>
-          Cooking
-        </Link>
-
         <header className="space-y-4 mb-8">
           <h1 className="font-display text-3xl md:text-5xl font-light tracking-tight text-white max-w-3xl">
             {recipe.title}

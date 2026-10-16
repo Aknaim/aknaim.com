@@ -39,9 +39,6 @@ export default async function TravelGalleryPage({
     getGalleryFilterIndex("travel"),
   ]);
 
-  const backHref = initialFilters.trip ? `/travel/${initialFilters.trip}` : "/travel";
-  const backLabel = initialFilters.trip ? "← Back to Trip" : "← Back to Travel";
-
   return (
     <GalleryView
       // Remount when URL filters change so scroll state doesn't leak across trips.
@@ -49,8 +46,6 @@ export default async function TravelGalleryPage({
       config={travelGalleryConfig}
       items={page.items}
       initialFilters={initialFilters}
-      backHref={backHref}
-      backLabel={backLabel}
       filterIndex={filterIndex}
       pagination={{
         pageSize: GALLERY_PAGE_SIZE,

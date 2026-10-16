@@ -240,7 +240,7 @@ export function CoursesList({
                         {course.school}
                       </p>
                       {course.blurb ? (
-                        <p className="text-xs text-foreground-muted leading-relaxed max-w-xl">
+                        <p className="max-w-xl text-sm leading-relaxed text-foreground-muted">
                           {course.blurb}
                         </p>
                       ) : null}
@@ -305,16 +305,16 @@ export function CoursesList({
                                 </p>
                                 {session.items.length === 1 &&
                                 session.items[0] !== session.label ? (
-                                  <p className="text-xs text-foreground-muted leading-snug mt-1">
+                                  <p className="mt-1 text-sm leading-snug text-foreground-muted">
                                     {session.items[0]}
                                   </p>
                                 ) : null}
                                 {session.items.length > 1 ? (
-                                  <ul className="mt-2 space-y-1">
+                                  <ul className="mt-2 space-y-1.5">
                                     {session.items.map((item) => (
                                       <li
                                         key={`${session.label}-${item}`}
-                                        className="text-xs text-foreground-muted leading-snug pl-3 relative before:absolute before:left-0 before:top-[0.45em] before:h-1 before:w-1 before:rounded-full before:bg-[#3a3a3a]"
+                                        className="relative pl-3 text-sm leading-snug text-foreground-muted before:absolute before:left-0 before:top-[0.55em] before:h-1 before:w-1 before:rounded-full before:bg-[#3a3a3a]"
                                       >
                                         {item}
                                       </li>

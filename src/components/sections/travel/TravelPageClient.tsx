@@ -400,15 +400,6 @@ export function TravelPageClient({
           })}
         </div>
 
-        <div className="absolute top-6 left-6 z-40">
-          <Link
-            href="/"
-            className="text-eyebrow text-foreground-muted hover:text-accent transition-colors duration-200 font-medium"
-          >
-            ← Workbench
-          </Link>
-        </div>
-
         {/* Sit above the mid-lat pin belt so Canada/USA aren’t covered */}
         <div className="relative z-20 max-w-[18rem] sm:max-w-xs mt-10 md:mt-12 space-y-4 pointer-events-none">
           <span className="text-eyebrow tracking-[0.25em] text-accent/80 block">

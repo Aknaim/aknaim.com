@@ -29,16 +29,6 @@ export default async function CookingPage() {
       <section className="relative border-b border-[#141414]">
         <div className="max-w-7xl mx-auto px-6 py-12 md:py-16 grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-16 items-center">
           <div className="space-y-6 order-2 lg:order-1">
-            <Link
-              href="/"
-              className="inline-flex items-center gap-2 text-eyebrow text-foreground-muted hover:text-white transition-colors group"
-            >
-              <span className="transform group-hover:-translate-x-0.5 transition-transform">
-                ←
-              </span>
-              Workbench
-            </Link>
-
             <div className="space-y-3">
               <span className="text-eyebrow tracking-[0.25em] text-accent/80 block">
                 Cooking

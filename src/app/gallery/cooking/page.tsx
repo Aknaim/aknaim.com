@@ -44,8 +44,6 @@ export default async function CookingGalleryPage({
       config={cookingGalleryConfig}
       items={page.items}
       initialFilters={initialFilters}
-      backHref="/cooking"
-      backLabel="← Back to Cooking"
       filterIndex={filterIndex}
       pagination={{
         pageSize: GALLERY_PAGE_SIZE,

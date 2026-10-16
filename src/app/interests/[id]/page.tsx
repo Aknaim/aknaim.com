@@ -1,5 +1,4 @@
 import { notFound } from "next/navigation";
-import Link from "next/link";
 import { getIcon } from "@/lib/icon-map";
 import { siteData } from "@/lib/data";
 import { InterestTabsContainer } from "@/components/sections/InterestTabsContainer"; 
@@ -34,16 +33,6 @@ export default async function InterestPage({ params }: InterestPageProps) {
         <div className="absolute inset-0 bg-gradient-to-t from-[#0a0a0a] via-[#0a0a0a]/20 to-transparent" />
         <div className="absolute inset-0 bg-black/10" />
         
-        {/* Back Navigation Trigger */}
-        <div className="absolute top-6 left-6 z-20">
-          <Link 
-            href="/" 
-            className="text-eyebrow text-foreground-muted hover:text-accent transition-colors duration-200 font-medium"
-          >
-            ← Workbench
-          </Link>
-        </div>
-
         {/* Text Metadata Overlay Block */}
         <div className="absolute bottom-8 left-0 w-full px-6 sm:px-12 max-w-5xl mx-auto z-10">
           <div className="flex items-center gap-2 mb-2">

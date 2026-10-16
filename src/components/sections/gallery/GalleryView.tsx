@@ -1,7 +1,6 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { ImageLightbox } from "@/components/ui/ImageLightbox";
 import { useImageLightbox } from "@/hooks/useImageLightbox";
@@ -51,8 +50,6 @@ interface GalleryViewProps {
   config: GalleryConfig;
   items: GalleryItem[];
   initialFilters: GalleryFilters;
-  backHref?: string;
-  backLabel?: string;
   showDuration?: boolean;
   /** When set, items are a first page — load more on scroll via /api/gallery/[interest]. */
   pagination?: GalleryPaginationProps;
@@ -77,8 +74,6 @@ export function GalleryView({
   config,
   items: initialItems,
   initialFilters,
-  backHref = "/",
-  backLabel = "← Back",
   showDuration = false,
   pagination,
   filterIndex,
@@ -319,16 +314,8 @@ export function GalleryView({
   return (
     <main className="min-h-screen bg-[#070707] text-[#eaeaea] font-body pb-24 selection:bg-accent/30 selection:text-white">
       <div className="max-w-7xl mx-auto px-6 pt-8 md:pt-12">
-        <Link
-          href={backHref}
-          className="inline-flex items-center gap-2 text-eyebrow text-foreground-muted hover:text-white transition-colors group mb-8"
-        >
-          <span className="transform group-hover:-translate-x-0.5 transition-transform">←</span>
-          {backLabel.replace(/^←\s*/, "")}
-        </Link>
-
         <div className="flex flex-col lg:flex-row gap-10 lg:gap-16">
-          <div className="hidden lg:sticky lg:top-8 lg:block lg:self-start lg:max-h-[calc(100vh-4rem)] lg:overflow-y-auto lg:overscroll-y-contain [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden space-y-8">
+          <div className="hidden lg:sticky lg:top-20 lg:block lg:self-start lg:max-h-[calc(100vh-6rem)] lg:overflow-y-auto lg:overscroll-y-contain [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden space-y-8">
             <GallerySortSelect
               sortOptions={config.sortOptions}
               value={filters.sort ?? config.defaultSort}

@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import Image from "next/image";
-import Link from "next/link";
 import { siteData } from "@/lib/data";
 
 export const metadata: Metadata = {
@@ -15,16 +14,6 @@ export default function AboutPage() {
   return (
     <main className="min-h-screen bg-[#070707] text-[#eaeaea] font-body selection:bg-accent/30 selection:text-white">
       <section className="max-w-6xl mx-auto px-6 pt-10 md:pt-16 pb-16 md:pb-24">
-        <Link
-          href="/"
-          className="inline-flex items-center gap-2 text-eyebrow text-foreground-muted hover:text-white transition-colors group mb-10 md:mb-14"
-        >
-          <span className="transform group-hover:-translate-x-0.5 transition-transform">
-            ←
-          </span>
-          Workbench
-        </Link>
-
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-14 lg:items-center">
           <figure className="lg:col-span-5">
             <div className="relative aspect-[4/5] w-full overflow-hidden rounded-image border border-[#141414] bg-[#0c0c0c]">

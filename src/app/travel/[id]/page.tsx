@@ -51,16 +51,7 @@ export default async function TripDetailPage({ params }: TripDetailPageProps) {
           <div className="absolute inset-x-0 top-0 h-40 bg-gradient-to-b from-black/55 to-transparent" />
         </div>
 
-        <div className="relative z-10 max-w-7xl w-full mx-auto mt-12">
-          <Link
-            href="/travel"
-            className="inline-flex items-center gap-2 text-eyebrow text-white/90 hover:text-white transition-colors group drop-shadow-[0_1px_2px_rgba(0,0,0,0.9)]"
-          >
-            <span className="transform group-hover:-translate-x-0.5 transition-transform">←</span> Back to Map
-          </Link>
-        </div>
-
-        <div className="relative z-10 max-w-7xl w-full mx-auto space-y-4 mb-4">
+        <div className="relative z-10 max-w-7xl w-full mx-auto mt-12 space-y-4 mb-4">
           <h1 className="font-display text-5xl md:text-7xl font-light tracking-tight text-white">
             {trip.country}
           </h1>

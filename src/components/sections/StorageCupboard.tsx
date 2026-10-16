@@ -323,7 +323,7 @@ function CupboardBag({
             </p>
           ) : null}
           {lastActiveLabel ? (
-            <p className="mt-1 text-eyebrow text-foreground-subtle/60">
+            <p className="mt-1 text-meta text-foreground-subtle/70 normal-case tracking-normal">
               {lastActiveLabel}
             </p>
           ) : null}

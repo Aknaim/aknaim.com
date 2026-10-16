@@ -49,8 +49,6 @@ export default async function ClimbingGalleryPage({
       config={climbingGalleryConfig}
       items={page.items}
       initialFilters={initialFilters}
-      backHref="/climbing"
-      backLabel="← Back to Climbing"
       showDuration
       filterIndex={filterIndex}
       pagination={{
