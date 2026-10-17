@@ -21,10 +21,10 @@ export const CHESS_ACCOUNT_PEAKS: ChessAccountPeaks = {
       gameUrl: "https://www.chess.com/game/live/147294832772",
     },
     rapid: {
-      rating: 2020,
+      rating: 2074,
       accountId: "chesscom-aknaim",
       sourceLabel: "Chess.com · Aknaim",
-      percentile: 99.7,
+      percentile: 99.8,
       gameUrl: "https://www.chess.com/game/live/184919241872",
     },
   },
@@ -53,17 +53,17 @@ export const CHESS_ACCOUNT_PEAKS: ChessAccountPeaks = {
   },
   "lichess-aknaim": {
     bullet: {
-      rating: 2137,
+      rating: 2204,
       accountId: "lichess-aknaim",
       sourceLabel: "Lichess · Aknaim",
-      percentile: null,
-      gameUrl: "https://lichess.org/CKNCxSS5",
+      percentile: 91.2,
+      gameUrl: "https://lichess.org/eio9Hf4B",
     },
     blitz: {
       rating: 2280,
       accountId: "lichess-aknaim",
       sourceLabel: "Lichess · Aknaim",
-      percentile: null,
+      percentile: 94.2,
       gameUrl: "https://lichess.org/5skeYFt1",
     },
     rapid: {

@@ -10,7 +10,7 @@ export const CHESSCOM_PERCENTILES: Partial<
   "chesscom-aknaim": {
     bullet: 99.8,
     blitz: 99.8,
-    rapid: 99.7,
+    rapid: 99.8,
   },
   "chesscom-ablind": {
     bullet: 99.8,
